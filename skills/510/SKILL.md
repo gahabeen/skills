@@ -15,6 +15,10 @@ read the root-to-target `AGENTS.md` chain before editing, then update affected
 contracts and child indexes before finishing. Keep this pass scoped to the work;
 establish the project's hierarchy during `510 init`.
 
+For code changes, apply the five [coding rules](runtime/guides/codebase-design.md#coding-rules):
+purpose comments, authoritative data contracts, validation at trust boundaries,
+helper reuse and ownership, and verification through consumers' public interfaces.
+
 Prefer the current harness's native patching and file-editing tools for authored
 changes. Use the tools available in the session to keep edits within the harness's
 change-review feedback loop.

@@ -76,6 +76,11 @@ Paths below are relative to that pinned upstream revision:
   made delegation optional, replaced blanket test deletion with verified replacement
   coverage, and preserved 510's ownership-based interpretation of local mutation.
   Dependency categories guide judgment rather than mandate ports or mocks.
+- Added five operator-selected coding rules to the design guide and linked them
+  from the skill, implementation, debugging, and refactoring workflows: useful
+  comments, authoritative data contracts, validation at trust boundaries, helper
+  reuse and ownership, and verification through public consumer interfaces. These
+  are local 510 additions, not rules imported from the upstream skills.
 - CLI `handoff`, `grill`, `spec`, `implement`, and `debug` print guidance through the shared guide reader; they
   do not fabricate a conversation transcript or perform the agent's workflow.
 

@@ -45,8 +45,9 @@ progress separate from requirements and do not rewrite the spec to hide a mismat
 Order the work by dependencies and choose small end-to-end slices that satisfy
 observable acceptance criteria. Use the bundled [TDD guidance](tdd.md) where a
 meaningful behavioral test is possible, at the interfaces agreed in the spec or
-already established by repository practice. Read [codebase design](codebase-design.md)
-when interface shape or testability needs a design decision.
+already established by repository practice. Apply the five
+[coding rules](codebase-design.md#coding-rules) to each code slice. Use the rest
+of that guide when interface shape or testability needs a design decision.
 
 For each slice, run a test that fails for the intended missing behavior, add the
 smallest coherent implementation, and rerun the focused tests. Run typechecking
@@ -73,8 +74,9 @@ unstaged, and new files. A committed-HEAD-only diff can miss the implementation.
 Keep two assessments distinct:
 
 - **Standards:** check documented repository constraints and the evidence from
-  510 review. Investigate unclear naming, repeated knowledge, speculative
-  abstractions, and leaking implementation details as contextual signals.
+  510 review, plus the five coding rules for changed code. Investigate unclear
+  naming, repeated knowledge, speculative abstractions, and leaking implementation
+  details as contextual signals.
 - **Spec:** map every in-scope acceptance criterion to implemented behavior and
   evidence. Identify omissions, incorrect behavior, and unrequested additions.
 

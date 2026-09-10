@@ -10,6 +10,9 @@ Follow [DOX documentation maintenance](dox.md): read the applicable `AGENTS.md`
 chain before editing and check affected contracts and indexes before final
 verification. Leave docs unchanged when their contracts still describe the result.
 
+Apply the [coding rules](codebase-design.md#coding-rules) to changed code, including
+verification through public package entrypoints when exports or build output change.
+
 Establish the intended improvement and observable behavior to preserve. Read the
 [510 review workflow](review.md), run the complete static suite, and inspect the
 relevant findings in source. Label pre-existing findings without treating them as
