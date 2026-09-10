@@ -1,0 +1,44 @@
+{
+  "name": "gahabeen-skills",
+  "private": true,
+  "description": "personal skills for real prod projects, by @gahabeen",
+  "type": "module",
+  "packageManager": "bun@1.4.2",
+  "engines": {
+    "bun": "1.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gahabeen/skills.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "check": "bun run lint && bun run test && bun run typecheck && bun run check:skills && bun run check:skill-bundle",
+    "lint": "bun --bun oxlint src scripts tests skills/510/scripts",
+    "complexity": "bun --bun oxlint -A all -W eslint/complexity src scripts tests",
+    "test": "bun run test:rules && bun run test:install && bun run test:analysis && bun run test:runtime && bun run test:mcp",
+    "test:rules": "node --import ./scripts/test-setup.mjs --test 'src/blindfolded/oxlint/**/*.test.ts'",
+    "test:install": "bun test tests/install.test.mjs",
+    "test:analysis": "bun test tests/analysis.test.mjs",
+    "setup:analysis": "bun run init",
+    "analyze": "bun run 510 analyze",
+    "typecheck": "bun --bun tsc --noEmit",
+    "sync:skill-assets": "bun run sync:skill",
+    "check:skill-assets": "bun run check:skill-bundle",
+    "check:skills": "bun scripts/check-skills.mjs",
+    "510": "bun src/cli/main.mjs",
+    "init": "bun run 510 init",
+    "doctor": "bun run 510 doctor",
+    "mcp": "bun run 510 serve",
+    "test:runtime": "bun test tests/runtime.test.mjs",
+    "test:mcp": "bun test tests/mcp.test.mjs",
+    "sync:skill": "bun scripts/sync-skill.mjs",
+    "check:skill-bundle": "bun scripts/sync-skill.mjs --check"
+  },
+  "devDependencies": {
+    "@oxlint/plugins": "1.78.0",
+    "@types/node": "26.2.0",
+    "oxlint": "1.78.0",
+    "typescript": "7.0.2"
+  }
+}

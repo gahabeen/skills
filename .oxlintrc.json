@@ -1,0 +1,6 @@
+{
+  "extends": ["./src/blindfolded/oxlint/review.config.json"],
+  "rules": {
+    "oxc/no-accumulating-spread": "error"
+  }
+}

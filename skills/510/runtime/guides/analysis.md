@@ -1,0 +1,136 @@
+# Run the static suite
+
+The skill is self-contained: runtime source, workflow guides, a private toolchain manifest,
+and its Bun lockfile travel together. Bun 1.4.2 runs every analyzer and manages
+their dependencies in the configured storage outside the installed skill, without modifying the consuming project's package manifest,
+lockfile, or build configuration.
+
+Blindfolded is the analysis capability within 510. See [toolchain initialization](toolchain.md)
+for MCP connection, readiness checks, and shared dependency management.
+
+## Initialization and execution
+
+Run **510 init** for each project, or after a toolchain update. Existing storage choices are reused:
+
+```sh
+bun <skill-directory>/scripts/510.mjs init
+```
+
+`init` installs the pinned toolchain with its frozen lockfile and package lifecycle
+scripts disabled. Then run from the consuming repository:
+
+```sh
+bun <skill-directory>/scripts/510.mjs analyze
+```
+
+Use `--root /path/to/project` from another directory. `--format json` prints the
+structured report; the default prints a readable report. Every run also writes
+`.510/reports/report.json` by default, or the configured reports directory. `--output <path>` changes that output
+location. These are the only command options; there are no per-tool switches.
+`init` maintains `.510/.gitignore` for generated files. The installed skill is read-only.
+
+The command exits zero only when every required analyzer completes and there are
+zero findings. Review warnings also fail. A missing binary, invalid configuration,
+timeout, parser failure, or missing type/dependency coverage produces a coverage
+gap and a failing result. Other analyzers continue and their findings remain in
+the report. Application startup, test commands, build scripts, and code-generation
+scripts are never invoked by this command. Project tooling configuration may be
+evaluated by the analyzers.
+
+## Default checks
+
+| Analyzer | Checks |
+| --- | --- |
+| Oxlint + tsgolint | All 18 Blindfolded rules, correctness checks, accumulating spreads, floating/misused promises, exhaustive switches, cyclomatic complexity, nesting. |
+| TypeScript | Dedicated no-emit profiles enabling `strict`, `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes`. |
+| Knip | Unused files, exports, types, and dependencies; unresolved references and configuration hints. Framework entry discovery remains active. |
+| Dependency-cruiser | Import cycles, unresolved dependencies, and declared project architecture rules. Type-only dependencies are included. |
+| ESLint + SonarJS | Cognitive complexity through the TypeScript parser. |
+
+Cyclomatic complexity uses the classic variant and reports values above 20;
+nesting reports depths above 4; cognitive complexity reports values above 15.
+These are configurable review policies, not validated quality boundaries. Every
+reported result blocks success. `void promise` does not handle rejection and is
+reported; await the work, return it to its caller, or handle rejection explicitly.
+A default switch branch does not exempt missing union members.
+
+The pinned Oxlint typed backend can choose the nearest application tsconfig even
+when given a dedicated config path. The separate TypeScript compiler check still
+enforces the stricter analysis profile. The suite records the backend's actual
+project assignments, fails on unmatched files, and reports a coverage gap when
+an enabled typed rule cannot run under the application's settings (for example,
+disabled strict null checks). It does not silently change application settings.
+
+CodeQL and runtime analysis are outside this version. Effect descriptions and
+testability judgments use the [contextual review workflow](effects-and-testability.md).
+
+## Source scope and project metadata
+
+By default, discover JS/TS source and `tsconfig*.json`/`jsconfig*.json` projects
+under the repository. Common dependency, generated-output, and installed-agent
+directories are excluded; the report lists those exclusions. The installed skill
+itself is excluded. Do not count excluded files as inspected.
+
+For explicit project boundaries, put an `analysis` object in `.510/config.json`.
+Existing `.blindfolded.json` files with the following shape remain supported when
+that object is absent:
+
+```json
+{
+  "paths": ["src", "test"],
+  "ignore": ["src/generated/**"],
+  "projects": ["tsconfig.json", "test/tsconfig.json"],
+  "thresholds": { "cyclomatic": 20, "nesting": 4, "cognitive": 15 }
+}
+```
+
+`paths` are existing files or directories, `ignore` contains glob patterns, and
+`projects` identifies existing compiler configurations. With no project config,
+the suite creates an inferred JS/TS analysis profile. With existing configs,
+selected source must belong to at least one project; uncovered files fail with
+an explicit gap. Each profile preserves its base settings and enables stricter
+contracts without emitting or building referenced packages. Imported files may
+also need to be read to establish types and dependencies.
+
+Do not broaden ignores to conceal owned source. Configure real generated-output
+boundaries and entry points. For monorepos, specify the relevant leaf configs
+when automatic discovery includes unrelated build presets. Missing referenced
+declarations remain a gap; the suite does not run package builds to create them.
+
+Additional optional **configuration paths** (not optional analyzers) are:
+
+- `knipConfig`: the project's Knip configuration. Standard Knip filenames and
+  `package.json#knip` are discovered by default. Preserve real framework entries,
+  workspaces, and dynamic-loading knowledge. The suite retains its required issue
+  categories even when an existing configuration disables them.
+- `dependencyConfig`: the project's dependency-cruiser configuration. Standard
+  `.dependency-cruiser.{cjs,js,mjs,json}` files are discovered automatically.
+  Existing boundaries are combined with cycle/resolution checks. Without declared
+  boundaries, report that fact; do not invent application layers. Configure
+  project-specific alias resolution for multi-project graphs.
+- `oxlintConfig`: an existing configuration to extend with additional local
+  rules. Mandatory suite rules remain enabled. Nested configurations are disabled
+  for this dedicated run; application lint settings remain separate.
+
+Knip and dependency-cruiser configuration objects must be serializable. JSON/JSONC
+and Bun 1.4.2-compatible JS/TS object exports are supported. Unsupported config
+evaluation or resolution fails explicitly. Knip may inspect additional discovered
+tooling entry points; its report records processed-file counts and enabled plugins.
+
+Embedded scripts in Vue, Svelte, and Astro files are reported as unsupported
+coverage when selected. Computed imports and dynamic behavior can still require
+manual review. A completed scan proves neither reachability under every possible
+runtime loader nor whole-program correctness.
+
+## Reports
+
+The JSON report includes `success`, selected files and exclusions, thresholds,
+per-analyzer status/configuration, findings, coverage gaps, and limitations. Each
+finding includes tool/rule identity, classification, location where available,
+evidence, uncertainty, and a proposed action. Complexity findings carry measured
+values and configured limits. File-level and graph findings may have no line
+number; do not invent one.
+
+Keep raw diagnostics and partial findings available. Tool classifications are
+initial interpretations; source review may refine them. Never present a warning
+as a demonstrated defect merely because it blocks the analysis command.

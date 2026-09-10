@@ -1,0 +1,6 @@
+interface:
+  display_name: "510"
+  short_description: "Specs, implementation, debugging, refactoring, and review"
+  default_prompt: "$510 review this repository with the complete Blindfolded suite and explain the findings."
+policy:
+  allow_implicit_invocation: false
