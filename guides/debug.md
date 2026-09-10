@@ -9,6 +9,10 @@ changes. A diagnosis-only request stops at the supported cause and proposed fix.
 Prefer the harness's native editing tools for authored changes, and review the
 resulting diff before continuing.
 
+For authorized fixes, follow [DOX documentation maintenance](dox.md): read the
+applicable `AGENTS.md` chain before editing and update affected contracts and
+indexes before final verification. Diagnosis-only work reports relevant gaps.
+
 Use [workflow storage](workflow-storage.md) for a unique session directory under
 the resolved `debug` path, defaulting to `.510/debug/<subject>-<unique-id>/`.
 Keep a concise `diagnosis.md` with the symptom, reproduction, hypotheses, evidence,

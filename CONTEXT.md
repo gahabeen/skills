@@ -60,7 +60,9 @@ MCP. A guide does not execute analysis or prove that verification happened.
 **Search**: FFF-backed repository navigation. Its index and ranked results do not
 define or prove complete analysis coverage.
 
-**Project initialization**: The storage choice and connection prepared by `510 init`.
+**Project initialization**: Tooling setup and the agent's AGENTS.md hierarchy pass
+performed by `510 init`. The CLI prepares storage and a connection, then returns
+documentation guidance for the agent; toolchain readiness does not verify docs.
 Portable settings live in `.510/config.json`; generated data defaults to `.510/`
 and can move to shared or custom storage. The installed skill remains read-only.
 

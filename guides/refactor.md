@@ -6,6 +6,10 @@ request already established in the conversation.
 Prefer the harness's native editing tools for authored changes, and review the
 resulting diff before continuing.
 
+Follow [DOX documentation maintenance](dox.md): read the applicable `AGENTS.md`
+chain before editing and check affected contracts and indexes before final
+verification. Leave docs unchanged when their contracts still describe the result.
+
 Establish the intended improvement and observable behavior to preserve. Read the
 [510 review workflow](review.md), run the complete static suite, and inspect the
 relevant findings in source. Label pre-existing findings without treating them as

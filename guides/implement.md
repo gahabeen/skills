@@ -8,6 +8,10 @@ instructions such as implementing only one slice or leaving changes uncommitted.
 Prefer the harness's native editing tools for authored changes, and review the
 resulting diff before continuing.
 
+Follow [DOX documentation maintenance](dox.md): read the applicable `AGENTS.md`
+chain before editing and update affected contracts and indexes before final
+verification and the commit.
+
 ## Select the work and preserve the starting state
 
 Use an explicit spec path, ticket reference, or subject after `510 implement`.

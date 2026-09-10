@@ -26,7 +26,7 @@ export async function serve(root) {
   }
   tool("doctor", "Check 510 storage, pinned packages, and FFF native loading. Does not install anything.", {}, true, () => doctor(root));
   tool("paths", "Resolve configured spec and debug directories for this project. Read-only: does not create directories, install dependencies, or change storage settings.", {}, true, () => workflowPaths(root));
-  tool("guide", "Read a 510 workflow or supporting guide: commit, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or storage/toolchain guidance. Returns instructions; the agent performs the workflow.", { topic: z.enum(topics) }, true, ({ topic }) => readGuide(topic));
+  tool("guide", "Read a 510 workflow or supporting guide: DOX AGENTS.md maintenance, commit, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or storage/toolchain guidance. Returns instructions; the agent performs the workflow.", { topic: z.enum(topics) }, true, ({ topic }) => readGuide(topic));
   tool("find_files", "Find repository files with FFF. Use short filename/path queries; page through results. Root is fixed when the server starts.", {
     query: z.string().min(1).max(2000), page: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(20),
   }, true, ({ query, page, limit }) => search.findFiles(query, page, limit));

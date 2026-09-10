@@ -38,9 +38,14 @@ $510 spec order cancellation
 $510 implement .510/specs/order-cancellation.md
 ```
 
-for code search and automated checks, ask for **510 init** in your project first.
-`init` keeps its files in the project's `.510/` directory by default and reuses
-any storage location you've already chosen. planning and handoff don't need initialization.
+ask for **510 init** in your project first. it prepares code search and automated
+checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with
+project-wide rules at the root and local contracts where they belong. later 510
+edits keep the affected instructions and indexes current.
+
+tooling files go in the project's `.510/` directory by default, reusing any storage
+location you've already chosen. `AGENTS.md` files live alongside the source they
+describe. planning and handoff don't need initialization.
 
 see [initialization and storage](guides/toolchain.md) for manual commands, other storage
 locations, and connecting the local tools to your agent.
@@ -56,6 +61,11 @@ problems, and code that needs a closer look.
 - [tooling and development](docs/development.md)
 
 ## credits
+
+the project instruction hierarchy and its maintenance adapt
+[Agent Zero's DOX](https://github.com/agent0ai/dox), built into `510 init` and
+ongoing editing workflows. see [what changed](guides/upstream/agent0ai-dox/UPSTREAM.md)
+and the preserved [MIT license](guides/upstream/agent0ai-dox/LICENSE).
 
 the planning, implementation, debugging, and handoff workflows build on
 [Matt Pocock's skills](https://github.com/mattpocock/skills).

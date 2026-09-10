@@ -16,7 +16,7 @@ The local server exposes:
 | --- | --- |
 | `doctor` | Check runtime, package versions, and native search readiness. |
 | `paths` | Resolve configured spec and debug directories without writes or initialization. |
-| `guide` | Load commit, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
+| `guide` | Load DOX documentation maintenance, commit, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
 | `find_files` | Find files through FFF's persistent repository index. |
 | `search` | Search contents using literal OR patterns, constraints, and pagination. |
 | `analyze` | Start the complete Blindfolded static suite. |
@@ -95,6 +95,12 @@ and installed dependencies.
 
 ## Development
 
+The `510 init` agent workflow includes [AGENTS.md hierarchy maintenance](../guides/dox.md).
+CLI setup returns the guide in `documentation` with status `agent-action-required`;
+the agent inspects and writes project-specific instructions. Toolchain `ready`
+does not establish documentation completion. Subsequent editing workflows maintain
+affected docs. Guide retrieval is read-only through CLI, MCP, and resources.
+
 Bun **1.4.2** runs the CLI, MCP server, analyzers, and integration tests. Node
 **24.x** is needed only for developing and testing custom Oxlint rules: the pinned
 Oxlint `RuleTester` does not support Bun. `bun run check` includes those Node tests;
@@ -125,6 +131,10 @@ The migration from the standalone Blindfolded skill is recorded in
 compatible; install the `510` skill and use its launcher for new installations.
 
 ## Attribution
+
+Project documentation maintenance adapts [Agent Zero's DOX](https://github.com/agent0ai/dox).
+See [source and adaptations](../guides/upstream/agent0ai-dox/UPSTREAM.md) and the
+preserved [MIT license](../guides/upstream/agent0ai-dox/LICENSE).
 
 The handoff, grill, spec, implement, and debug workflows adapt Matt Pocock's
 [skills](https://github.com/mattpocock/skills), including their grilling, domain

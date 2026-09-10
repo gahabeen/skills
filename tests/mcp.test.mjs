@@ -63,7 +63,7 @@ test("installed MCP exposes tools, guides, healthy native search, and repository
   const commitResource = await f.client.readResource({ uri: "five-ten://guides/commit" });
   assert.equal(commitResource.contents[0].text, commit.markdown);
   assert.deepEqual(resources.resources.map((resource) => resource.uri).sort(), topics.map((topic) => `five-ten://guides/${topic}`).sort());
-  for (const topic of ["handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
+  for (const topic of ["dox", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
     const uri = `five-ten://guides/${topic}`;
     assert(resources.resources.some((resource) => resource.uri === uri));
     const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8");

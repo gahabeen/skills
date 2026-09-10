@@ -41,6 +41,10 @@ continue or abort those operations implicitly.
 
 ## Prepare exactly that change
 
+Apply the [DOX documentation pass](dox.md) to the selected thread changes before
+staging. Update affected contracts and indexes when necessary, include those
+attributable edits, and keep this pass scoped to the prospective commit.
+
 Inspect the actual content for accidental credentials and temporary artifacts.
 Run checks required by repository instructions and relevant to the selected
 change, reusing results from this thread when the checked content is unchanged.

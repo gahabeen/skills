@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { checkBun, doctor } from "./doctor.mjs";
 import { checkPackages } from "./packages.mjs";
 import { connectionConfig } from "./connection.mjs";
+import { readGuide } from "./guides.mjs";
 import { lockSource, manifestSource, projectRoot, readConfiguration, storageChoice, storageFor, writablePath } from "./storage.mjs";
 
 function writeJson(path, value) {
@@ -80,5 +81,6 @@ export async function setup(input, choice) {
   const connection = connectionConfig(root);
   writeJson(storage.connectionPath, connection);
   const status = await doctor(root);
-  return { ...status, installed, connection: { path: storage.connectionPath, configuration: connection, status: "not-verified" } };
+  return { ...status, installed, connection: { path: storage.connectionPath, configuration: connection, status: "not-verified" },
+    documentation: { status: "agent-action-required", guide: readGuide("dox") } };
 }

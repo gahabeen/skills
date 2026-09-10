@@ -68,7 +68,9 @@ test("connection configuration uses the installed entrypoint and absolute paths"
 
 test("conversation workflows and their supporting guides work in an isolated read-only skill without init", () => {
   const f = installed({ dependencies: false });
-  for (const topic of ["handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
+  const instructions = "# Existing project rules\n\nPreserve this file.\n";
+  writeFileSync(resolve(f.directory, "AGENTS.md"), instructions);
+  for (const topic of ["dox", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
     const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8");
     const guide = run(f, "guide", topic);
     expect(guide.status, guide.stderr).toBe(0);
@@ -80,8 +82,11 @@ test("conversation workflows and their supporting guides work in an isolated rea
       expect(run(f, topic, "unexpected-argument").status).toBe(1);
     }
   }
-  const license = "guides/upstream/mattpocock-skills/LICENSE";
-  expect(readFileSync(resolve(f.skill, "runtime", license), "utf8")).toBe(readFileSync(resolve(root, license), "utf8"));
+  for (const upstream of ["agent0ai-dox", "mattpocock-skills"]) {
+    const license = `guides/upstream/${upstream}/LICENSE`;
+    expect(readFileSync(resolve(f.skill, "runtime", license), "utf8")).toBe(readFileSync(resolve(root, license), "utf8"));
+  }
+  expect(readFileSync(resolve(f.directory, "AGENTS.md"), "utf8")).toBe(instructions);
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
 });
 
@@ -157,6 +162,8 @@ test("init keeps the frozen toolchain and consuming project intact on repeat run
   const { skill, directory, env } = f;
   const manifest = resolve(directory, "package.json");
   writeFileSync(manifest, '{"name":"untouched","private":true}\n');
+  const instructions = "# Existing project rules\n\nPreserve this file.\n";
+  writeFileSync(resolve(directory, "AGENTS.md"), instructions);
   const lock = resolve(skill, "runtime/toolchain/bun.lock");
   const before = readFileSync(lock, "utf8");
   for (let i = 0; i < 2; i++) {
@@ -166,6 +173,9 @@ test("init keeps the frozen toolchain and consuming project intact on repeat run
     expect(status.installed).toBe(i === 0);
     expect(status.storage.base).toBe(resolve(directory, ".510"));
     expect(status.connection.status).toBe("not-verified");
+    expect(status.documentation).toEqual({ status: "agent-action-required", guide: {
+      topic: "dox", markdown: readFileSync(resolve(root, "guides/dox.md"), "utf8"),
+    } });
     expect(JSON.parse(readFileSync(status.connection.path, "utf8"))).toEqual(status.connection.configuration);
   }
   expect(existsSync(resolve(skill, "runtime/toolchain/node_modules"))).toBe(false);
@@ -174,6 +184,7 @@ test("init keeps the frozen toolchain and consuming project intact on repeat run
   expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).not.toContain("/specs/");
   expect(readFileSync(lock, "utf8")).toBe(before);
   expect(readFileSync(manifest, "utf8")).toBe('{"name":"untouched","private":true}\n');
+  expect(readFileSync(resolve(directory, "AGENTS.md"), "utf8")).toBe(instructions);
 }, 45_000);
 
 test("custom storage is reused from nested directories and preserves project choices", () => {

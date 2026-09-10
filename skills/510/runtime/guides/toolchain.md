@@ -1,8 +1,11 @@
-# Initialize and connect 510
+# Initialize the project and connect 510
 
 Use this workflow when the user says **510 init**, requests another storage
 location, updates the skill, or diagnoses its installation. Keep one installed
-510 skill. The bundled CLI works before MCP is connected.
+510 skill. The bundled CLI works before MCP is connected. A **510 init** request
+includes both tooling setup and the project's `AGENTS.md` hierarchy; the agent
+completes the documentation step below. A tooling diagnosis or storage-only
+request stays within that scope.
 
 ## Initialization
 
@@ -34,6 +37,25 @@ Its JSON result includes every resolved storage path, whether dependencies were
 installed, and the connection file. Repeat runs preserve the configuration and
 reuse a healthy matching toolchain. Project dependencies and build settings are
 preserved. Node 24 is needed only by maintainers running Oxlint RuleTester tests.
+
+## Establish project instructions
+
+As part of `510 init`, follow the bundled [DOX guide](dox.md) to initialize or
+refresh the project's `AGENTS.md` hierarchy. Read existing instructions before
+editing, preserve their rules, and create child documents only at useful durable
+boundaries. Keep indexes current and merge with existing sections on repeat runs.
+Write project instructions beside the source they govern, outside generated
+`.510/` storage and the read-only installed skill.
+
+CLI setup returns `documentation.status: "agent-action-required"` and the full
+guide. This is the handoff to the agent, not a claim that documentation exists or
+has been verified. Complete the guide's inspection, edits, and verification before
+reporting the init workflow finished; if the hierarchy already fits, verify it
+and report that no changes were needed. Later 510 edits maintain affected docs.
+
+Use available repository tools for this pass even if tooling setup is blocked.
+Report tooling readiness, documentation completion, and MCP connection readiness
+separately. Do not infer all three from `ready: true` or an existing root file.
 
 ## Storage contract
 

@@ -1,7 +1,7 @@
 ---
 name: "510"
 disable-model-invocation: true
-description: Use 510 for grilling plans with domain docs, writing and implementing specs, debugging bugs and performance regressions, conversation handoffs, committing the current thread's changes, project storage and toolchain initialization with 510 init, evidence-based code review with 510 review, behavior-preserving refactoring with 510 refactor, repository search, and static analysis of JavaScript or TypeScript. Coordinates the local 510 MCP tools and bundled CLI, including the complete Blindfolded suite.
+description: Use 510 for grilling plans with domain docs, writing and implementing specs, debugging bugs and performance regressions, conversation handoffs, committing the current thread's changes, project storage, toolchain, and AGENTS.md hierarchy initialization with 510 init, evidence-based code review with 510 review, behavior-preserving refactoring with 510 refactor, repository search, and static analysis of JavaScript or TypeScript. Coordinates the local 510 MCP tools and bundled CLI, including the complete Blindfolded suite.
 ---
 
 # 510
@@ -9,6 +9,11 @@ description: Use 510 for grilling plans with domain docs, writing and implementi
 Establish the requested outcome and inspect the repository's instructions and
 working-tree state. Keep brainstorming exploratory, review focused on findings,
 and implementation focused on the authorized change. Preserve unrelated work.
+
+For authorized edits, follow [DOX documentation maintenance](runtime/guides/dox.md):
+read the root-to-target `AGENTS.md` chain before editing, then update affected
+contracts and child indexes before finishing. Keep this pass scoped to the work;
+establish the project's hierarchy during `510 init`.
 
 Prefer the current harness's native patching and file-editing tools for authored
 changes. Use the tools available in the session to keep edits within the harness's
@@ -51,7 +56,8 @@ after each coherent batch, including new files, and preserve unrelated work.
 - **510 init, choose storage, update, or diagnose tooling:** read
   [toolchain initialization](runtime/guides/toolchain.md). Reuse existing settings; default
   new projects to `.510/`. The bundled CLI prepares storage and the MCP connection
-  before an MCP server is available.
+  before an MCP server is available. For `510 init`, also establish or refresh the
+  project's `AGENTS.md` hierarchy with the bundled DOX guide.
 - **Install/update editable Oxlint rules:** read [installation](runtime/guides/install.md)
   or [updates](runtime/guides/update.md). Preserve local customizations.
 - **Explain or extend a rule:** read [rule details](runtime/guides/rules.md),
@@ -68,6 +74,8 @@ scope details. `status: completed` does not imply `success: true`.
 Commit, handoff, grill, spec, implement, debug, review, and refactor are agent
 workflows. Their CLI commands print instructions; the agent performs the workflow.
 Handoff, grill, and spec need no toolchain initialization or analysis run.
+The documentation pass in `510 init` is also agent work; CLI readiness confirms
+the toolchain, not that project instructions have been written or verified.
 Review and refactor use the complete static suite. Implementation and debugging run tests and
 verification separately from static analysis. Commit follows the repository's
 required checks before creating the commit.

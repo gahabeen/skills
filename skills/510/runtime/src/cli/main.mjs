@@ -27,7 +27,7 @@ function projectRoot(values) {
 const commands = {
   help() {
     console.log(`510 — agent workflows and local code analysis\n
-  init [--root PATH]             Prepare project storage and the locked toolchain
+  init [--root PATH]             Prepare storage/toolchain and return AGENTS.md guidance
         [--storage project|shared|PATH]
   doctor [--root PATH]           Check storage, packages, and native search
   paths [--root PATH]            Print configured spec and debug paths without initialization
@@ -48,6 +48,7 @@ const commands = {
 
 Run with bun <skill-directory>/scripts/510.mjs <command>.
 Commit, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
+Init returns the documentation guide for the agent to establish the AGENTS.md hierarchy.
 Initialization and connection are separate. No command changes agent configuration.`);
   },
   async init() {
