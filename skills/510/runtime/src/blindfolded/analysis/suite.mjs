@@ -50,11 +50,11 @@ function execute(tool, context, signal, root) {
   });
 }
 
-export async function analyze(root, { signal } = {}) {
+export async function analyze(root, { signal, paths } = {}) {
   let project;
-  try { project = readProject(resolve(root)); }
+  try { project = readProject(resolve(root), paths); }
   catch (error) {
-    return finalize({ root: resolve(root), files: [], scope: {}, thresholds: {} },
+    return finalize({ root: resolve(root), files: [], scope: paths === undefined ? {} : { paths, pathSource: "request" }, thresholds: {} },
       analyzers.map((tool) => ({ tool, status: "incomplete", findings: [], gaps: [error.message] })));
   }
   const storage = storageFor(root);

@@ -1,5 +1,5 @@
-import { existsSync, globSync, readFileSync, statSync } from "node:fs";
-import { isAbsolute, relative, resolve, sep } from "node:path";
+import { existsSync, globSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { skillRoot } from "../../runtime/paths.mjs";
 import { readConfiguration, storageFor } from "../../runtime/storage.mjs";
 
@@ -17,6 +17,46 @@ function strings(value, field) {
     throw new Error(`${field} must be a nonempty array of paths or patterns.`);
   }
   return value;
+}
+
+// Keep one-run scopes relative to the repository that owns settings and storage.
+export function sourcePaths(root, paths) {
+  const canonicalRoot = realpathSync(root);
+  return [...new Set(strings(paths, "paths").map((path) => {
+    const absolute = resolve(root, path);
+    if (!existsSync(absolute) || !inside(canonicalRoot, realpathSync(absolute))) {
+      throw new Error(`Source path is missing or outside the project: ${path}`);
+    }
+    return relative(canonicalRoot, realpathSync(absolute)) || ".";
+  }))].sort();
+}
+
+// Source paths are literal names, even for route directories such as [id].
+export function pathPattern(path) {
+  return path.replace(/[\[\]*?{}()!+@]/g, (character) => `[${character}]`);
+}
+
+// Ancestor configs supply inherited contracts; sibling projects are outside a one-run scope.
+function projectPatterns(root, paths) {
+  const directories = new Set();
+  const patterns = [];
+  for (const path of paths) {
+    const absolute = resolve(root, path);
+    const directoryPath = statSync(absolute).isDirectory();
+    const prefix = path === "." ? "" : `${pathPattern(path)}/`;
+    if (directoryPath) patterns.push(`${prefix}**/tsconfig*.json`, `${prefix}**/jsconfig*.json`);
+    let directory = directoryPath ? absolute : dirname(absolute);
+    while (inside(root, directory)) {
+      directories.add(relative(root, directory) || ".");
+      directory = dirname(directory);
+      if (directory === dirname(directory)) break;
+    }
+  }
+  for (const directory of directories) {
+    const prefix = directory === "." ? "" : `${pathPattern(directory)}/`;
+    patterns.push(`${prefix}tsconfig*.json`, `${prefix}jsconfig*.json`);
+  }
+  return patterns;
 }
 
 function readSettings(root) {
@@ -46,7 +86,7 @@ function sourceFiles(root, paths, ignores, excluded) {
     const absolute = resolve(root, path);
     if (!inside(root, absolute) || !existsSync(absolute)) throw new Error(`Source path is missing or outside the project: ${path}`);
     const candidates = statSync(absolute).isDirectory()
-      ? globSync(`${relative(root, absolute) || "."}/**/*`, { cwd: root, exclude: excluded })
+      ? globSync(`${pathPattern(relative(root, absolute)) || "."}/**/*`, { cwd: root, exclude: excluded })
       : [relative(root, absolute)];
     for (const candidate of candidates) {
       if (excluded(candidate) || ignored.has(candidate) || !statSync(resolve(root, candidate)).isFile()) continue;
@@ -58,8 +98,9 @@ function sourceFiles(root, paths, ignores, excluded) {
   return { files: [...files].sort(), unsupported: [...unsupported].sort() };
 }
 
-export function readProject(root) {
-  const { settings, paths, ignores, thresholds } = readSettings(root);
+export function readProject(root, requestedPaths) {
+  const { settings, paths: configuredPaths, ignores, thresholds } = readSettings(root);
+  const paths = sourcePaths(root, requestedPaths ?? configuredPaths);
   const storage = storageFor(root);
   const generated = [storage.toolchains, resolve(storage.base, "projects"), storage.cache, storage.reports, storage.temporary];
   const excludedPaths = generated.filter((path) => inside(root, path)).map((path) => relative(root, path));
@@ -71,11 +112,11 @@ export function readProject(root) {
   const sources = sourceFiles(root, paths, ignores, excluded);
   const projects = settings.projects
     ? strings(settings.projects, "projects")
-    : globSync(["**/tsconfig*.json", "**/jsconfig*.json"], { cwd: root, exclude: excluded });
+    : globSync(requestedPaths ? projectPatterns(root, paths) : ["**/tsconfig*.json", "**/jsconfig*.json"], { cwd: root, exclude: excluded });
   for (const path of projects) {
     if (!inside(root, resolve(root, path)) || !existsSync(resolve(root, path))) throw new Error(`Missing project configuration: ${path}`);
   }
   return { root, ...sources, projects: [...new Set(projects)].sort(), thresholds,
-    settings, scope: { paths, ignore: ignores, excludedDirectories: [...excludedDirectories], excludedPaths,
+    settings, scope: { paths, pathSource: requestedPaths ? "request" : "configuration", ignore: ignores, excludedDirectories: [...excludedDirectories], excludedPaths,
       installedSkill: inside(root, skillRoot) ? relative(root, skillRoot) : null } };
 }

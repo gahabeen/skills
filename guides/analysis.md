@@ -26,7 +26,17 @@ bun <skill-directory>/scripts/510.mjs analyze
 Use `--root /path/to/project` from another directory. `--format json` prints the
 structured report; the default prints a readable report. Every run also writes
 `.510/reports/report.json` by default, or the configured reports directory. `--output <path>` changes that output
-location. These are the only command options; there are no per-tool switches.
+location. There are no per-tool switches.
+
+Use `--path packages/billing` for a one-run source scope; repeat `--path` for
+additional files or directories. MCP `analyze` accepts the same selection as
+`{ "paths": ["packages/billing"] }`. Paths are relative to the repository root
+(including when invoked from a nested working directory), or absolute within it.
+This overrides configured `paths` for the run without saving changes. Keep
+`--root` at the repository so storage, thresholds, ignores, and explicit project
+and analyzer configurations are reused. Without a path selection, saved settings
+and default discovery apply as before.
+
 `init` maintains `.510/.gitignore` for generated files. The installed skill is read-only.
 
 The command exits zero only when every required analyzer completes and there are
@@ -70,6 +80,13 @@ By default, discover JS/TS source and `tsconfig*.json`/`jsconfig*.json` projects
 under the repository. Common dependency, generated-output, and installed-agent
 directories are excluded; the report lists those exclusions. The installed skill
 itself is excluded. Do not count excluded files as inspected.
+
+For a one-run path selection, automatic compiler configuration discovery is
+limited to the selected directories and their ancestors. Explicit `projects`
+remain authoritative, including configurations stored elsewhere in the repository.
+The report records the effective source paths and whether they came from the
+request or saved/default configuration. Invalid, missing, outside-repository,
+or source-empty selections fail; they never trigger a full-repository fallback.
 
 For explicit project boundaries, put an `analysis` object in `.510/config.json`.
 Existing `.blindfolded.json` files with the following shape remain supported when
@@ -116,6 +133,10 @@ Knip and dependency-cruiser configuration objects must be serializable. JSON/JSO
 and Bun 1.4.2-compatible JS/TS object exports are supported. Unsupported config
 evaluation or resolution fails explicitly. Knip may inspect additional discovered
 tooling entry points; its report records processed-file counts and enabled plugins.
+For a one-run path scope, Knip selects the owning workspaces and applies source
+patterns within each, preserving their entry and plugin settings. Its report
+records selected and included workspaces; ancestors and related workspaces may
+still provide dependency context. Unrelated sibling workspaces are not selected.
 
 Embedded scripts in Vue, Svelte, and Astro files are reported as unsupported
 coverage when selected. Computed imports and dynamic behavior can still require

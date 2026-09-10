@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,8 +31,8 @@ function fixture({ missingKnip = false, javascript = false, storage: choice } = 
   return { consumer, skill, extension, storage, env: bunOnlyEnvironment(directory) };
 }
 
-function run(f) {
-  const result = spawnSync(process.execPath, [join(f.skill, "scripts/510.mjs"), "analyze", "--root", f.consumer, "--format", "json"], { env: f.env, encoding: "utf8", timeout: 30_000, maxBuffer: 8 * 1024 * 1024 });
+function run(f, ...args) {
+  const result = spawnSync(process.execPath, [join(f.skill, "scripts/510.mjs"), "analyze", "--root", f.consumer, "--format", "json", ...args], { env: f.env, encoding: "utf8", timeout: 30_000, maxBuffer: 8 * 1024 * 1024 });
   expect(result.error).toBeUndefined();
   expect(result.stderr).toBe("");
   const report = JSON.parse(result.stdout);
@@ -41,6 +41,98 @@ function run(f) {
   expect(existsSync(join(f.skill, "runtime/toolchain/node_modules"))).toBe(false);
   return report;
 }
+
+test("one-run paths select a subdirectory without changing saved scope, storage, or ancestor settings", () => {
+  const f = fixture({ storage: { mode: "custom", path: "analysis-state" } });
+  mkdirSync(join(f.consumer, "src/selected"));
+  mkdirSync(join(f.consumer, "src/selected-other"));
+  writeFileSync(join(f.consumer, "src/selected/index.ts"), "export const answer = 42;\n");
+  writeFileSync(join(f.consumer, "src/index.ts"), 'export { answer } from "./selected/index.js";\n');
+  writeFileSync(join(f.consumer, "src/selected-other/broken.ts"), "export const broken: number = 'wrong';\n");
+  writeFileSync(join(f.consumer, "src/selected-other/tsconfig.json"), "invalid JSON");
+  writeFileSync(join(f.consumer, "src/selected-other/view.vue"), "<script>broken</script>");
+  const preserved = [".510/config.json", ".blindfolded.json", "tsconfig.json"].map((path) => [path, readFileSync(join(f.consumer, path), "utf8")]);
+  const report = run(f, "--path", "./src/selected/");
+  expect(report.files).toEqual(["src/selected/index.ts"]);
+  expect(report.scope.paths).toEqual(["src/selected"]);
+  expect(report.scope.pathSource).toBe("request");
+  expect(report.success).toBe(true);
+  expect(report.analyzers).toHaveLength(5);
+  expect(report.analyzers.find((item) => item.tool === "typescript").configuration.map((item) => item.base)).toEqual(["tsconfig.json"]);
+  for (const [path, content] of preserved) expect(readFileSync(join(f.consumer, path), "utf8")).toBe(content);
+  expect(existsSync(join(f.consumer, "src/selected/.510"))).toBe(false);
+  const full = run(f);
+  expect(full.files).toContain("src/selected-other/broken.ts");
+  expect(full.success).toBe(false);
+}, 30_000);
+
+test("absolute and repeated paths retain selected findings and nested compiler coverage", () => {
+  const f = fixture();
+  mkdirSync(join(f.consumer, "extra"));
+  writeFileSync(join(f.consumer, "extra/index.ts"), "export const wrong: number = 'wrong';\n");
+  writeFileSync(join(f.consumer, "extra/tsconfig.json"), JSON.stringify({ extends: "../tsconfig.json", include: ["*.ts"] }));
+  const report = run(f, "--path", join(f.consumer, "extra"), "--path", "src/index.ts", "--path", "extra/.");
+  expect(report.scope.paths).toEqual(["extra", "src/index.ts"]);
+  expect(report.files).toEqual(["extra/index.ts", "src/index.ts"]);
+  expect(report.findings.some((item) => item.tool === "typescript" && item.file.endsWith("extra/index.ts") && item.rule === "TS2322")).toBe(true);
+  expect(report.analyzers.find((item) => item.tool === "typescript").gaps).toEqual([]);
+  expect(report.success).toBe(false);
+}, 30_000);
+
+test("a workspace subdirectory does not scan unrelated workspaces", () => {
+  const f = fixture();
+  const manifestPath = join(f.consumer, "package.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.workspaces = ["packages/*"];
+  writeFileSync(manifestPath, JSON.stringify(manifest));
+  for (const name of ["billing", "other"]) {
+    const directory = join(f.consumer, "packages", name);
+    mkdirSync(join(directory, "src"), { recursive: true });
+    writeFileSync(join(directory, "package.json"), JSON.stringify({ name, private: true, type: "module", exports: "./src/index.ts" }));
+    writeFileSync(join(directory, "tsconfig.json"), JSON.stringify({ extends: "../../tsconfig.json", include: ["src"] }));
+    writeFileSync(join(directory, "src/index.ts"), "export const answer = 42;\n");
+    writeFileSync(join(directory, "src/entry.ts"), 'export { answer } from "./index.js";\n');
+  }
+  const knipConfig = JSON.stringify({ workspaces: { "packages/*": { entry: ["src/entry.ts"] } } });
+  writeFileSync(join(f.consumer, "knip.json"), knipConfig);
+  writeFileSync(join(f.consumer, "packages/other/src/orphan.ts"), "export const unused = 1;\n");
+  const report = run(f, "--path", "packages/billing");
+  expect(report.files).toEqual(["packages/billing/src/entry.ts", "packages/billing/src/index.ts"]);
+  expect(report.findings).toEqual([]);
+  expect(report.gaps).toEqual([]);
+  expect(report.success).toBe(true);
+  const knip = report.analyzers.find((item) => item.tool === "knip");
+  expect(knip.configuration.workspaces["packages/billing"].entry).toEqual(["src/entry.ts"]);
+  expect(knip.scope.selectedWorkspaces).toEqual(["packages/billing"]);
+  expect(knip.scope.includedWorkspaceDirs.some((path) => path.endsWith("packages/other"))).toBe(false);
+  expect(readFileSync(join(f.consumer, "knip.json"), "utf8")).toBe(knipConfig);
+}, 30_000);
+
+test("missing, empty, and escaping scopes fail without falling back to the repository", () => {
+  const f = fixture();
+  symlinkSync(f.skill, join(f.consumer, "outside-link"), "dir");
+  for (const path of ["missing", "", "../installed-skill", "outside-link"]) {
+    const report = run(f, "--path", path);
+    expect(report.success).toBe(false);
+    expect(report.files).toEqual([]);
+    expect(report.scope.paths).toEqual([path]);
+    expect(report.gaps).toHaveLength(5);
+    expect(report.analyzers.every((item) => item.status === "incomplete")).toBe(true);
+  }
+}, 30_000);
+
+test("directory scopes treat route brackets as literal names", () => {
+  const f = fixture();
+  for (const name of ["[id]", "i"]) mkdirSync(join(f.consumer, "src", name));
+  writeFileSync(join(f.consumer, "src/[id]/index.ts"), "export const answer = 42;\n");
+  writeFileSync(join(f.consumer, "src/i/index.ts"), "export const wrong: number = 'wrong';\n");
+  writeFileSync(join(f.consumer, "src/index.ts"), 'export { answer } from "./[id]/index.js";\n');
+  const report = run(f, "--path", "src/[id]");
+  expect(report.files).toEqual(["src/[id]/index.ts"]);
+  expect(report.findings).toEqual([]);
+  expect(report.gaps).toEqual([]);
+  expect(report.success).toBe(true);
+}, 30_000);
 
 test("an isolated skill runs every analyzer, preserves build settings, and never starts application scripts", () => {
   const f = fixture();

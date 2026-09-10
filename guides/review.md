@@ -3,6 +3,22 @@
 Use the scope after `510 review`, or the review scope already established in the
 conversation.
 
+When the user supplies a directory or file, including a path shared earlier in
+the conversation, use it as the source scope for this run. For example,
+`510 review packages/billing` selects that directory. Keep the repository root
+for settings and storage; pass `paths: ["packages/billing"]` to MCP `analyze`, or
+`analyze --root /path/to/repo --path packages/billing` to the bundled CLI.
+Repeat `--path` or supply multiple MCP paths for several targets. Paths are
+repository-relative or absolute within that repository. Do not rewrite saved
+analysis settings or substitute the subdirectory for the repository root.
+
+Confirm the selected paths and files in the report before interpreting findings.
+All analyzers still run on the selected scope. Imports, ancestor configuration,
+and discovered tooling entry points may require context outside it; disclose
+that context and retain resulting findings and coverage gaps. A scoped pass
+only establishes coverage of its recorded scope. Invalid or empty selections
+must fail explicitly, without falling back to the whole repository.
+
 Make each proposed change answer a specific finding. Analyze source and project
 metadata without starting the application, its tests, builds, or benchmarks.
 Evaluating tooling configuration is allowed. Do not run generation scripts to

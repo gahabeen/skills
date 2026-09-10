@@ -34,8 +34,8 @@ export async function serve(root) {
     patterns: z.array(z.string().min(1).max(2000)).min(1).max(20), constraints: z.string().max(2000).default(""),
     cursor: z.string().uuid().optional(), limit: z.number().int().min(1).max(100).default(50), context: z.number().int().min(0).max(5).default(2),
   }, true, ({ patterns, ...options }) => search.search(patterns, options));
-  tool("analyze", "Start the complete static suite. All findings and incomplete required checks block success. No tests, builds, or application startup; tooling configuration may execute. Returns a job id. Writes to the configured reports directory, default .510/reports/runs/.",
-    {}, false, () => jobs.start());
+  tool("analyze", "Start the complete static suite. Optional paths select files/directories for this run, relative to the fixed repository root or absolute within it; saved settings and storage are preserved. Imports and discovered tooling entries may supply additional context. All findings and incomplete required checks block success. No tests, builds, or application startup; tooling configuration may execute. Returns a job id. Writes to the configured reports directory, default .510/reports/runs/.",
+    { paths: z.array(z.string().min(1)).min(1).optional() }, false, ({ paths }) => jobs.start(paths));
   tool("analysis_result", "Read analysis status and a page of findings. Poll running jobs with a delay. Review all pages and coverage gaps; full evidence is saved at the returned report path.", {
     id: z.string().uuid(), offset: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(50),
   }, true, ({ id, offset, limit }) => jobs.result(id, offset, limit));

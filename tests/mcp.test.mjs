@@ -140,6 +140,34 @@ test("MCP findings remain blocking across pages and unknown jobs fail explicitly
   assert.equal(unknown.isError, true);
 }, 30_000);
 
+test("MCP passes one-run paths through to analysis and never reuses a different active scope", async () => {
+  const f = await fixture();
+  mkdirSync(resolve(f.project, "src/selected"));
+  writeFileSync(resolve(f.project, "src/selected/index.ts"), "export const answer = 42;\n");
+  writeFileSync(resolve(f.project, "src/index.ts"), 'export { answer } from "./selected/index.js";\n');
+  writeFileSync(resolve(f.project, "src/outside.ts"), "export const wrong: number = 'wrong';\n");
+  const started = await f.call("analyze", { paths: ["src/selected"] });
+  assert.deepEqual(started.paths, ["src/selected"]);
+  assert.equal((await f.call("analyze", { paths: ["./src/selected"] })).id, started.id);
+  const conflict = await f.client.callTool({ name: "analyze", arguments: { paths: ["src"] } });
+  assert.equal(conflict.isError, true);
+  assert.match(JSON.stringify(conflict.content), /different scope/);
+  const done = await completed(f, started.id);
+  assert.equal(done.success, true, JSON.stringify(done));
+  assert.deepEqual(done.scope.paths, ["src/selected"]);
+  assert.equal(done.selectedFileCount, 1);
+  assert.equal(done.analyzers.length, 5);
+  const cli = spawnSync(process.execPath, [resolve(f.skill, "scripts/510.mjs"), "analyze", "--root", f.project, "--path", "src/selected", "--format", "json"], { env: f.env, encoding: "utf8", timeout: 20_000 });
+  assert.equal(cli.status, 0, cli.stderr);
+  const report = JSON.parse(cli.stdout);
+  assert.deepEqual(report.scope, done.scope);
+  assert.deepEqual(report.findings, done.findings);
+  for (const paths of [[], [""], ["missing"], ["../installed skill"]]) {
+    const invalid = await f.client.callTool({ name: "analyze", arguments: { paths } });
+    assert.equal(invalid.isError, true);
+  }
+}, 30_000);
+
 test("search isolates different server roots and handles OR patterns with pagination", async () => {
   const a = await fixture("firstProjectOnly", { shared: true });
   const b = await fixture("secondProjectOnly", { storage: a.storage.config.storage });

@@ -37,6 +37,7 @@ it only runs when you ask for it. for example:
 $510 grill this plan for order cancellation
 $510 spec order cancellation
 $510 implement .510/specs/order-cancellation.md
+$510 review packages/billing
 $510 pr --base main
 ```
 

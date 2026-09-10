@@ -3,6 +3,7 @@ import { realpathSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { render } from "../blindfolded/analysis/report.mjs";
+import { sourcePaths } from "../blindfolded/analysis/project.mjs";
 import { runAnalysis } from "../blindfolded/run.mjs";
 import { copyRules } from "../blindfolded/install.mjs";
 import { checkBun, doctor } from "../runtime/doctor.mjs";
@@ -32,6 +33,7 @@ const commands = {
   doctor [--root PATH]           Check storage, packages, and native search
   paths [--root PATH]            Print configured spec and debug paths without initialization
   analyze [--root PATH]          Run every static analyzer
+          [--path PATH ...]     Select source files/directories for this run
           [--format text|json] [--output PATH]
   serve --root PATH             Start the local MCP server over stdio
   mcp-config --root PATH        Print a connection using absolute paths
@@ -42,7 +44,7 @@ const commands = {
   spec                          Print the agent specification workflow
   implement                     Print the agent spec-to-implementation workflow
   debug                         Print the agent bug-diagnosis workflow
-  review                        Print the agent code-review workflow
+  review [PATH ...] [--root PATH] Print the agent code-review workflow with its scope
   refactor                      Print the agent refactoring workflow
   guide TOPIC                   Read a workflow or supporting guide
   install-rules [DESTINATION]    Copy editable Blindfolded Oxlint rules
@@ -67,9 +69,9 @@ Initialization and connection are separate. No command changes agent configurati
     json(workflowPaths(locateProject(values.root)));
   },
   async analyze() {
-    const { values } = options({ ...rootOption, format: { type: "string", default: "text" }, output: { type: "string" } });
+    const { values } = options({ ...rootOption, path: { type: "string", multiple: true }, format: { type: "string", default: "text" }, output: { type: "string" } });
     if (!["text", "json"].includes(values.format)) throw new Error("--format must be text or json.");
-    const { report, path } = await runAnalysis(locateProject(values.root), values.output);
+    const { report, path } = await runAnalysis(locateProject(values.root), values.output, { paths: values.path });
     console.log(values.format === "json" ? JSON.stringify(report, null, 2) : `${render(report)}\n\nJSON report: ${path}`);
     process.exitCode = report.success ? 0 : 1;
   },
@@ -120,7 +122,12 @@ Initialization and connection are separate. No command changes agent configurati
     console.log(readGuide("debug").markdown);
   },
   review() {
-    options();
+    const { values, positionals } = options(rootOption, true);
+    if (positionals.length || values.root) {
+      const root = locateProject(values.root);
+      const paths = positionals.length ? sourcePaths(root, positionals) : undefined;
+      console.log(`Review scope: ${JSON.stringify({ root, paths })}\n`);
+    }
     console.log(readGuide("review").markdown);
   },
   refactor() {

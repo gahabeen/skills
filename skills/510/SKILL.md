@@ -55,7 +55,9 @@ after each coherent batch, including new files, and preserve unrelated work.
   reproduction, test causes, and verify the fix. Keep evidence in the configured
   `debug` directory, defaulting to `.510/debug/`.
 - **510 review [scope]:** read [the review guide](runtime/guides/review.md), then run and
-  interpret the complete Blindfolded suite.
+  interpret the complete Blindfolded suite. Use a supplied or previously shared
+  subdirectory/file as the one-run source scope via MCP `analyze.paths` or CLI
+  `analyze --path PATH`, keeping the repository root for settings and storage.
 - **510 refactor [scope or improvement]:** read [the refactoring guide](runtime/guides/refactor.md).
   Establish evidence, make the smallest coherent change, and verify behavior.
   Use its bundled design guidance for module interfaces and test seams.

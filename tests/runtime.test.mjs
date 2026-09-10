@@ -122,6 +122,23 @@ test("installed PR guidance carries an optional base without Git, dependencies, 
   expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
 });
 
+test("review accepts repository-relative and absolute source paths without initialization", () => {
+  const f = installed({ dependencies: false });
+  mkdirSync(resolve(f.directory, ".git"));
+  const selected = resolve(f.directory, "src/selected module");
+  mkdirSync(selected, { recursive: true });
+  writeFileSync(resolve(selected, "index.ts"), "export const answer = 42;\n");
+  for (const path of ["src/selected module", selected]) {
+    const result = run(f, "review", path, "--root", f.directory);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout.split("\n")[0]).toBe(`Review scope: ${JSON.stringify({ root: f.directory, paths: ["src/selected module"] })}`);
+    expect(result.stdout).toContain(readFileSync(resolve(root, "guides/review.md"), "utf8"));
+  }
+  expect(run({ ...f, directory: selected }, "review", "src/selected module").status).toBe(0);
+  expect(run(f, "review", "missing").status).toBe(1);
+  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+});
+
 test("workflow paths resolve without init and reuse custom or shared storage from nested directories", () => {
   const f = installed({ dependencies: false });
   mkdirSync(resolve(f.directory, ".git"));

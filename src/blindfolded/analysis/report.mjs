@@ -16,6 +16,7 @@ export function finalize(project, analyzers) {
 
 export function render(report) {
   const lines = [`Blindfolded: ${report.success ? "PASS" : "FAIL"}`, `${report.findings.length} findings; ${report.gaps.length} coverage gaps.`];
+  if (report.scope.paths) lines.push(`Source scope: ${report.scope.paths.join(", ")} (${report.files.length} selected files)`);
   for (const analyzer of report.analyzers) lines.push(`${analyzer.tool}: ${analyzer.status} (${analyzer.findings.length} findings)`);
   for (const item of report.findings) lines.push(`\n[${item.classification}] ${item.file ?? report.root}${item.line ? `:${item.line}:${item.column ?? 1}` : ""}\n${item.rule}: ${item.message}`);
   for (const gap of report.gaps) lines.push(`\n[Coverage gap] ${gap.tool}: ${gap.message}`);
