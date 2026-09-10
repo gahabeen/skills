@@ -16,7 +16,7 @@ The local server exposes:
 | --- | --- |
 | `doctor` | Check runtime, package versions, and native search readiness. |
 | `paths` | Resolve configured spec and debug directories without writes or initialization. |
-| `guide` | Load DOX documentation maintenance, commit, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
+| `guide` | Load DOX documentation maintenance, commit, PR creation, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
 | `find_files` | Find files through FFF's persistent repository index. |
 | `search` | Search contents using literal OR patterns, constraints, and pagination. |
 | `analyze` | Start the complete Blindfolded static suite. |
@@ -27,6 +27,12 @@ It uses stdio, needs no hosted service, and keeps analysis and search local.
 Tooling configuration can execute during analysis. Search caches and reports use
 the configured storage outside the installed skill. Installation readiness and agent connection readiness are
 reported separately.
+
+`510 pr [--base BRANCH]` prints the [PR workflow](../guides/pr.md) with an optional
+requested base; the agent resolves repository state and performs publication.
+`510 guide pr`, MCP `guide` with `topic: "pr"`, and `five-ten://guides/pr` expose
+the same instructions. Reading the guide has no Git or hosting side effects and
+requires no initialization; publication uses the agent's Git and GitHub tools.
 
 ## Blindfolded analysis
 

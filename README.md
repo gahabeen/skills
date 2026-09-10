@@ -19,6 +19,7 @@ the workflows currently come together in one skill: **[510](skills/510/SKILL.md)
 | review code and understand the findings | [`510 review`](guides/review.md) |
 | simplify code without changing what it does | [`510 refactor`](guides/refactor.md) |
 | commit the changes from the current conversation | [`510 commit`](guides/commit.md) |
+| package the conversation's work into a draft pull request | [`510 pr`](guides/pr.md) |
 | leave useful notes for the next session | [`510 handoff`](guides/handoff.md) |
 
 ## get started
@@ -36,7 +37,13 @@ it only runs when you ask for it. for example:
 $510 grill this plan for order cancellation
 $510 spec order cancellation
 $510 implement .510/specs/order-cancellation.md
+$510 pr --base main
 ```
+
+`510 pr` can infer the base from an existing PR, repository configuration, or the
+destination's default branch. use `--base` for an explicit target, including a
+feature branch for a stacked PR. it checks the full comparison, commits remaining
+work, pushes, and opens a draft PR or updates the matching one.
 
 ask for **510 init** in your project first. it prepares code search and automated
 checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with

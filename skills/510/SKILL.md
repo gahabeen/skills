@@ -1,7 +1,7 @@
 ---
 name: "510"
 disable-model-invocation: true
-description: Use 510 for grilling plans with domain docs, writing and implementing specs, debugging bugs and performance regressions, conversation handoffs, committing the current thread's changes, project storage, toolchain, and AGENTS.md hierarchy initialization with 510 init, evidence-based code review with 510 review, behavior-preserving refactoring with 510 refactor, repository search, and static analysis of JavaScript or TypeScript. Coordinates the local 510 MCP tools and bundled CLI, including the complete Blindfolded suite.
+description: Use 510 for grilling plans with domain docs, writing and implementing specs, debugging bugs and performance regressions, conversation handoffs, committing the current thread's changes and packaging them into pull requests, project storage, toolchain, and AGENTS.md hierarchy initialization with 510 init, evidence-based code review with 510 review, behavior-preserving refactoring with 510 refactor, repository search, and static analysis of JavaScript or TypeScript. Coordinates the local 510 MCP tools and bundled CLI, including the complete Blindfolded suite.
 ---
 
 # 510
@@ -33,6 +33,11 @@ after each coherent batch, including new files, and preserve unrelated work.
 - **510 commit:** read [the commit guide](runtime/guides/commit.md). Use the
   current thread's history to select all its uncommitted changes, preserve
   unrelated work, and create one commit with a descriptive message from the diff.
+- **510 pr [--base BRANCH]:** read [the PR guide](runtime/guides/pr.md). Package
+  the thread's selected work, including earlier commits, into a draft PR or update
+  its existing PR. Resolve the base, verify the complete comparison, commit
+  outstanding work, and push the feature branch. The invocation authorizes this
+  publication flow; merging remains separate.
 - **510 handoff [next-session focus]:** read [the handoff guide](runtime/guides/handoff.md).
   Save a focused continuation document in the OS temporary directory and return
   its path, preserving decisions, unfinished work, and verification evidence.
@@ -75,14 +80,16 @@ one relevant guide. `analyze` starts the complete suite; use its id with
 page and coverage gap, and consult the full saved report for configuration and
 scope details. `status: completed` does not imply `success: true`.
 
-Commit, handoff, grill, spec, implement, debug, review, and refactor are agent
+Commit, pr, handoff, grill, spec, implement, debug, review, and refactor are agent
 workflows. Their CLI commands print instructions; the agent performs the workflow.
 Handoff, grill, and spec need no toolchain initialization or analysis run.
 The documentation pass in `510 init` is also agent work; CLI readiness confirms
 the toolchain, not that project instructions have been written or verified.
 Review and refactor use the complete static suite. Implementation and debugging run tests and
 verification separately from static analysis. Commit follows the repository's
-required checks before creating the commit.
+required checks before creating the commit. PR packaging follows those checks
+and verifies the complete branch comparison before publication; reading its
+guide needs no initialization.
 
 Before saving a spec, implementation progress, or debug session, use MCP `paths` or CLI `paths --root PATH`
 and follow [workflow storage](runtime/guides/workflow-storage.md). Reuse the

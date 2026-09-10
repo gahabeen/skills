@@ -7,6 +7,10 @@ selected diff. This invocation authorizes staging and committing that work;
 choose the message and proceed without a separate approval step. Follow any
 explicit scope or message override from the user.
 
+When reached through `510 pr`, commit only outstanding work in that workflow's
+selected PR scope. Already-committed work stays in the PR comparison; having
+nothing left to commit does not stop the parent PR workflow.
+
 When this guide is reached through `510 implement`, use that workflow's selected
 implementation as the scope. Its invocation includes a local commit unless the
 user requests otherwise; unrelated work from the same thread remains excluded.

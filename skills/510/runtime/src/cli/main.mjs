@@ -36,6 +36,7 @@ const commands = {
   serve --root PATH             Start the local MCP server over stdio
   mcp-config --root PATH        Print a connection using absolute paths
   commit                        Print the agent current-thread commit workflow
+  pr [--base BRANCH]             Print the agent pull-request workflow and requested base
   handoff                       Print the agent handoff workflow
   grill                         Print the agent grilling-with-docs workflow
   spec                          Print the agent specification workflow
@@ -47,7 +48,7 @@ const commands = {
   install-rules [DESTINATION]    Copy editable Blindfolded Oxlint rules
 
 Run with bun <skill-directory>/scripts/510.mjs <command>.
-Commit, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
+Commit, pr, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
 Init returns the documentation guide for the agent to establish the AGENTS.md hierarchy.
 Initialization and connection are separate. No command changes agent configuration.`);
   },
@@ -89,6 +90,14 @@ Initialization and connection are separate. No command changes agent configurati
   commit() {
     options();
     console.log(readGuide("commit").markdown);
+  },
+  pr() {
+    const { values } = options({ base: { type: "string" } });
+    if (values.base !== undefined) {
+      if (!values.base.trim()) throw new Error("--base requires a non-empty branch name.");
+      console.log(`PR request: ${JSON.stringify({ base: values.base })}\n`);
+    }
+    console.log(readGuide("pr").markdown);
   },
   handoff() {
     options();

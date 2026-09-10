@@ -102,6 +102,26 @@ test("installed commit guidance works without dependencies or project init", () 
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
 });
 
+test("installed PR guidance carries an optional base without Git, dependencies, or init", () => {
+  const f = installed({ dependencies: false });
+  const expected = readFileSync(resolve(root, "guides/pr.md"), "utf8") + "\n";
+  for (const args of [["pr"], ["guide", "pr"]]) {
+    const result = run(f, ...args);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toBe(expected);
+  }
+  for (const base of ["main", "feature/stack-parent"]) {
+    const result = run(f, "pr", "--base", base);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toBe(`PR request: ${JSON.stringify({ base })}\n\n${expected}`);
+  }
+  for (const args of [["--base"], ["--base", ""], ["--base", "   "], ["--unknown"], ["main"]]) {
+    expect(run(f, "pr", ...args).status).toBe(1);
+  }
+  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
+});
+
 test("workflow paths resolve without init and reuse custom or shared storage from nested directories", () => {
   const f = installed({ dependencies: false });
   mkdirSync(resolve(f.directory, ".git"));
