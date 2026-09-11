@@ -69,6 +69,45 @@ describe. explanations, planning, and handoff don't need initialization.
 see [initialization and storage](guides/toolchain.md) for manual commands, other storage
 locations, and connecting the local tools to your agent.
 
+## what stays with the project
+
+510 keeps shared project knowledge close to the code and saves work in progress
+so another session can continue it. each record has a specific purpose. workflows
+reuse existing locations and formats, create documents only when there is useful
+content to save, and link related records instead of copying them.
+
+| record | default home | when it is created or updated |
+| --- | --- | --- |
+| [project instructions (DOX)](guides/dox.md) | root and scoped `AGENTS.md` files | `init` establishes project rules, ownership, local contracts, and child indexes; later edits maintain the affected boundaries. |
+| [domain glossary](guides/domain-modeling.md) | `CONTEXT.md` | `grill` records agreed domain terms as they are resolved. definitions stay about domain meaning; plans and progress have their own documents. |
+| [architecture decision records](guides/domain-modeling.md#record-consequential-decisions-sparingly) | `docs/adr/` | record a settled choice when it is costly to reverse, surprising without context, and the result of a real tradeoff. preserve the rationale when superseding it. |
+| [exploration notes](guides/workflow-storage.md) | `.510/explorations/<subject>.md` | `explore` keeps findings, options, tentative direction, and open questions in one resumable document, unless discussion only was requested. |
+| [specifications](guides/spec.md) | `.510/specs/<subject>.md` | `spec` captures requirements and acceptance criteria, marking assumptions and unresolved decisions clearly. |
+| [implementation progress](guides/implement.md) | `.510/specs/<subject>.implementation.md` | `implement` links the source spec or tickets and records completed work, actual checks, blockers, and the next step. |
+| [debugging evidence](guides/debug.md) | `.510/debug/<subject>-<unique-id>/diagnosis.md` | `debug` records reproduction, hypotheses, evidence, cause, fix, and remaining checks; save minimal fixtures or redacted logs when needed. |
+| [analysis reports](guides/analysis.md#reports) | `.510/reports/report.json` or `.510/reports/runs/<id>.json` | CLI and MCP analysis save findings and coverage gaps, retaining partial results when a run fails or is incomplete. |
+| [handoff notes](guides/handoff.md) | a unique `510-handoff-<unique-id>.md` in the OS temporary directory | `handoff` saves the context needed to continue, with links to existing records; use a requested destination when given. |
+
+for multiple domains, an existing `CONTEXT-MAP.md` points to the relevant contexts,
+their glossaries, and decision records. `AGENTS.md` links these documents and
+describes how to work in its scope. investigation notes and progress logs stay in
+workflow storage, outside the instruction hierarchy.
+
+**saved does not mean committed.** project instructions, glossaries, and decision
+records normally belong in version control. project-local explorations, specs,
+and implementation notes may be committed when repository policy allows it.
+setup ignores debug evidence, analysis reports, and generated tooling data;
+handoffs stay temporary by default. existing ignore rules remain authoritative.
+in **this repository**, the entire root `.510/` directory stays local and untracked,
+including explorations, specs, and implementation notes.
+
+the `.510/` paths above are defaults. shared or custom storage keeps each project's
+workflow records under its configured project directory; it does not relocate
+`AGENTS.md`, domain docs, or decision records. use the
+[storage guide](guides/workflow-storage.md) to resolve the saved locations.
+records stay outside the installed skill, and a handoff to another machine needs
+the referenced local files as well as the handoff document.
+
 ## more details
 
 510 also includes local code search and a set of JavaScript and TypeScript checks
