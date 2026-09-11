@@ -1,7 +1,6 @@
-# 510 — one-skill-for-all
+# 510 skill(s)
 
-skills for coding agents to explore ideas, build features, debug problems, and
-review code.
+for coding with llms to explore ideas, build features, debug problems, and review code.
 
 ## what's here
 
@@ -52,6 +51,9 @@ bunx --bun skills add https://github.com/gahabeen/skills --skill 510
 
 invoke `$510` explicitly in your coding agent, then ask for the workflow you need.
 it only runs when you ask for it.
+
+send just `510`, `@510`, or `$510` for a short guide to the available workflows.
+this shows next steps without inspecting the repository or starting a workflow.
 
 ask for **510 init** in your project first. it prepares code search and automated
 checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with
