@@ -32,7 +32,7 @@ reported separately.
 with the requested context. `510 guide explore`, MCP `guide` with `topic: "explore"`,
 and `five-ten://guides/explore` expose the same instructions. Guide retrieval and
 `paths` are read-only; the agent maintains the document under the returned
-`explorations` path, defaulting to `.510/explorations/`, unless discussion only
+`explorations` path, defaulting to `.fiveten/explorations/`, unless discussion only
 was requested. No toolchain initialization is needed to read the CLI guide or
 resolve storage.
 
@@ -92,8 +92,8 @@ The CLI runs the same analysis engine without needing an MCP connection:
 bun <skill-directory>/scripts/510.mjs analyze --root /path/to/project
 ```
 
-By default it writes `.510/reports/report.json`; `--format json` selects structured stdout.
-MCP jobs save full reports to `.510/reports/runs/<id>.json` by default. A completed job may
+By default it writes `.fiveten/reports/report.json`; `--format json` selects structured stdout.
+MCP jobs save full reports to `.fiveten/reports/runs/<id>.json` by default. A completed job may
 still have `success: false`. See [analysis configuration and limits](../guides/analysis.md)
 and [the evidence vocabulary](../CONTEXT.md).
 

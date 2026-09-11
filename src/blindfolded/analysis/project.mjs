@@ -3,7 +3,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { skillRoot } from "../../runtime/paths.mjs";
 import { readConfiguration, storageFor } from "../../runtime/storage.mjs";
 
-const excludedDirectories = new Set(["node_modules", ".git", ".510", ".blindfolded", "dist", "build", "coverage", ".next", ".nuxt", ".agents", ".codex"]);
+const excludedDirectories = new Set(["node_modules", ".git", ".fiveten", ".blindfolded", "dist", "build", "coverage", ".next", ".nuxt", ".agents", ".codex"]);
 const sourceExtension = /\.(?:[cm]?[jt]s|[jt]sx)$/;
 const embeddedExtension = /\.(?:vue|svelte|astro)$/;
 

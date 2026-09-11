@@ -34,7 +34,7 @@ follow any separate authorization already given.
 ## Keep a resumable document
 
 Follow [workflow storage](workflow-storage.md). Save in the resolved `explorations`
-directory, defaulting to `.510/explorations/<subject>.md`, unless the user selects
+directory, defaulting to `.fiveten/explorations/<subject>.md`, unless the user selects
 another destination or requests discussion only. Saving is part of the workflow;
 do not ask for permission again merely to create or update these notes.
 

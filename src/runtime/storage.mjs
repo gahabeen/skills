@@ -31,7 +31,7 @@ export function projectRoot(input) {
   if (input) return root;
   let packageRoot;
   for (;;) {
-    if (existsSync(resolve(root, ".510/config.json")) || existsSync(resolve(root, ".git"))) return root;
+    if (existsSync(resolve(root, ".fiveten/config.json")) || existsSync(resolve(root, ".git"))) return root;
     if (!packageRoot && existsSync(resolve(root, "package.json"))) packageRoot = root;
     const parent = dirname(root);
     if (parent === root) return packageRoot ?? realpathSync(process.cwd());
@@ -40,17 +40,17 @@ export function projectRoot(input) {
 }
 
 export function readConfiguration(root) {
-  const path = resolve(root, ".510/config.json");
+  const path = resolve(root, ".fiveten/config.json");
   if (!existsSync(path)) return { version: 1, storage: { mode: "project" } };
   const config = JSON.parse(readFileSync(path, "utf8"));
   if (!config || typeof config !== "object" || Array.isArray(config) || config.version !== 1) {
-    throw new Error("Expected .510/config.json version 1.");
+    throw new Error("Expected .fiveten/config.json version 1.");
   }
   for (const key of Object.keys(config)) {
-    if (!["version", "storage", "analysis"].includes(key)) throw new Error(`Unknown .510/config.json option: ${key}.`);
+    if (!["version", "storage", "analysis"].includes(key)) throw new Error(`Unknown .fiveten/config.json option: ${key}.`);
   }
   if (config.analysis !== undefined && (!config.analysis || typeof config.analysis !== "object" || Array.isArray(config.analysis))) {
-    throw new Error(".510/config.json analysis must be an object.");
+    throw new Error(".fiveten/config.json analysis must be an object.");
   }
   return config;
 }
@@ -69,9 +69,9 @@ export function storageFor(input, config) {
     || (storage.mode === "custom" ? typeof storage.path !== "string" || !storage.path.trim() : storage.path !== undefined)) {
     throw new Error("Invalid storage settings: choose project, shared, or custom with a path.");
   }
-  const configDirectory = writablePath(resolve(root, ".510"));
+  const configDirectory = writablePath(resolve(root, ".fiveten"));
   const base = writablePath(storage.mode === "project" ? configDirectory
-    : storage.mode === "shared" ? resolve(homedir(), ".510")
+    : storage.mode === "shared" ? resolve(homedir(), ".fiveten")
       : resolve(root, storage.path.startsWith("~/") ? resolve(homedir(), storage.path.slice(2)) : storage.path));
   if (base === root) throw new Error("Storage must use a dedicated directory, not the project root itself.");
   const projectKey = createHash("sha256").update(root).digest("hex").slice(0, 24);

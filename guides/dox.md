@@ -81,7 +81,7 @@ not an automated Blindfolded analyzer or proof of successful static analysis.
 CLI `guide dox`, MCP `guide` with `topic: "dox"`, and resource
 `five-ten://guides/dox` return these instructions; the agent performs the work.
 Reading the guide requires no project initialization and creates no files.
-Project instruction files stay beside their governed source, not in `.510/`
+Project instruction files stay beside their governed source, not in `.fiveten/`
 or the installed skill. The CLI `init` prepares storage/tooling and returns this
 guide as a required agent step; it does not generate project-specific instructions
 or verify the hierarchy itself. Report tooling readiness and documentation

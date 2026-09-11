@@ -51,7 +51,7 @@ test("one-run paths select a subdirectory without changing saved scope, storage,
   writeFileSync(join(f.consumer, "src/selected-other/broken.ts"), "export const broken: number = 'wrong';\n");
   writeFileSync(join(f.consumer, "src/selected-other/tsconfig.json"), "invalid JSON");
   writeFileSync(join(f.consumer, "src/selected-other/view.vue"), "<script>broken</script>");
-  const preserved = [".510/config.json", ".blindfolded.json", "tsconfig.json"].map((path) => [path, readFileSync(join(f.consumer, path), "utf8")]);
+  const preserved = [".fiveten/config.json", ".blindfolded.json", "tsconfig.json"].map((path) => [path, readFileSync(join(f.consumer, path), "utf8")]);
   const report = run(f, "--path", "./src/selected/");
   expect(report.files).toEqual(["src/selected/index.ts"]);
   expect(report.scope.paths).toEqual(["src/selected"]);
@@ -60,7 +60,7 @@ test("one-run paths select a subdirectory without changing saved scope, storage,
   expect(report.analyzers).toHaveLength(6);
   expect(report.analyzers.find((item) => item.tool === "typescript").configuration.map((item) => item.base)).toEqual(["tsconfig.json"]);
   for (const [path, content] of preserved) expect(readFileSync(join(f.consumer, path), "utf8")).toBe(content);
-  expect(existsSync(join(f.consumer, "src/selected/.510"))).toBe(false);
+  expect(existsSync(join(f.consumer, "src/selected/.fiveten"))).toBe(false);
   const full = run(f);
   expect(full.files).toContain("src/selected-other/broken.ts");
   expect(full.success).toBe(false);
@@ -220,7 +220,7 @@ export const options: { value?: number } = { value: undefined };
 
 test("a Review finding alone fails the full analysis", () => {
   const f = fixture();
-  writeFileSync(join(f.consumer, ".510/config.json"), JSON.stringify({ version: 1, storage: { mode: "project" }, analysis: { paths: ["src"], thresholds: { cognitive: 1 } } }));
+  writeFileSync(join(f.consumer, ".fiveten/config.json"), JSON.stringify({ version: 1, storage: { mode: "project" }, analysis: { paths: ["src"], thresholds: { cognitive: 1 } } }));
   writeFileSync(join(f.consumer, "src/index.ts"), `export function score(value: number) {
   if (value > 0) {
     if (value > 1) {

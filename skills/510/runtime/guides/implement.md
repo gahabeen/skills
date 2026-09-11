@@ -19,7 +19,7 @@ verification and the commit.
 Use an explicit spec path, ticket reference, or subject after `510 implement`.
 Otherwise use the spec already selected in the conversation. To locate a saved
 `510 spec`, follow [workflow storage](workflow-storage.md) and search the resolved
-`specs` directory, defaulting to `.510/specs/`. Implementation progress notes are
+`specs` directory, defaulting to `.fiveten/specs/`. Implementation progress notes are
 not specs. Match the requested work; do not silently choose the newest file when
 several candidates fit. Ask for the source when none is available or the target
 remains ambiguous; do not invent a spec to start coding.

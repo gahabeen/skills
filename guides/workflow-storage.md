@@ -8,14 +8,14 @@ bun <skill-directory>/scripts/510.mjs paths --root /absolute/project
 ```
 
 The result includes absolute `explorations`, `specs`, and `debug` directories. It reads the existing
-`.510/config.json`; if none exists, it resolves the default project-local `.510/`.
+`.fiveten/config.json`; if none exists, it resolves the default project-local `.fiveten/`.
 It creates no files or directories, changes no settings, and needs no toolchain
 installation. Omit `--root` only when normal project discovery selects the intended
 project. The MCP server uses its fixed project root.
 
 | Storage choice | Explorations | Specs | Debug sessions |
 | --- | --- | --- | --- |
-| Project (default) | `.510/explorations/` | `.510/specs/` | `.510/debug/` |
+| Project (default) | `.fiveten/explorations/` | `.fiveten/specs/` | `.fiveten/debug/` |
 | Shared or custom | `<base>/projects/<project-id>/explorations/` | `<base>/projects/<project-id>/specs/` | `<base>/projects/<project-id>/debug/` |
 
 Use the returned paths; do not reconstruct the project identifier or interpret a

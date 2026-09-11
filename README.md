@@ -60,7 +60,7 @@ checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with
 project-wide rules at the root and local contracts where they belong. later 510
 edits keep the affected instructions and indexes current.
 
-tooling files go in the project's `.510/` directory by default, reusing any storage
+tooling files go in the project's `.fiveten/` directory by default, reusing any storage
 location you've already chosen. `AGENTS.md` files live alongside the source they
 describe. explanations, planning, and handoff don't need initialization.
 
@@ -71,7 +71,7 @@ $510 explain how checkout works
 $510 explore could checkout work offline?
 $510 grill this plan for order cancellation
 $510 spec order cancellation
-$510 implement .510/specs/order-cancellation.md
+$510 implement .fiveten/specs/order-cancellation.md
 $510 review
 $510 review packages/billing
 $510 merge conflicts
@@ -95,7 +95,7 @@ work, pushes, and opens a draft PR or updates the matching one.
 behavior, and completes the local operation. It preserves unrelated work. Ask to
 leave the operation unfinished when you only want the files resolved.
 
-`510 explore` keeps a resumable document in `.510/explorations/<subject>.md` by
+`510 explore` keeps a resumable document in `.fiveten/explorations/<subject>.md` by
 default, reusing shared or custom storage when configured. It compares possibilities
 and separates findings, tentative ideas, and agreed decisions. Ask for discussion
 only to keep the exploration in the conversation. Continue with `grill` or `spec`
@@ -116,11 +116,11 @@ content to save, and link related records instead of copying them.
 | [project instructions (DOX)](guides/dox.md) | root and scoped `AGENTS.md` files | `init` establishes project rules, ownership, local contracts, and child indexes; later edits maintain the affected boundaries. |
 | [domain glossary](guides/domain-modeling.md) | `CONTEXT.md` | `grill` records agreed domain terms as they are resolved. definitions stay about domain meaning; plans and progress have their own documents. |
 | [architecture decision records](guides/domain-modeling.md#record-consequential-decisions-sparingly) | `docs/adr/` | record a settled choice when it is costly to reverse, surprising without context, and the result of a real tradeoff. preserve the rationale when superseding it. |
-| [exploration notes](guides/workflow-storage.md) | `.510/explorations/<subject>.md` | `explore` keeps findings, options, tentative direction, and open questions in one resumable document, unless discussion only was requested. |
-| [specifications](guides/spec.md) | `.510/specs/<subject>.md` | `spec` captures requirements and acceptance criteria, marking assumptions and unresolved decisions clearly. |
-| [implementation progress](guides/implement.md) | `.510/specs/<subject>.implementation.md` | `implement` links the source spec or tickets and records completed work, actual checks, blockers, and the next step. |
-| [debugging evidence](guides/debug.md) | `.510/debug/<subject>-<unique-id>/diagnosis.md` | `debug` records reproduction, hypotheses, evidence, cause, fix, and remaining checks; save minimal fixtures or redacted logs when needed. |
-| [analysis reports](guides/analysis.md#reports) | `.510/reports/report.json` or `.510/reports/runs/<id>.json` | CLI and MCP analysis save findings and coverage gaps, retaining partial results when a run fails or is incomplete. |
+| [exploration notes](guides/workflow-storage.md) | `.fiveten/explorations/<subject>.md` | `explore` keeps findings, options, tentative direction, and open questions in one resumable document, unless discussion only was requested. |
+| [specifications](guides/spec.md) | `.fiveten/specs/<subject>.md` | `spec` captures requirements and acceptance criteria, marking assumptions and unresolved decisions clearly. |
+| [implementation progress](guides/implement.md) | `.fiveten/specs/<subject>.implementation.md` | `implement` links the source spec or tickets and records completed work, actual checks, blockers, and the next step. |
+| [debugging evidence](guides/debug.md) | `.fiveten/debug/<subject>-<unique-id>/diagnosis.md` | `debug` records reproduction, hypotheses, evidence, cause, fix, and remaining checks; save minimal fixtures or redacted logs when needed. |
+| [analysis reports](guides/analysis.md#reports) | `.fiveten/reports/report.json` or `.fiveten/reports/runs/<id>.json` | CLI and MCP analysis save findings and coverage gaps, retaining partial results when a run fails or is incomplete. |
 | [handoff notes](guides/handoff.md) | a unique `510-handoff-<unique-id>.md` in the OS temporary directory | `handoff` saves the context needed to continue, with links to existing records; use a requested destination when given. |
 
 for multiple domains, an existing `CONTEXT-MAP.md` points to the relevant contexts,
@@ -133,10 +133,10 @@ records normally belong in version control. project-local explorations, specs,
 and implementation notes may be committed when repository policy allows it.
 setup ignores debug evidence, analysis reports, and generated tooling data;
 handoffs stay temporary by default. existing ignore rules remain authoritative.
-in **this repository**, the entire root `.510/` directory stays local and untracked,
+in **this repository**, the entire root `.fiveten/` directory stays local and untracked,
 including explorations, specs, and implementation notes.
 
-the `.510/` paths above are defaults. shared or custom storage keeps each project's
+the `.fiveten/` paths above are defaults. shared or custom storage keeps each project's
 workflow records under its configured project directory; it does not relocate
 `AGENTS.md`, domain docs, or decision records. use the
 [storage guide](guides/workflow-storage.md) to resolve the saved locations.

@@ -20,7 +20,7 @@ during the investigation and fix, including verification through public package
 entrypoints when their exports or build output change.
 
 Use [workflow storage](workflow-storage.md) for a unique session directory under
-the resolved `debug` path, defaulting to `.510/debug/<subject>-<unique-id>/`.
+the resolved `debug` path, defaulting to `.fiveten/debug/<subject>-<unique-id>/`.
 Keep a concise `diagnosis.md` with the symptom, reproduction, hypotheses, evidence,
 cause, fix, and remaining checks. Create fixtures or logs only when needed. Redact
 credentials and sensitive personal data before saving or displaying evidence;

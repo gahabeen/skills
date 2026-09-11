@@ -11,10 +11,15 @@ request stays within that scope.
 
 ## Initialization
 
-Use Bun **1.4.2**. Locate the intended project and inspect `.510/config.json` if
+Use Bun **1.4.2**. Locate the intended project and inspect `.fiveten/config.json` if
 it exists. Reuse its storage choice unless the user requests a change. For a new
-project, default to project-local `.510/`. Available choices are project-local,
-shared `~/.510/`, or a custom directory; no separate tool-selection choices exist.
+project, default to project-local `.fiveten/`. Available choices are project-local,
+shared `~/.fiveten/`, or a custom directory; no separate tool-selection choices exist.
+
+Only `.fiveten/config.json` is read. The previous `.510/` directory is not used as
+a fallback or migrated automatically. To retain its settings and data, rename it
+to `.fiveten/` before running 510; likewise rename `~/.510/` to `~/.fiveten/` when
+using shared storage.
 
 ```sh
 bun <skill-directory>/scripts/510.mjs init --root /path/to/project
@@ -47,7 +52,7 @@ refresh the project's `AGENTS.md` hierarchy. Read existing instructions before
 editing, preserve their rules, and create child documents only at useful durable
 boundaries. Keep indexes current and merge with existing sections on repeat runs.
 Write project instructions beside the source they govern, outside generated
-`.510/` storage and the read-only installed skill.
+`.fiveten/` storage and the read-only installed skill.
 
 CLI setup returns `documentation.status: "agent-action-required"` and the full
 guide. This is the handoff to the agent, not a claim that documentation exists or
@@ -68,22 +73,22 @@ The default layout at the project root is:
 
 | Path | Purpose | Version control |
 | --- | --- | --- |
-| `.510/config.json` | Storage choice and optional analysis settings | Commit portable settings |
-| `.510/toolchains/<fingerprint>/` | Installed dependencies | Ignore |
-| `.510/cache/fff/` | Search ranking/history databases | Ignore |
-| `.510/reports/` | CLI reports and MCP run reports | Ignore |
-| `.510/tmp/` | Temporary analysis configurations and rule copies | Ignore |
-| `.510/explorations/` | Resumable ideas, findings, and tradeoffs from `510 explore` | May be committed; no generated ignore rule |
-| `.510/specs/` | Durable specifications from `510 spec` | May be committed; no generated ignore rule |
-| `.510/debug/` | Reproductions and evidence from `510 debug` | Ignore |
-| `.510/mcp.json` | Connection with machine-specific absolute paths | Ignore |
+| `.fiveten/config.json` | Storage choice and optional analysis settings | Commit portable settings |
+| `.fiveten/toolchains/<fingerprint>/` | Installed dependencies | Ignore |
+| `.fiveten/cache/fff/` | Search ranking/history databases | Ignore |
+| `.fiveten/reports/` | CLI reports and MCP run reports | Ignore |
+| `.fiveten/tmp/` | Temporary analysis configurations and rule copies | Ignore |
+| `.fiveten/explorations/` | Resumable ideas, findings, and tradeoffs from `510 explore` | May be committed; no generated ignore rule |
+| `.fiveten/specs/` | Durable specifications from `510 spec` | May be committed; no generated ignore rule |
+| `.fiveten/debug/` | Reproductions and evidence from `510 debug` | Ignore |
+| `.fiveten/mcp.json` | Connection with machine-specific absolute paths | Ignore |
 
-`init` adds the generated paths to `.510/.gitignore`, preserving existing entries.
+`init` adds the generated paths to `.fiveten/.gitignore`, preserving existing entries.
 A custom or shared storage root contains `toolchains/<fingerprint>/` and
 `projects/<project-id>/{cache,reports,tmp,explorations,specs,debug}/`. Projects can share identical
 installed dependencies while keeping their search data, reports, temporary files,
 and workflow artifacts separate. Configuration and the connection file remain at the project’s
-`.510/` directory. Avoid committing machine-specific absolute storage paths;
+`.fiveten/` directory. Avoid committing machine-specific absolute storage paths;
 project mode and relative custom paths are portable.
 
 Use `510 paths --root /project` or the MCP `paths` tool to resolve exploration, spec, and debug
@@ -119,7 +124,7 @@ Example portable configuration:
 ```
 
 Existing `.blindfolded.json` analysis settings remain supported when `analysis`
-is absent from `.510/config.json`. An explicit `analysis` object takes precedence;
+is absent from `.fiveten/config.json`. An explicit `analysis` object takes precedence;
 the two are not merged. Old `.blindfolded/` reports and caches from earlier skill
 installations are left intact; new runs use the configured storage.
 
@@ -135,7 +140,7 @@ loading requires the installed pinned package; a global cache cannot substitute
 for a missing tool. Only `init` installs dependencies. Native FFF and its platform
 package use the same locked installation as the MCP SDK and analyzers.
 
-`init` saves `.510/mcp.json` with an absolute Bun executable, server entrypoint,
+`init` saves `.fiveten/mcp.json` with an absolute Bun executable, server entrypoint,
 and repository root. Generate the same configuration without installing anything:
 
 ```sh
@@ -165,7 +170,7 @@ The tools are `doctor`, `paths`, `guide`, `find_files`, `search`, `analyze`, and
 `analysis_result`. Guides are also available as resources. `analyze` starts all
 six analyzers and returns an id; an overlapping request returns the active id.
 Poll `analysis_result` with a delay and retrieve all findings pages and gaps.
-Full reports default to `.510/reports/runs/<id>.json`. Closing the server cancels
+Full reports default to `.fiveten/reports/runs/<id>.json`. Closing the server cancels
 unfinished checks and retains partial results. Completed status does not imply
 success. The last ten jobs are available in memory until restart.
 
@@ -175,7 +180,7 @@ The CLI uses the same engine:
 bun <skill-directory>/scripts/510.mjs analyze --root /path/to/project
 ```
 
-Its default report is `.510/reports/report.json`. Every finding and missing
+Its default report is `.fiveten/reports/report.json`. Every finding and missing
 required coverage blocks success. Report installation readiness, agent connection,
 and analysis outcome separately. See [analysis](analysis.md) for detailed limits.
 

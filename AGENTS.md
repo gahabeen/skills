@@ -14,9 +14,9 @@
 - 510 is one skill backed by a local MCP server and CLI, distributed directly
   from `gahabeen/skills`. Keep packages private; do not add npm publication tooling.
 - Setup, analysis, and search must work with the installed skill read-only.
-  Runtime data belongs in configured storage, defaulting to project `.510/`;
+  Runtime data belongs in configured storage, defaulting to project `.fiveten/`;
   `toolchain/` contains canonical metadata, not the active dependency installation.
-- In this repository, keep the entire root `.510/` directory local and untracked,
+- In this repository, keep the entire root `.fiveten/` directory local and untracked,
   including configuration, specifications, and implementation notes.
 - 510 requires explicit user invocation. Keep `disable-model-invocation: true`
   and Codex `policy.allow_implicit_invocation: false`.

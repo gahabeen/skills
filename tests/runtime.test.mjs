@@ -87,7 +87,7 @@ test("conversation workflows and their supporting guides work in an isolated rea
     expect(readFileSync(resolve(f.skill, "runtime", license), "utf8")).toBe(readFileSync(resolve(root, license), "utf8"));
   }
   expect(readFileSync(resolve(f.directory, "AGENTS.md"), "utf8")).toBe(instructions);
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
 });
 
 test.each([["explain", "Explain"], ["explore", "Explore"]])("%s accepts a question or path without dependencies, source execution, or initialization", (topic, label) => {
@@ -96,7 +96,7 @@ test.each([["explain", "Explain"], ["explore", "Explore"]])("%s accepts a questi
   const plain = run(f, topic);
   expect(plain.status, plain.stderr).toBe(0);
   expect(plain.stdout).toBe(expected);
-  for (const parts of [["Could", "checkout", "work", "offline?"], ["src/selected module"], [".510/explorations/offline-mode.md"]]) {
+  for (const parts of [["Could", "checkout", "work", "offline?"], ["src/selected module"], [".fiveten/explorations/offline-mode.md"]]) {
     const result = run(f, topic, ...parts, "--root", f.directory);
     expect(result.status, result.stderr).toBe(0);
     expect(result.stdout).toBe(`${label} request: ${JSON.stringify({ root: f.directory, subject: parts.join(" ") })}\n\n${expected}`);
@@ -108,7 +108,7 @@ test.each([["explain", "Explain"], ["explore", "Explore"]])("%s accepts a questi
   expect(rootOnly.status, rootOnly.stderr).toBe(0);
   expect(rootOnly.stdout).toBe(`${label} request: ${JSON.stringify({ root: f.directory })}\n\n${expected}`);
   for (const args of [[""], ["   "], ["--unknown"], ["--root"]]) expect(run(f, topic, ...args).status).toBe(1);
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
   expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
 });
 
@@ -130,7 +130,7 @@ test("merge conflicts returns guidance without Git operations and requires the e
   }
   expect(readFileSync(resolve(f.directory, "price.mjs"), "utf8")).toBe(source);
   expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
 });
 
 test("installed commit guidance works without dependencies or project init", () => {
@@ -142,7 +142,7 @@ test("installed commit guidance works without dependencies or project init", () 
   expect(guide.status, guide.stderr).toBe(0);
   expect(guide.stdout).toBe(result.stdout);
   expect(run(f, "commit", "--all").status).toBe(1);
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
 });
 
 test("installed PR guidance carries an optional base without Git, dependencies, or init", () => {
@@ -161,7 +161,7 @@ test("installed PR guidance carries an optional base without Git, dependencies, 
   for (const args of [["--base"], ["--base", ""], ["--base", "   "], ["--unknown"], ["main"]]) {
     expect(run(f, "pr", ...args).status).toBe(1);
   }
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
   expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
 });
 
@@ -179,7 +179,7 @@ test("review accepts repository-relative and absolute source paths without initi
   }
   expect(run({ ...f, directory: selected }, "review", "src/selected module").status).toBe(0);
   expect(run(f, "review", "missing").status).toBe(1);
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
 });
 
 test("plain review selects the repository from nested directories without changing saved settings or running checks", () => {
@@ -187,9 +187,9 @@ test("plain review selects the repository from nested directories without changi
   mkdirSync(resolve(f.directory, ".git"));
   const nested = resolve(f.directory, "packages/billing/src");
   mkdirSync(nested, { recursive: true });
-  mkdirSync(resolve(f.directory, ".510"));
+  mkdirSync(resolve(f.directory, ".fiveten"));
   const preserved = {
-    ".510/config.json": JSON.stringify({ version: 1, storage: { mode: "custom", path: "local state" }, analysis: { paths: ["packages/billing"], ignore: ["generated/**"] } }),
+    ".fiveten/config.json": JSON.stringify({ version: 1, storage: { mode: "custom", path: "local state" }, analysis: { paths: ["packages/billing"], ignore: ["generated/**"] } }),
     ".blindfolded.json": JSON.stringify({ paths: ["packages/billing"] }),
     "package.json": JSON.stringify({ name: "review-fixture", scripts: { test: "touch executed", build: "touch executed" } }),
     "packages/billing/src/index.ts": "export const answer = 42;\n",
@@ -219,12 +219,12 @@ test("workflow paths resolve without init and reuse custom or shared storage fro
   expect(initial.status, initial.stderr).toBe(0);
   const defaults = JSON.parse(initial.stdout);
   expect(defaults.root).toBe(f.directory);
-  expect(defaults.explorations).toBe(resolve(f.directory, ".510/explorations"));
-  expect(defaults.specs).toBe(resolve(f.directory, ".510/specs"));
-  expect(defaults.debug).toBe(resolve(f.directory, ".510/debug"));
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
-  mkdirSync(resolve(f.directory, ".510"));
-  const path = resolve(f.directory, ".510/config.json");
+  expect(defaults.explorations).toBe(resolve(f.directory, ".fiveten/explorations"));
+  expect(defaults.specs).toBe(resolve(f.directory, ".fiveten/specs"));
+  expect(defaults.debug).toBe(resolve(f.directory, ".fiveten/debug"));
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
+  mkdirSync(resolve(f.directory, ".fiveten"));
+  const path = resolve(f.directory, ".fiveten/config.json");
   for (const storage of [{ mode: "custom", path: "local state" }, { mode: "shared" }]) {
     const config = JSON.stringify({ version: 1, storage });
     writeFileSync(path, config);
@@ -232,14 +232,14 @@ test("workflow paths resolve without init and reuse custom or shared storage fro
     expect(result.status, result.stderr).toBe(0);
     const paths = JSON.parse(result.stdout);
     expect(paths.storage).toEqual(storage);
-    expect(paths.base).toBe(storage.mode === "shared" ? resolve(homedir(), ".510") : resolve(f.directory, "local state"));
+    expect(paths.base).toBe(storage.mode === "shared" ? resolve(homedir(), ".fiveten") : resolve(f.directory, "local state"));
     expect(paths.projectData).toMatch(/\/projects\/[a-f0-9]{24}$/);
     expect(paths.explorations).toBe(resolve(paths.projectData, "explorations"));
     expect(paths.specs).toBe(resolve(paths.projectData, "specs"));
     expect(paths.debug).toBe(resolve(paths.projectData, "debug"));
     expect(existsSync(paths.projectData)).toBe(false);
     expect(readFileSync(path, "utf8")).toBe(config);
-    expect(existsSync(resolve(nested, ".510"))).toBe(false);
+    expect(existsSync(resolve(nested, ".fiveten"))).toBe(false);
   }
   writeFileSync(path, JSON.stringify({ version: 1, storage: { mode: "invalid" } }));
   expect(run(f, "paths").status).toBe(1);
@@ -247,9 +247,38 @@ test("workflow paths resolve without init and reuse custom or shared storage fro
   expect(existsSync(defaults.specs)).toBe(false);
 });
 
+test("workflow paths ignore .510 configuration and discover only .fiveten storage", () => {
+  const f = installed({ dependencies: false });
+  const nested = resolve(f.directory, "src/nested");
+  mkdirSync(resolve(nested, ".510"), { recursive: true });
+  mkdirSync(resolve(f.directory, ".510"));
+  writeFileSync(resolve(f.directory, "package.json"), '{"private":true}\n');
+  const legacy = JSON.stringify({ version: 1, storage: { mode: "custom", path: "legacy state" } });
+  writeFileSync(resolve(f.directory, ".510/config.json"), legacy);
+  writeFileSync(resolve(nested, ".510/config.json"), "invalid JSON");
+  const initial = run({ ...f, directory: nested }, "paths");
+  expect(initial.status, initial.stderr).toBe(0);
+  const defaults = JSON.parse(initial.stdout);
+  expect(defaults.root).toBe(f.directory);
+  expect(defaults.configPath).toBe(resolve(f.directory, ".fiveten/config.json"));
+  expect(defaults.base).toBe(resolve(f.directory, ".fiveten"));
+  expect(existsSync(defaults.base)).toBe(false);
+  mkdirSync(defaults.base);
+  rmSync(resolve(f.directory, "package.json"));
+  writeFileSync(defaults.configPath, JSON.stringify({ version: 1, storage: { mode: "custom", path: "current state" } }));
+  const configured = run({ ...f, directory: nested }, "paths");
+  expect(configured.status, configured.stderr).toBe(0);
+  expect(JSON.parse(configured.stdout).base).toBe(resolve(f.directory, "current state"));
+  writeFileSync(defaults.configPath, "invalid JSON");
+  expect(run({ ...f, directory: nested }, "paths").status).toBe(1);
+  expect(readFileSync(resolve(f.directory, ".510/config.json"), "utf8")).toBe(legacy);
+  expect(readFileSync(resolve(nested, ".510/config.json"), "utf8")).toBe("invalid JSON");
+  expect(existsSync(resolve(f.directory, "legacy state"))).toBe(false);
+});
+
 test("workflow paths reject destinations escaping project storage or entering the installed skill", () => {
   const f = installed({ dependencies: false });
-  const storage = resolve(f.directory, ".510");
+  const storage = resolve(f.directory, ".fiveten");
   mkdirSync(storage);
   const outside = resolve(f.directory, "outside");
   mkdirSync(outside);
@@ -282,7 +311,7 @@ test("init keeps the frozen toolchain and consuming project intact on repeat run
     expect(result.status, result.stderr + result.stdout).toBe(0);
     const status = JSON.parse(result.stdout);
     expect(status.installed).toBe(i === 0);
-    expect(status.storage.base).toBe(resolve(directory, ".510"));
+    expect(status.storage.base).toBe(resolve(directory, ".fiveten"));
     expect(status.connection.status).toBe("not-verified");
     expect(status.documentation).toEqual({ status: "agent-action-required", guide: {
       topic: "dox", markdown: readFileSync(resolve(root, "guides/dox.md"), "utf8"),
@@ -290,10 +319,10 @@ test("init keeps the frozen toolchain and consuming project intact on repeat run
     expect(JSON.parse(readFileSync(status.connection.path, "utf8"))).toEqual(status.connection.configuration);
   }
   expect(existsSync(resolve(skill, "runtime/toolchain/node_modules"))).toBe(false);
-  expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).toContain("/reports/");
-  expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).toContain("/debug/");
-  expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).not.toContain("/specs/");
-  expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).not.toContain("/explorations/");
+  expect(readFileSync(resolve(directory, ".fiveten/.gitignore"), "utf8")).toContain("/reports/");
+  expect(readFileSync(resolve(directory, ".fiveten/.gitignore"), "utf8")).toContain("/debug/");
+  expect(readFileSync(resolve(directory, ".fiveten/.gitignore"), "utf8")).not.toContain("/specs/");
+  expect(readFileSync(resolve(directory, ".fiveten/.gitignore"), "utf8")).not.toContain("/explorations/");
   expect(readFileSync(lock, "utf8")).toBe(before);
   expect(readFileSync(manifest, "utf8")).toBe('{"name":"untouched","private":true}\n');
   expect(readFileSync(resolve(directory, "AGENTS.md"), "utf8")).toBe(instructions);
@@ -312,23 +341,23 @@ test("custom storage is reused from nested directories and preserves project cho
   const config = JSON.parse(readFileSync(first.storage.configPath, "utf8"));
   config.analysis = { paths: ["src"], thresholds: { cognitive: 9 } };
   writeFileSync(first.storage.configPath, JSON.stringify(config));
-  writeFileSync(resolve(f.directory, ".510/.gitignore"), "# custom ignore\n/notes/\n");
+  writeFileSync(resolve(f.directory, ".fiveten/.gitignore"), "# custom ignore\n/notes/\n");
   const repeated = run({ ...f, directory: nested }, "init");
   expect(repeated.status, repeated.stderr).toBe(0);
   const second = JSON.parse(repeated.stdout);
   expect(second.installed).toBe(false);
   expect(second.storage.toolchain).toBe(first.storage.toolchain);
   expect(second.storage.config).toEqual(config);
-  expect(readFileSync(resolve(f.directory, ".510/.gitignore"), "utf8")).toContain("# custom ignore\n/notes/\n");
+  expect(readFileSync(resolve(f.directory, ".fiveten/.gitignore"), "utf8")).toContain("# custom ignore\n/notes/\n");
   const status = run({ ...f, directory: nested }, "doctor");
   expect(status.status, status.stderr).toBe(0);
   expect(JSON.parse(status.stdout).storage.base).toBe(first.storage.base);
-  expect(existsSync(resolve(nested, ".510"))).toBe(false);
+  expect(existsSync(resolve(nested, ".fiveten"))).toBe(false);
 }, 45_000);
 
 test("two projects share a toolchain while keeping reports and caches separate", () => {
   const f = installed({ dependencies: false });
-  const shared = resolve(f.directory, ".510");
+  const shared = resolve(f.directory, ".fiveten");
   const projects = [f.directory, resolve(f.directory, "second")];
   const statuses = projects.map((project) => {
     mkdirSync(project, { recursive: true });
@@ -373,7 +402,7 @@ test("storage and explicit output cannot write through a symlink into the skill"
   const init = run(f, "init", "--storage", resolve(alias, "state"));
   expect(init.status).toBe(1);
   expect(init.stderr).toContain("never writes inside the installed skill");
-  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".fiveten"))).toBe(false);
   const analysis = run(f, "analyze", "--output", resolve(alias, "report.json"));
   expect(analysis.status).toBe(1);
   expect(analysis.stderr).toContain("never writes inside the installed skill");
@@ -397,7 +426,7 @@ test("init repairs an incomplete installation without changing its selected loca
 
 test("an unsuccessful storage change preserves the previous configuration", () => {
   const f = installed();
-  const path = resolve(f.directory, ".510/config.json");
+  const path = resolve(f.directory, ".fiveten/config.json");
   const before = readFileSync(path, "utf8");
   const blocked = resolve(f.directory, "not-a-directory");
   writeFileSync(blocked, "preserve this file\n");

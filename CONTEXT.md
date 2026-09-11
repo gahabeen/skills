@@ -63,7 +63,7 @@ define or prove complete analysis coverage.
 **Project initialization**: Tooling setup and the agent's AGENTS.md hierarchy pass
 performed by `510 init`. The CLI prepares storage and a connection, then returns
 documentation guidance for the agent; toolchain readiness does not verify docs.
-Portable settings live in `.510/config.json`; generated data defaults to `.510/`
+Portable settings live in `.fiveten/config.json`; generated data defaults to `.fiveten/`
 and can move to shared or custom storage. The installed skill remains read-only.
 
 **Toolchain fingerprint**: The manifest, lockfile, Bun version, and platform

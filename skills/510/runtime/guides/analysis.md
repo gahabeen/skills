@@ -25,7 +25,7 @@ bun <skill-directory>/scripts/510.mjs analyze
 
 Use `--root /path/to/project` from another directory. `--format json` prints the
 structured report; the default prints a readable report. Every run also writes
-`.510/reports/report.json` by default, or the configured reports directory. `--output <path>` changes that output
+`.fiveten/reports/report.json` by default, or the configured reports directory. `--output <path>` changes that output
 location. There are no per-tool switches.
 
 Use `--path packages/billing` for a one-run source scope; repeat `--path` for
@@ -43,7 +43,7 @@ Explicit review paths select that area. Review also inspects architecture, tests
 and documentation as described in the [review guide](review.md). Those contextual
 assessments are separate from the automated report and its pass/fail result.
 
-`init` maintains `.510/.gitignore` for generated files. The installed skill is read-only.
+`init` maintains `.fiveten/.gitignore` for generated files. The installed skill is read-only.
 
 The command exits zero only when every required analyzer completes and there are
 zero findings. Review warnings also fail. A missing binary, invalid configuration,
@@ -114,7 +114,7 @@ The report records the effective source paths and whether they came from the
 request or saved/default configuration. Invalid, missing, outside-repository,
 or source-empty selections fail; they never trigger a full-repository fallback.
 
-For explicit project boundaries, put an `analysis` object in `.510/config.json`.
+For explicit project boundaries, put an `analysis` object in `.fiveten/config.json`.
 Existing `.blindfolded.json` files with the following shape remain supported when
 that object is absent:
 

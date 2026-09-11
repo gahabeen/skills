@@ -6,8 +6,8 @@ import { storageFor } from "../src/runtime/storage.mjs";
 const repository = fileURLToPath(new URL("../", import.meta.url));
 
 export function provisionStorage(skill, project, { missingKnip = false, missingFallow = false, storage } = {}) {
-  mkdirSync(resolve(project, ".510"), { recursive: true });
-  writeFileSync(resolve(project, ".510/config.json"), JSON.stringify({ version: 1, storage: storage ?? { mode: "project" } }));
+  mkdirSync(resolve(project, ".fiveten"), { recursive: true });
+  writeFileSync(resolve(project, ".fiveten/config.json"), JSON.stringify({ version: 1, storage: storage ?? { mode: "project" } }));
   const paths = storageFor(project);
   mkdirSync(paths.toolchain, { recursive: true });
   for (const file of ["package.json", "bun.lock"]) cpSync(resolve(skill, "runtime/toolchain", file), resolve(paths.toolchain, file));

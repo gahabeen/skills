@@ -9,8 +9,8 @@ instructions, manifest, and lockfile form a replaceable distribution. This
 supersedes ADR 0003's storage inside the installed toolchain; ADR 0004's Bun
 runtime and Node-only RuleTester development dependency remain unchanged.
 
-Project configuration lives at `.510/config.json`. A new project defaults to
-`.510/` storage. Shared `~/.510/` and custom directory choices are explicit setup
+Project configuration lives at `.fiveten/config.json`. A new project defaults to
+`.fiveten/` storage. Shared `~/.fiveten/` and custom directory choices are explicit setup
 options; repeated setup preserves the existing choice. Relative custom paths
 resolve from the canonical project root. CLI discovery prefers an existing 510
 configuration or Git root, then the nearest package directory; `--root` overrides
@@ -26,12 +26,12 @@ Local storage contains `toolchains/`, `cache/`, `reports/`, and `tmp/`. Shared o
 custom storage places cache, reports, and temporary files in
 `projects/<canonical-root-hash>/`, allowing shared dependencies without sharing
 project search history. Setup preserves existing ignore entries and ignores its
-generated directories. `.510/mcp.json` contains local absolute connection paths
+generated directories. `.fiveten/mcp.json` contains local absolute connection paths
 and is ignored; agent registration remains separate from preparing that file.
 
 Analysis settings can live in the configuration's `analysis` object. When absent,
 the existing `.blindfolded.json` is used. Existing reports and legacy skill caches
-are left intact. New CLI reports default to `.510/reports/report.json`; MCP jobs
+are left intact. New CLI reports default to `.fiveten/reports/report.json`; MCP jobs
 use its `runs/` subdirectory. Every finding and incomplete required check still
 fails, with partial evidence retained.
 

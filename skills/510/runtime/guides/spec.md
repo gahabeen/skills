@@ -49,7 +49,7 @@ describe proposed checks as if they have already passed.
 ## Save and hand back
 
 Follow [workflow storage](workflow-storage.md). Save under the resolved `specs`
-directory, defaulting to `.510/specs/<subject>.md`, or update the spec explicitly
+directory, defaulting to `.fiveten/specs/<subject>.md`, or update the spec explicitly
 selected by the user. This destination is already authorized; do not ask again
 merely to save the file. Reuse configured shared/custom storage without changing it.
 

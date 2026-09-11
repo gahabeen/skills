@@ -61,7 +61,7 @@ after each coherent batch, including new files, and preserve unrelated work.
   Keep this workflow read-only. It needs no toolchain initialization or analysis run.
 - **510 explore [idea, question, or exploration path]:** read [the explore guide](runtime/guides/explore.md).
   Investigate possibilities and tradeoffs, maintaining a resumable document in the
-  configured `explorations` directory, defaulting to `.510/explorations/`. Keep
+  configured `explorations` directory, defaulting to `.fiveten/explorations/`. Keep
   evidence, tentative ideas, and agreed decisions distinct; honor discussion-only requests.
 - **510 commit:** read [the commit guide](runtime/guides/commit.md). Use the
   current thread's history to select all its uncommitted changes, preserve
@@ -83,14 +83,14 @@ after each coherent batch, including new files, and preserve unrelated work.
   rounds and capture agreed terminology and significant decisions as you go.
 - **510 spec [subject]:** read [the spec guide](runtime/guides/spec.md). Synthesize
   the conversation into an actionable specification in the configured `specs`
-  directory, defaulting to `.510/specs/`, without restarting the interview.
+  directory, defaulting to `.fiveten/specs/`, without restarting the interview.
 - **510 implement [spec path, tickets, or subject]:** read
   [the implementation guide](runtime/guides/implement.md). Build the selected work
   in tested slices, review standards and spec coverage, then commit locally unless
   the user requests otherwise. Reuse configured spec storage and bundled TDD guidance.
 - **510 debug [symptom]:** read [the debug guide](runtime/guides/debug.md). Build a
   reproduction, test causes, and verify the fix. Keep evidence in the configured
-  `debug` directory, defaulting to `.510/debug/`.
+  `debug` directory, defaulting to `.fiveten/debug/`.
 - **510 review [scope]:** read [the review guide](runtime/guides/review.md).
   Plain review assesses the whole repository with MCP `analyze.paths: ["."]`
   or CLI `analyze --path .`. Explicit paths select a narrower scope.
@@ -106,7 +106,7 @@ after each coherent batch, including new files, and preserve unrelated work.
   navigation; the analysis suite establishes its own coverage.
 - **510 init, choose storage, update, or diagnose tooling:** read
   [toolchain initialization](runtime/guides/toolchain.md). Reuse existing settings; default
-  new projects to `.510/`. The bundled CLI prepares storage and the MCP connection
+  new projects to `.fiveten/`. The bundled CLI prepares storage and the MCP connection
   before an MCP server is available. For `510 init`, also establish or refresh the
   project's `AGENTS.md` hierarchy with the bundled DOX guide.
 - **Install/update editable Oxlint rules:** read [installation](runtime/guides/install.md)
