@@ -1,5 +1,7 @@
 # 510 implement
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Build the work described by the selected spec or tickets, verify it, review it,
 and commit the resulting change locally on the current branch. An invocation
 authorizes this flow without repeating approvals already given. Honor narrower

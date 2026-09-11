@@ -1,5 +1,7 @@
 # 510 grill
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Stress-test the user's plan or decision and record the shared understanding as
 it develops. Treat text after `510 grill` as the subject; otherwise use the
 current conversation. If no subject is identifiable, ask for it.

@@ -26,7 +26,7 @@ export async function serve(root) {
   }
   tool("doctor", "Check 510 storage, pinned packages, and FFF native loading. Does not install anything.", {}, true, () => doctor(root));
   tool("paths", "Resolve configured spec and debug directories for this project. Read-only: does not create directories, install dependencies, or change storage settings.", {}, true, () => workflowPaths(root));
-  tool("guide", "Read a 510 workflow or supporting guide: DOX AGENTS.md maintenance, commit, PR creation, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or storage/toolchain guidance. Returns instructions; the agent performs the workflow.", { topic: z.enum(topics) }, true, ({ topic }) => readGuide(topic));
+  tool("guide", "Read a 510 workflow or supporting guide: explain, output style, DOX AGENTS.md maintenance, commit, PR creation, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or storage/toolchain guidance. Returns instructions; the agent performs the workflow.", { topic: z.enum(topics) }, true, ({ topic }) => readGuide(topic));
   tool("find_files", "Find repository files with FFF. Use short filename/path queries; page through results. Root is fixed when the server starts.", {
     query: z.string().min(1).max(2000), page: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(20),
   }, true, ({ query, page, limit }) => search.findFiles(query, page, limit));
@@ -34,7 +34,7 @@ export async function serve(root) {
     patterns: z.array(z.string().min(1).max(2000)).min(1).max(20), constraints: z.string().max(2000).default(""),
     cursor: z.string().uuid().optional(), limit: z.number().int().min(1).max(100).default(50), context: z.number().int().min(0).max(5).default(2),
   }, true, ({ patterns, ...options }) => search.search(patterns, options));
-  tool("analyze", "Start the complete static suite. Optional paths select files/directories for this run, relative to the fixed repository root or absolute within it; saved settings and storage are preserved. Imports and discovered tooling entries may supply additional context. All findings and incomplete required checks block success. No tests, builds, or application startup; tooling configuration may execute. Returns a job id. Writes to the configured reports directory, default .510/reports/runs/.",
+  tool("analyze", "Start the complete static suite. Optional paths select files/directories for this run, relative to the fixed repository root or absolute within it; saved settings and storage are preserved. Omitted paths use saved/default discovery; pass paths: ['.'] for a whole-repository review. Imports and discovered tooling entries may supply additional context. All findings and incomplete required checks block success. No tests, builds, or application startup; tooling configuration may execute. Returns a job id. Writes to the configured reports directory, default .510/reports/runs/.",
     { paths: z.array(z.string().min(1)).min(1).optional() }, false, ({ paths }) => jobs.start(paths));
   tool("analysis_result", "Read analysis status and a page of findings. Poll running jobs with a delay. Review all pages and coverage gaps; full evidence is saved at the returned report path.", {
     id: z.string().uuid(), offset: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(50),

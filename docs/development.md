@@ -16,7 +16,7 @@ The local server exposes:
 | --- | --- |
 | `doctor` | Check runtime, package versions, and native search readiness. |
 | `paths` | Resolve configured spec and debug directories without writes or initialization. |
-| `guide` | Load DOX documentation maintenance, commit, PR creation, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
+| `guide` | Load explain, shared output style, DOX documentation maintenance, commit, PR creation, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
 | `find_files` | Find files through FFF's persistent repository index. |
 | `search` | Search contents using literal OR patterns, constraints, and pagination. |
 | `analyze` | Start the complete Blindfolded static suite. |
@@ -36,7 +36,20 @@ requires no initialization; publication uses the agent's Git and GitHub tools.
 
 ## Blindfolded analysis
 
-Blindfolded is the internal analysis capability. Its checks remain unchanged:
+The agent's `510 review` workflow defaults to a whole-repository checkup.
+Its CLI resolves the repository root and returns `paths: ["."]` with the guide.
+Explicit paths narrow the review. The agent passes those paths to the shared
+analysis engine, overriding saved source paths for that run without changing
+settings. MCP users read `guide` with `topic: "review"` and pass the same paths
+to `analyze`. An `analyze` call without paths still uses saved/default discovery.
+
+Review also assesses architecture, behavior coverage in tests, and maintained
+documentation through source inspection. It reports priorities and incomplete
+coverage without source edits. It does not run tests or builds by default.
+Refactoring and implementation reuse this assessment within their declared scope.
+`doctor` remains a tooling readiness check.
+
+Blindfolded is the internal analysis capability. It runs these checks:
 
 | Analyzer | Evidence |
 | --- | --- |
@@ -45,6 +58,7 @@ Blindfolded is the internal analysis capability. Its checks remain unchanged:
 | Knip | Unused code/dependencies and reachability/configuration problems. |
 | Dependency-cruiser | Import cycles, unresolved dependencies, and declared architecture boundaries. |
 | ESLint + SonarJS | Cognitive complexity. |
+| Fallow | Duplicate code in selected files, with discovery and parser coverage. |
 
 Every finding blocks success, including Review signals. Incomplete required
 analyzers also fail while preserving partial results. All tools run by default.
@@ -137,6 +151,13 @@ The migration from the standalone Blindfolded skill is recorded in
 compatible; install the `510` skill and use its launcher for new installations.
 
 ## Attribution
+
+The shared output guide adapts [danyuchn/asd-ste100-skill](https://github.com/danyuchn/asd-ste100-skill).
+See [source and adaptations](../guides/upstream/asd-ste100-skill/UPSTREAM.md)
+and the preserved [MIT license](../guides/upstream/asd-ste100-skill/LICENSE).
+Fallow is a pinned dependency from [fallow-rs/fallow](https://github.com/fallow-rs/fallow).
+Its MIT license travels with the installed package. The adapter uses its CLI;
+it does not vendor or modify the analyzer.
 
 Project documentation maintenance adapts [Agent Zero's DOX](https://github.com/agent0ai/dox).
 See [source and adaptations](../guides/upstream/agent0ai-dox/UPSTREAM.md) and the

@@ -1,5 +1,7 @@
 # Initialize the project and connect 510
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Use this workflow when the user says **510 init**, requests another storage
 location, updates the skill, or diagnoses its installation. Keep one installed
 510 skill. The bundled CLI works before MCP is connected. A **510 init** request
@@ -160,7 +162,7 @@ evidence; the analysis suite establishes its own source coverage and excludes
 
 The tools are `doctor`, `paths`, `guide`, `find_files`, `search`, `analyze`, and
 `analysis_result`. Guides are also available as resources. `analyze` starts all
-five analyzers and returns an id; an overlapping request returns the active id.
+six analyzers and returns an id; an overlapping request returns the active id.
 Poll `analysis_result` with a delay and retrieve all findings pages and gaps.
 Full reports default to `.510/reports/runs/<id>.json`. Closing the server cancels
 unfinished checks and retains partial results. Completed status does not imply

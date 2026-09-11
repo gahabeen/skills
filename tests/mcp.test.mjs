@@ -63,7 +63,7 @@ test("installed MCP exposes tools, guides, healthy native search, and repository
   const commitResource = await f.client.readResource({ uri: "five-ten://guides/commit" });
   assert.equal(commitResource.contents[0].text, commit.markdown);
   assert.deepEqual(resources.resources.map((resource) => resource.uri).sort(), topics.map((topic) => `five-ten://guides/${topic}`).sort());
-  for (const topic of ["dox", "pr", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
+  for (const topic of ["explain", "output", "dox", "pr", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
     const uri = `five-ten://guides/${topic}`;
     assert(resources.resources.some((resource) => resource.uri === uri));
     const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8");
@@ -113,7 +113,7 @@ test("MCP and CLI use the same complete suite and preserve source-only execution
   const done = await completed(f, started.id);
   assert.equal(done.status, "completed");
   assert.equal(done.success, true);
-  assert.equal(done.analyzers.length, 5);
+  assert.equal(done.analyzers.length, 6);
   assert.equal(done.totalFindings, 0);
   assert.deepEqual(done.gaps, []);
   const report = JSON.parse(readFileSync(done.path, "utf8"));
@@ -156,7 +156,7 @@ test("MCP passes one-run paths through to analysis and never reuses a different 
   assert.equal(done.success, true, JSON.stringify(done));
   assert.deepEqual(done.scope.paths, ["src/selected"]);
   assert.equal(done.selectedFileCount, 1);
-  assert.equal(done.analyzers.length, 5);
+  assert.equal(done.analyzers.length, 6);
   const cli = spawnSync(process.execPath, [resolve(f.skill, "scripts/510.mjs"), "analyze", "--root", f.project, "--path", "src/selected", "--format", "json"], { env: f.env, encoding: "utf8", timeout: 20_000 });
   assert.equal(cli.status, 0, cli.stderr);
   const report = JSON.parse(cli.stdout);

@@ -69,9 +69,9 @@ function readSettings(root) {
   const paths = strings(settings.paths ?? ["."], "paths");
   const ignores = settings.ignore ?? [];
   if (!Array.isArray(ignores) || ignores.some((item) => typeof item !== "string")) throw new Error("ignore must be an array of patterns.");
-  const thresholds = { cyclomatic: 20, nesting: 4, cognitive: 15, ...settings.thresholds };
+  const thresholds = { cyclomatic: 20, nesting: 4, cognitive: 15, duplicateTokens: 50, duplicateLines: 5, ...settings.thresholds };
   for (const [key, value] of Object.entries(thresholds)) {
-    if (!["cyclomatic", "nesting", "cognitive"].includes(key) || !Number.isInteger(value) || value < 1) {
+    if (!["cyclomatic", "nesting", "cognitive", "duplicateTokens", "duplicateLines"].includes(key) || !Number.isInteger(value) || value < 1) {
       throw new Error(`Invalid threshold ${key}: expected a positive integer.`);
     }
   }

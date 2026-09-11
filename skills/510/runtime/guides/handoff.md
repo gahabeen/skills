@@ -1,5 +1,7 @@
 # 510 handoff
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Write a continuation document for a fresh agent using the current conversation
 and the actual work state. Treat anything after `510 handoff` as the next
 session's focus. If no focus was given, use the current unfinished objective.

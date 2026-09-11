@@ -1,7 +1,14 @@
 # 510 refactor
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Use the scope or intended improvement after `510 refactor`, or the refactoring
 request already established in the conversation.
+
+When following a review, use the selected findings and their affected paths.
+Reuse current evidence and preserve the recorded baseline. A previous review
+does not authorize fixing every finding. If the user requests a general refactor
+without selecting findings, identify a coherent first improvement from the review.
 
 Prefer the harness's native editing tools for authored changes, and review the
 resulting diff before continuing.
@@ -18,6 +25,10 @@ Establish the intended improvement and observable behavior to preserve. Read the
 relevant findings in source. Label pre-existing findings without treating them as
 passing. Read [effects and testability](effects-and-testability.md) when ownership,
 external operations, or hidden dependencies matter.
+
+Use this refactor's declared scope when applying review. Check architecture,
+tests, and documentation affected by the proposed change. Broader review results
+remain useful context; do not reset the change scope to the repository by default.
 
 When the change affects module responsibilities, interfaces, or test seams, read
 [codebase design](codebase-design.md). Inspect real caller contracts and compare
@@ -37,8 +48,10 @@ of wrappers that merely move complexity. Match the repository's established
 interfaces and naming where they remain appropriate.
 
 Rerun the full suite after the change and compare findings. Do not weaken policy
-or broaden exclusions to get a pass. For behavioral changes or meaningful
-regression risks, run the repository's relevant tests separately from the static
+or broaden exclusions to get a pass. Repeat contextual review of the affected
+contracts, tests, and docs, and retain unresolved baseline findings.
+For behavioral changes or meaningful regression risks, run the repository's
+relevant tests separately from the static
 analysis command. Pure formatting or moves usually need existing checks rather
 than tests that assert their implementation shape.
 

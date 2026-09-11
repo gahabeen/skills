@@ -1,7 +1,7 @@
 # Static analysis and complexity
 
 The [default suite](analysis.md) combines syntax/scope rules, type-aware checks,
-stricter compiler contracts, reachability, dependency graphs, and complexity.
+stricter compiler contracts, reachability, dependency graphs, duplication, and complexity.
 Keep three questions distinct: whether code violates a contract, whether it
 follows an adopted constraint, and whether its structure warrants investigation.
 
@@ -30,6 +30,12 @@ Use `bun run analyze` in this repository for the complete gate. Its
 `bun run complexity` development command isolates the native cyclomatic signal.
 
 ## Interpretation
+
+Fallow clone groups identify repeated tokens. Compare their responsibilities and
+callers before suggesting consolidation. Copies can need independent changes.
+The default minimums are 50 tokens and 5 lines in mild mode, excluding module
+wiring. Selected tests remain included. See [scope and coverage](analysis.md)
+for parser checks and the limits of scoped duplicate detection.
 
 Identify the responsibility or control-flow obstacle before proposing a change.
 Do not extract functions merely to move a reported score below a threshold, or

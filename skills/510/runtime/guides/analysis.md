@@ -37,6 +37,12 @@ This overrides configured `paths` for the run without saving changes. Keep
 and analyzer configurations are reused. Without a path selection, saved settings
 and default discovery apply as before.
 
+The agent's plain `510 review` workflow explicitly supplies `paths: ["."]`
+or `--path .` for repository-wide assessment. It does not inherit a saved subtree.
+Explicit review paths select that area. Review also inspects architecture, tests,
+and documentation as described in the [review guide](review.md). Those contextual
+assessments are separate from the automated report and its pass/fail result.
+
 `init` maintains `.510/.gitignore` for generated files. The installed skill is read-only.
 
 The command exits zero only when every required analyzer completes and there are
@@ -56,6 +62,7 @@ evaluated by the analyzers.
 | Knip | Unused files, exports, types, and dependencies; unresolved references and configuration hints. Framework entry discovery remains active. |
 | Dependency-cruiser | Import cycles, unresolved dependencies, and declared project architecture rules. Type-only dependencies are included. |
 | ESLint + SonarJS | Cognitive complexity through the TypeScript parser. |
+| Fallow | Duplicate code, with source discovery and parser coverage checks. |
 
 Cyclomatic complexity uses the classic variant and reports values above 20;
 nesting reports depths above 4; cognitive complexity reports values above 15.
@@ -63,6 +70,25 @@ These are configurable review policies, not validated quality boundaries. Every
 reported result blocks success. `void promise` does not handle rejection and is
 reported; await the work, return it to its caller, or handle rejection explicitly.
 A default switch branch does not exempt missing union members.
+
+Fallow reports clone groups with at least 50 tokens and 5 lines by default.
+Its `mild` mode ignores comments and whitespace. Module wiring, such as imports
+and re-exports, does not count as duplicate code. Each group is a blocking
+**Review** signal with all occurrence locations. Similar code does not establish
+a shared responsibility or justify merging implementations.
+
+Fallow compares an isolated copy of exactly the selected files. It includes
+selected tests and declarations, disables its default duplicate ignores, and
+does not load the consuming project's Fallow configuration or baselines.
+Discovery and parser checks detect missing files or degraded parsing before
+the result can pass. Valid clone findings survive parser failures elsewhere.
+Snapshot files and binary verification data stay in temporary analysis storage.
+
+Copies outside a selected scope are not compared. Fallow's duplicate statistics
+describe files eligible under the token and line minimums. They are not the
+number of files discovered or parsed; the report records those counts separately.
+Fallow's health command provides parser diagnostics only. The suite keeps its
+existing complexity, reachability, and dependency analyzers.
 
 The pinned Oxlint typed backend can choose the nearest application tsconfig even
 when given a dedicated config path. The separate TypeScript compiler check still
@@ -97,7 +123,10 @@ that object is absent:
   "paths": ["src", "test"],
   "ignore": ["src/generated/**"],
   "projects": ["tsconfig.json", "test/tsconfig.json"],
-  "thresholds": { "cyclomatic": 20, "nesting": 4, "cognitive": 15 }
+  "thresholds": {
+    "cyclomatic": 20, "nesting": 4, "cognitive": 15,
+    "duplicateTokens": 50, "duplicateLines": 5
+  }
 }
 ```
 

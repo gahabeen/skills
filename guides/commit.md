@@ -1,5 +1,7 @@
 # Commit the current thread's changes
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Use this workflow when the user asks for **510 commit** or **$510 commit**.
 Create one new local commit containing all uncommitted changes attributable to
 the current thread, including earlier turns, with a message grounded in the

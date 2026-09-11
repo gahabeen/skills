@@ -12,7 +12,7 @@ const sourceSkill = join(root, "skills/510");
 const temporary = [];
 afterEach(() => { for (const directory of temporary.splice(0)) { skillPermissions(join(directory, "installed-skill"), true); rmSync(directory, { recursive: true, force: true }); } });
 
-function fixture({ missingKnip = false, javascript = false, storage: choice } = {}) {
+function fixture({ missingKnip = false, missingFallow = false, javascript = false, storage: choice } = {}) {
   const directory = mkdtempSync(join(tmpdir(), "blindfolded-analysis-"));
   temporary.push(directory);
   const consumer = join(directory, "consumer");
@@ -26,7 +26,7 @@ function fixture({ missingKnip = false, javascript = false, storage: choice } = 
   writeFileSync(join(consumer, ".blindfolded.json"), JSON.stringify({ paths: ["src"] }));
   if (!javascript) writeFileSync(join(consumer, "tsconfig.json"), JSON.stringify({ compilerOptions: { target: "esnext", module: "nodenext", strict: true, noEmit: true }, include: ["src/**/*"] }));
   writeFileSync(join(consumer, `src/index.${extension}`), "export const answer = 42;\n");
-  const storage = provisionStorage(skill, consumer, { missingKnip, storage: choice });
+  const storage = provisionStorage(skill, consumer, { missingKnip, missingFallow, storage: choice });
   skillPermissions(skill, false);
   return { consumer, skill, extension, storage, env: bunOnlyEnvironment(directory) };
 }
@@ -57,7 +57,7 @@ test("one-run paths select a subdirectory without changing saved scope, storage,
   expect(report.scope.paths).toEqual(["src/selected"]);
   expect(report.scope.pathSource).toBe("request");
   expect(report.success).toBe(true);
-  expect(report.analyzers).toHaveLength(5);
+  expect(report.analyzers).toHaveLength(6);
   expect(report.analyzers.find((item) => item.tool === "typescript").configuration.map((item) => item.base)).toEqual(["tsconfig.json"]);
   for (const [path, content] of preserved) expect(readFileSync(join(f.consumer, path), "utf8")).toBe(content);
   expect(existsSync(join(f.consumer, "src/selected/.510"))).toBe(false);
@@ -77,6 +77,32 @@ test("absolute and repeated paths retain selected findings and nested compiler c
   expect(report.findings.some((item) => item.tool === "typescript" && item.file.endsWith("extra/index.ts") && item.rule === "TS2322")).toBe(true);
   expect(report.analyzers.find((item) => item.tool === "typescript").gaps).toEqual([]);
   expect(report.success).toBe(false);
+}, 30_000);
+
+test("the default review scope finds code outside saved analysis paths without rewriting them", () => {
+  const f = fixture();
+  mkdirSync(join(f.consumer, "src/selected"));
+  writeFileSync(join(f.consumer, "src/selected/index.ts"), "export const answer = 42;\n");
+  writeFileSync(join(f.consumer, "src/index.ts"), 'export { answer } from "./selected/index.js";\n');
+  writeFileSync(join(f.consumer, "src/outside.ts"), "export const broken: number = 'wrong';\n");
+  const path = join(f.consumer, ".blindfolded.json");
+  const config = JSON.stringify({ paths: ["src/selected"] });
+  writeFileSync(path, config);
+  const configured = run(f);
+  expect(configured.files).toEqual(["src/selected/index.ts"]);
+  const review = spawnSync(process.execPath, [join(f.skill, "scripts/510.mjs"), "review"], {
+    cwd: join(f.consumer, "src/selected"), env: f.env, encoding: "utf8", timeout: 20_000,
+  });
+  expect(review.status, review.stderr).toBe(0);
+  const scope = JSON.parse(review.stdout.split("\n")[0].slice("Review scope: ".length));
+  const report = run(f, ...scope.paths.flatMap((selected) => ["--path", selected]));
+  expect(scope.root).toBe(report.root);
+  expect(report.scope.paths).toEqual(["."]);
+  expect(report.files).toContain("src/outside.ts");
+  expect(report.findings.some((item) => item.tool === "typescript" && item.file.endsWith("src/outside.ts") && item.rule === "TS2322")).toBe(true);
+  expect(report.success).toBe(false);
+  expect(readFileSync(path, "utf8")).toBe(config);
+  expect(existsSync(join(f.consumer, "executed"))).toBe(false);
 }, 30_000);
 
 test("a workspace subdirectory does not scan unrelated workspaces", () => {
@@ -116,7 +142,7 @@ test("missing, empty, and escaping scopes fail without falling back to the repos
     expect(report.success).toBe(false);
     expect(report.files).toEqual([]);
     expect(report.scope.paths).toEqual([path]);
-    expect(report.gaps).toHaveLength(5);
+    expect(report.gaps).toHaveLength(6);
     expect(report.analyzers.every((item) => item.status === "incomplete")).toBe(true);
   }
 }, 30_000);
@@ -143,7 +169,7 @@ test("an isolated skill runs every analyzer, preserves build settings, and never
   expect(report.gaps).toEqual([]);
   expect(report.findings).toEqual([]);
   expect(report.success).toBe(true);
-  expect(report.analyzers.map((item) => item.tool)).toEqual(["oxlint", "typescript", "knip", "dependency-cruiser", "sonarjs"]);
+  expect(report.analyzers.map((item) => item.tool)).toEqual(["oxlint", "typescript", "knip", "dependency-cruiser", "sonarjs", "fallow"]);
   expect(readFileSync(path, "utf8")).toBe(original);
   const profile = report.analyzers.find((item) => item.tool === "typescript").configuration[0].compilerOptions;
   expect(profile.strictNullChecks).toBe(true);
@@ -306,6 +332,81 @@ test("a missing analyzer fails while keeping other analyzers' findings", () => {
   expect(report.gaps.some((gap) => gap.tool === "knip")).toBe(true);
   expect(report.findings.some((item) => item.rule.includes("no-floating-promises"))).toBe(true);
   expect(report.analyzers.find((item) => item.tool === "sonarjs").status).toBe("completed");
+  expect(report.success).toBe(false);
+}, 30_000);
+
+function duplicateSources(f) {
+  const content = Array.from({ length: 20 }, (_, index) => `export const value${index} = ${index};`).join("\n") + "\n";
+  writeFileSync(join(f.consumer, "src/index.ts"), content);
+  writeFileSync(join(f.consumer, "src/copy.test.ts"), content);
+  writeFileSync(join(f.consumer, "src/empty.ts"), "// This file has no clone candidates.\n");
+  writeFileSync(join(f.consumer, "src/types.d.ts"), "export declare const answer: number;\n");
+  return content;
+}
+
+test("Fallow reports selected test-file clones despite ambient ignores and preserves locations", () => {
+  const f = fixture();
+  const original = duplicateSources(f);
+  const config = JSON.stringify({ ignorePatterns: ["**/*"], duplicates: { minTokens: 99999 } });
+  writeFileSync(join(f.consumer, ".fallowrc.json"), config);
+  f.env.FALLOW_PRODUCTION = "true";
+  f.env.FALLOW_CONFIG = join(f.consumer, ".fallowrc.json");
+  const report = run(f);
+  const result = report.analyzers.find((item) => item.tool === "fallow");
+  expect(result.status).toBe("completed");
+  expect(result.gaps).toEqual([]);
+  expect(result.scope.discoveredFileCount).toBe(4);
+  expect(result.scope.parsedFileCount).toBe(4);
+  expect(result.scope.eligibleFileCount).toBe(2);
+  expect(result.findings).toHaveLength(1);
+  const clone = result.findings[0];
+  expect(clone.classification).toBe("Review");
+  expect(clone.relatedLocations.map((item) => item.file).sort()).toEqual([join(report.root, "src/copy.test.ts"), join(report.root, "src/index.ts")]);
+  expect(clone.relatedLocations.every((item) => item.line === 1 && item.endLine === 20 && item.column === 1)).toBe(true);
+  expect(clone.measurement.tokens).toBeGreaterThanOrEqual(50);
+  expect(report.success).toBe(false);
+  expect(readFileSync(join(f.consumer, "src/index.ts"), "utf8")).toBe(original);
+  expect(readFileSync(join(f.consumer, ".fallowrc.json"), "utf8")).toBe(config);
+  expect(existsSync(join(f.consumer, ".fallow"))).toBe(false);
+}, 30_000);
+
+test("Fallow compares only the requested source scope and honors recorded minimums", () => {
+  const f = fixture();
+  duplicateSources(f);
+  const scoped = run(f, "--path", "src/index.ts");
+  const selected = scoped.analyzers.find((item) => item.tool === "fallow");
+  expect(selected.findings).toEqual([]);
+  expect(selected.gaps).toEqual([]);
+  expect(selected.scope.selectedFiles).toEqual(["src/index.ts"]);
+  expect(selected.scope.comparison).toBe("selected-files-only");
+  writeFileSync(join(f.consumer, ".blindfolded.json"), JSON.stringify({ paths: ["src"], thresholds: { duplicateTokens: 999, duplicateLines: 25 } }));
+  const configured = run(f);
+  const result = configured.analyzers.find((item) => item.tool === "fallow");
+  expect(result.status).toBe("completed");
+  expect(result.findings).toEqual([]);
+  expect(configured.thresholds.duplicateTokens).toBe(999);
+  expect(configured.thresholds.duplicateLines).toBe(25);
+}, 30_000);
+
+test("Fallow parser failures block completion and retain duplicate findings", () => {
+  const f = fixture();
+  duplicateSources(f);
+  writeFileSync(join(f.consumer, "src/broken.ts"), "export function broken( { nope");
+  const report = run(f);
+  const result = report.analyzers.find((item) => item.tool === "fallow");
+  expect(result.status).toBe("incomplete");
+  expect(result.gaps.some((gap) => gap.includes("src/broken.ts") && gap.includes("source-parse-degraded"))).toBe(true);
+  expect(result.findings).toHaveLength(1);
+  expect(report.success).toBe(false);
+}, 30_000);
+
+test("missing Fallow fails the suite and retains the other analyzers' evidence", () => {
+  const f = fixture({ missingFallow: true });
+  writeFileSync(join(f.consumer, "src/index.ts"), "export function start() { Promise.resolve(42); }\n");
+  const report = run(f);
+  expect(report.analyzers.find((item) => item.tool === "fallow").status).toBe("incomplete");
+  expect(report.gaps.some((gap) => gap.tool === "fallow")).toBe(true);
+  expect(report.findings.some((item) => item.rule.includes("no-floating-promises"))).toBe(true);
   expect(report.success).toBe(false);
 }, 30_000);
 

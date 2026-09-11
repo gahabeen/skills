@@ -37,6 +37,8 @@ const commands = {
           [--format text|json] [--output PATH]
   serve --root PATH             Start the local MCP server over stdio
   mcp-config --root PATH        Print a connection using absolute paths
+  explain [SUBJECT ...]         Print the read-only code explanation workflow
+          [--root PATH]        Supply repository context without initialization
   commit                        Print the agent current-thread commit workflow
   pr [--base BRANCH]             Print the agent pull-request workflow and requested base
   handoff                       Print the agent handoff workflow
@@ -44,13 +46,13 @@ const commands = {
   spec                          Print the agent specification workflow
   implement                     Print the agent spec-to-implementation workflow
   debug                         Print the agent bug-diagnosis workflow
-  review [PATH ...] [--root PATH] Print the agent code-review workflow with its scope
+  review [PATH ...] [--root PATH] Print the repo checkup workflow; default scope is .
   refactor                      Print the agent refactoring workflow
   guide TOPIC                   Read a workflow or supporting guide
   install-rules [DESTINATION]    Copy editable Blindfolded Oxlint rules
 
 Run with bun <skill-directory>/scripts/510.mjs <command>.
-Commit, pr, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
+Explain, commit, pr, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
 Init returns the documentation guide for the agent to establish the AGENTS.md hierarchy.
 Initialization and connection are separate. No command changes agent configuration.`);
   },
@@ -89,6 +91,16 @@ Initialization and connection are separate. No command changes agent configurati
     if (positionals.length !== 1) throw new Error("Usage: 510 guide TOPIC");
     console.log(readGuide(positionals[0]).markdown);
   },
+  explain() {
+    const { values, positionals } = options(rootOption, true);
+    if (positionals.some((part) => !part.trim())) throw new Error("Explain subjects must not be empty.");
+    if (positionals.length || values.root) {
+      const request = { ...(values.root ? { root: locateProject(values.root) } : {}),
+        ...(positionals.length ? { subject: positionals.join(" ") } : {}) };
+      console.log(`Explain request: ${JSON.stringify(request)}\n`);
+    }
+    console.log(readGuide("explain").markdown);
+  },
   commit() {
     options();
     console.log(readGuide("commit").markdown);
@@ -123,11 +135,9 @@ Initialization and connection are separate. No command changes agent configurati
   },
   review() {
     const { values, positionals } = options(rootOption, true);
-    if (positionals.length || values.root) {
-      const root = locateProject(values.root);
-      const paths = positionals.length ? sourcePaths(root, positionals) : undefined;
-      console.log(`Review scope: ${JSON.stringify({ root, paths })}\n`);
-    }
+    const root = locateProject(values.root);
+    const paths = sourcePaths(root, positionals.length ? positionals : ["."]);
+    console.log(`Review scope: ${JSON.stringify({ root, paths })}\n`);
     console.log(readGuide("review").markdown);
   },
   refactor() {

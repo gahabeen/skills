@@ -1,5 +1,7 @@
 # Package the current thread's work into a PR
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Use this workflow when the user asks for **510 pr** or **$510 pr**, optionally
 with **--base BRANCH**. Package the current thread's selected work, including
 earlier commits, into a GitHub pull request. The invocation authorizes creating

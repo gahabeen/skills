@@ -1,84 +1,129 @@
 # 510 review
 
-Use the scope after `510 review`, or the review scope already established in the
-conversation.
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
 
-When the user supplies a directory or file, including a path shared earlier in
-the conversation, use it as the source scope for this run. For example,
-`510 review packages/billing` selects that directory. Keep the repository root
-for settings and storage; pass `paths: ["packages/billing"]` to MCP `analyze`, or
-`analyze --root /path/to/repo --path packages/billing` to the bundled CLI.
-Repeat `--path` or supply multiple MCP paths for several targets. Paths are
-repository-relative or absolute within that repository. Do not rewrite saved
-analysis settings or substitute the subdirectory for the repository root.
+Assess the repository, explain supported problems, and recommend priorities.
+Review preserves application source, tests, configuration, and documentation.
+Save analysis reports in configured storage. Fixes belong to an authorized change workflow.
 
-Confirm the selected paths and files in the report before interpreting findings.
-All analyzers still run on the selected scope. Imports, ancestor configuration,
-and discovered tooling entry points may require context outside it; disclose
-that context and retain resulting findings and coverage gaps. A scoped pass
-only establishes coverage of its recorded scope. Invalid or empty selections
-must fail explicitly, without falling back to the whole repository.
+## Select the scope
 
-Make each proposed change answer a specific finding. Analyze source and project
-metadata without starting the application, its tests, builds, or benchmarks.
-Evaluating tooling configuration is allowed. Do not run generation scripts to
-fill missing type information; report the resulting coverage gap.
+**Plain `510 review` assesses the whole repository.** Locate its root from the
+working directory or an explicit repository location. Pass `paths: ["."]` to MCP
+`analyze`, or `analyze --root /path/to/repo --path .` to the CLI. This overrides
+saved source paths for this run. Do not silently reuse a directory mentioned
+earlier in the conversation or restrict the review to the current diff.
 
-## Choose the work
+**`510 review <path>` assesses that area.** Honor an explicit scope in the current
+request, including an explicit request to continue an earlier scoped review.
+For example, `510 review packages/billing` passes `paths: ["packages/billing"]`
+or `analyze --root /path/to/repo --path packages/billing`. Repeat paths for
+multiple targets. Keep the repository root for settings and storage.
 
-Read the repository's agent instructions and working-tree status. Establish the
-requested scope, source roots, project configurations, and existing architecture
-and coding constraints before changing anything.
+When another workflow calls review, use that workflow's declared scope and
+comparison. The whole-repository default applies to a standalone bare invocation.
 
-- **Review or cleanup:** follow the workflow below and read
-  [Run the static suite](analysis.md) for setup, scope, and reporting.
-- **Install or update editable Oxlint rules in a repository:** read
-  [Install a vendored plugin](install.md) or
-  [Update a vendored installation](update.md). This integration
-  accompanies the complete analysis suite.
-- **Explain or extend a rule:** read its [rule reference](rules.md),
-  inspect the implementation, and verify accepted and rejected examples.
+Preserve saved settings, thresholds, ignores, and explicit project configurations.
+Disclose exclusions and unsupported source. A narrow compiler configuration can
+leave coverage gaps in a repository-wide run; report them without rewriting it.
+Invalid or empty selections must fail explicitly, without broadening the scope.
+The low-level `analyze` command still uses saved paths when none are supplied.
 
-## Review and cleanup
+## Establish coverage
 
-1. Prepare the skill's isolated toolchain and run the complete analysis command.
-   Oxlint, strict TypeScript analysis, Knip, dependency-cruiser, and SonarJS all
-   participate by default. Do not offer per-tool opt-ins, substitute visual
-   estimates for measured complexity, or label a missing check as a clean result.
-   Use dedicated analysis settings; preserve application build configuration.
-2. Read the combined report, including analyzer status and coverage gaps. Every
-   finding fails the analysis, including warning-level review signals. A failed
-   analyzer also fails the run; preserve results from checks that completed.
-   Pre-existing findings may be labeled but remain blocking.
-3. Classify the evidence without confusing a failing gate with proof of a bug:
+Read the applicable `AGENTS.md` instructions and working-tree status. Inventory
+the selected first-party packages, source roots, public entrypoints, dependencies,
+tests, CI checks, and maintained docs. Read domain terminology and relevant
+architecture decisions. Include existing code and local changes within scope.
 
-   | Kind | Evidence | Response |
-   | --- | --- | --- |
-   | **Fix** | A demonstrated defect or broken runtime contract | Explain the failure and repair it within scope. |
-   | **Enforce** | An adopted coding, type, or dependency constraint | Restore the constraint and preserve intentional exceptions. |
-   | **Review** | Complexity, reachability, coupling, or other contextual concern | Investigate before deciding whether a refactor or policy adjustment is justified. |
+Use this inventory to cover each substantive area, including areas without
+analyzer findings. Trace representative behavior through its actual callers and
+boundaries. Scale the depth to the area and its risks. Record what was inspected,
+sampled, excluded, or unavailable. Repository-wide scope does not mean every line
+or runtime path was verified. Report unfinished required assessment as a gap.
 
-   Tool classifications are starting points. Reclassify when source evidence
-   warrants it, and explain why; all findings still block success.
-4. Inspect relevant functions using [effects and testability](effects-and-testability.md).
-   Keep source observations and agent judgments distinct from analyzer results.
-   Report unresolved calls and ownership uncertainty. Local mutation alone does
-   not establish impurity; no composite quality score or purity proof is provided.
-5. For every supported finding, give its location, classification, evidence,
-   consequence, uncertainty, and proposed action. Record complexity scores with
-   their thresholds and variants. A metric alone does not justify splitting a
-   function. Reachability alone does not justify deleting dynamically used code.
-6. When cleanup is requested, make the smallest supported changes and rerun the
-   suite. Preserve observable behavior, useful type information, callback order,
-   object omission semantics, and mutation ownership. Do not suppress findings,
-   weaken thresholds, add unjustified casts, or hide old findings to obtain a pass.
-   When only review is requested, report findings without editing source.
+For scoped reviews, inspect external callers and contracts when necessary.
+Disclose that context without turning unrelated areas into review targets.
 
-Finish with changed behavior, analyzer results, contextual findings, and remaining
-coverage gaps. A successful command covers its recorded automated scope; it is
-not a claim that contextual review found nothing. Include any additional review
-findings in the overall outcome and mark that outcome unsuccessful while they
-remain. Runtime validation of a code change is separate work, outside this
-skill's static analysis run.
+## Run the complete static suite
 
-The CLI `review` command prints this guide; the agent performs the review.
+Follow [analysis setup and reporting](analysis.md). Toolchain preparation and
+reports may write to configured 510 storage. Do not perform `init`'s documentation
+edits during review. Report documentation problems in the assessment below.
+
+Run Oxlint, strict TypeScript analysis, Knip, dependency-cruiser, SonarJS, and
+Fallow together. Confirm the report's selected files and exclusions match the
+intended scope. Keep every analyzer enabled and use dedicated analysis settings.
+Preserve application build configuration.
+
+Read every findings page, analyzer status, and coverage gap. Every finding fails
+the analysis, including Review signals. An incomplete required analyzer also
+fails the run. Retain partial results and pre-existing findings.
+
+Static analysis may evaluate tooling configuration. It does not start the
+application, tests, builds, generation, or benchmarks. Inspect test and CI
+definitions as source. Separately requested runtime verification remains separate
+from this static command. Never label an unrun check as passing.
+
+## Assess the source beyond analyzer findings
+
+| Area | Evidence to inspect |
+| --- | --- |
+| Architecture and contracts | Responsibilities, public interfaces, actual callers, dependency direction, shared data ownership, and validation where trust changes. Look for concrete leaks or conflicting contracts. |
+| Behavior and test coverage | Match important public behavior, errors, state transitions, and integrations to test assertions. Check whether tests reach the interface consumers use and whether CI selects them. |
+| Documentation and instructions | Compare maintained docs, setup/check commands, entrypoint descriptions, domain terms, and relevant `AGENTS.md` links against the source and configuration. |
+
+Use [codebase design](codebase-design.md) to assess interface depth, ownership,
+and caller knowledge. Use [effects and testability](effects-and-testability.md)
+for hidden inputs, observable effects, coordination, and unresolved operations.
+Local mutation alone does not establish impurity.
+
+Test existence does not establish behavior coverage. Existing coverage reports
+can support the assessment only with their scope and freshness stated. Do not
+invent percentages, execution results, or a requirement for a new test where
+existing coverage already establishes the contract.
+
+Documentation findings need a concrete consequence, such as a broken setup
+command or misleading ownership rule. Do not demand a document for every folder
+or treat a missing preferred template as a defect. Inspect the instruction
+hierarchy using [DOX guidance](dox.md), without editing it.
+
+For complexity findings, record the metric, variant, and threshold. A metric
+alone does not justify splitting a function. Verify dynamic usage before
+proposing removal of code reported as unused.
+
+For Fallow clone groups, compare every occurrence, its callers, and its reason
+to change. Record the token/line minimums and comparison scope. Shared syntax
+alone does not justify a common abstraction. Copies outside selected files are
+not compared. Preserve ownership, callback order, omission semantics, and useful
+type information in proposed changes.
+
+## Return priorities and evidence
+
+Keep severity separate from classification. Prioritize by demonstrated impact,
+likelihood, and affected scope. Explain the priority without inventing a quality score.
+
+| Kind | Evidence |
+| --- | --- |
+| **Fix** | A demonstrated defect or broken runtime contract. |
+| **Enforce** | A violation of an adopted coding, type, or dependency constraint. |
+| **Review** | A supported structural, testability, or documentation concern that needs judgment. |
+
+Tool classifications are starting points. Reclassify when source evidence
+warrants it, and explain why. Keep contextual judgments distinct from automated
+results. All remaining findings and incomplete required checks block success.
+
+Return the overall outcome, followed by prioritized findings with source links,
+classification, evidence, consequence, uncertainty, and a proposed action.
+Group repeated diagnostics when useful, retaining their locations and the full
+report reference. Include analyzer results and coverage for architecture, tests,
+and docs. State which runtime checks were not run and what remains uninspected.
+A clean static report alone does not establish a successful overall review.
+
+Recommend a coherent first set of changes without starting them. Route structural
+improvements to `510 refactor` and bugs needing diagnosis to `510 debug`.
+The usual sequence is review, select priorities, refactor, then review again.
+A review request alone does not authorize source or documentation edits, commits, or publication.
+
+The CLI `review` command returns the resolved scope and this guide. The agent
+performs the assessment. `510 doctor` continues to check 510 tooling readiness.

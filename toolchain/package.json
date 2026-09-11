@@ -13,6 +13,7 @@
     "dependency-cruiser": "18.2.0",
     "eslint": "9.39.5",
     "eslint-plugin-sonarjs": "4.2.0",
+    "fallow": "3.24.1",
     "knip": "6.35.1",
     "oxlint": "1.78.0",
     "oxlint-tsgolint": "7.0.2001",

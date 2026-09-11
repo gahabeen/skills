@@ -1,7 +1,7 @@
 ---
 name: "510"
 disable-model-invocation: true
-description: Use 510 for grilling plans with domain docs, writing and implementing specs, debugging bugs and performance regressions, conversation handoffs, committing the current thread's changes and packaging them into pull requests, project storage, toolchain, and AGENTS.md hierarchy initialization with 510 init, evidence-based code review with 510 review, behavior-preserving refactoring with 510 refactor, repository search, and static analysis of JavaScript or TypeScript. Coordinates the local 510 MCP tools and bundled CLI, including the complete Blindfolded suite.
+description: Use 510 to explain code and architecture, grill plans with domain docs, write and implement specs, debug bugs and performance regressions, prepare handoffs, commit thread changes, and create pull requests. Includes project storage and AGENTS.md initialization, repository search, evidence-based review, refactoring, and complete JavaScript/TypeScript analysis through the local MCP tools and bundled CLI.
 ---
 
 # 510
@@ -9,6 +9,11 @@ description: Use 510 for grilling plans with domain docs, writing and implementi
 Establish the requested outcome and inspect the repository's instructions and
 working-tree state. Keep brainstorming exploratory, review focused on findings,
 and implementation focused on the authorized change. Preserve unrelated work.
+
+For user-facing replies and authored prose, apply the shared
+[output guidance](runtime/guides/output.md). Use clear, consistent language while
+preserving facts, uncertainty, and required evidence. This governs returned output,
+not internal reasoning, code, structured tool data, or exact diagnostics.
 
 For authorized edits, follow [DOX documentation maintenance](runtime/guides/dox.md):
 read the root-to-target `AGENTS.md` chain before editing, then update affected
@@ -30,6 +35,9 @@ after each coherent batch, including new files, and preserve unrelated work.
 
 ## Choose the workflow
 
+- **510 explain [area or question]:** read [the explain guide](runtime/guides/explain.md).
+  Map the relevant modules, callers, and behavior using the project's domain names.
+  Keep this workflow read-only. It needs no toolchain initialization or analysis run.
 - **510 commit:** read [the commit guide](runtime/guides/commit.md). Use the
   current thread's history to select all its uncommitted changes, preserve
   unrelated work, and create one commit with a descriptive message from the diff.
@@ -54,10 +62,13 @@ after each coherent batch, including new files, and preserve unrelated work.
 - **510 debug [symptom]:** read [the debug guide](runtime/guides/debug.md). Build a
   reproduction, test causes, and verify the fix. Keep evidence in the configured
   `debug` directory, defaulting to `.510/debug/`.
-- **510 review [scope]:** read [the review guide](runtime/guides/review.md), then run and
-  interpret the complete Blindfolded suite. Use a supplied or previously shared
-  subdirectory/file as the one-run source scope via MCP `analyze.paths` or CLI
-  `analyze --path PATH`, keeping the repository root for settings and storage.
+- **510 review [scope]:** read [the review guide](runtime/guides/review.md).
+  Plain review assesses the whole repository with MCP `analyze.paths: ["."]`
+  or CLI `analyze --path .`. Explicit paths select a narrower scope.
+  Assess architecture, behavior coverage in tests, and documentation alongside
+  the complete static suite. Return prioritized findings without source edits.
+  Keep the repository root for settings and storage. Review within another
+  workflow follows that workflow's declared scope.
 - **510 refactor [scope or improvement]:** read [the refactoring guide](runtime/guides/refactor.md).
   Establish evidence, make the smallest coherent change, and verify behavior.
   Use its bundled design guidance for module interfaces and test seams.
@@ -82,9 +93,9 @@ one relevant guide. `analyze` starts the complete suite; use its id with
 page and coverage gap, and consult the full saved report for configuration and
 scope details. `status: completed` does not imply `success: true`.
 
-Commit, pr, handoff, grill, spec, implement, debug, review, and refactor are agent
+Explain, commit, pr, handoff, grill, spec, implement, debug, review, and refactor are agent
 workflows. Their CLI commands print instructions; the agent performs the workflow.
-Handoff, grill, and spec need no toolchain initialization or analysis run.
+Explain, handoff, grill, and spec need no toolchain initialization or analysis run.
 The documentation pass in `510 init` is also agent work; CLI readiness confirms
 the toolchain, not that project instructions have been written or verified.
 Review and refactor use the complete static suite. Implementation and debugging run tests and

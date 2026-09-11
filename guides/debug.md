@@ -1,5 +1,7 @@
 # 510 debug
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Diagnose the reported bug or performance regression through a reproducible feedback
 loop, then fix and verify it within the user's requested scope. Use the description
 after `510 debug`, or the current report. Read relevant repository instructions,

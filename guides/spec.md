@@ -1,5 +1,7 @@
 # 510 spec
 
+Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
+
 Turn the current conversation and repository evidence into an actionable written
 specification. Use text after `510 spec` as the focus. Reuse the outcomes of a
 prior grill, existing requirements, the project's glossary, and relevant decision

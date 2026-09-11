@@ -5,13 +5,15 @@ import { typescript } from "./typescript.mjs";
 import { knip } from "./knip.mjs";
 import { dependencies } from "./dependencies.mjs";
 import { sonar } from "./sonar.mjs";
+import { fallow } from "./fallow.mjs";
 import { manifest, packagePath } from "./runtime.mjs";
 
 const [name, path] = process.argv.slice(2);
 const { project, directory, prepared } = JSON.parse(readFileSync(path, "utf8"));
-const adapters = { oxlint, typescript, knip, "dependency-cruiser": dependencies, sonarjs: sonar };
+const adapters = { oxlint, typescript, knip, "dependency-cruiser": dependencies, sonarjs: sonar, fallow };
 const dependenciesByTool = {
   oxlint: ["oxlint", "oxlint-tsgolint", "@oxlint/plugins"], typescript: ["typescript-check"], knip: ["knip"],
+  fallow: ["fallow"],
   "dependency-cruiser": ["dependency-cruiser", "typescript"], sonarjs: ["eslint", "eslint-plugin-sonarjs", "@typescript-eslint/parser", "typescript"],
 };
 try {

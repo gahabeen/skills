@@ -8,7 +8,7 @@ import { finalize } from "./report.mjs";
 import { copyRules } from "../install.mjs";
 import { storageFor } from "../../runtime/storage.mjs";
 
-const analyzers = ["oxlint", "typescript", "knip", "dependency-cruiser", "sonarjs"];
+const analyzers = ["oxlint", "typescript", "knip", "dependency-cruiser", "sonarjs", "fallow"];
 const worker = fileURLToPath(new URL("worker.mjs", import.meta.url));
 function execute(tool, context, signal, root) {
   return new Promise((done) => {

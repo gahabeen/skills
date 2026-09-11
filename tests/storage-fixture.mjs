@@ -5,7 +5,7 @@ import { storageFor } from "../src/runtime/storage.mjs";
 
 const repository = fileURLToPath(new URL("../", import.meta.url));
 
-export function provisionStorage(skill, project, { missingKnip = false, storage } = {}) {
+export function provisionStorage(skill, project, { missingKnip = false, missingFallow = false, storage } = {}) {
   mkdirSync(resolve(project, ".510"), { recursive: true });
   writeFileSync(resolve(project, ".510/config.json"), JSON.stringify({ version: 1, storage: storage ?? { mode: "project" } }));
   const paths = storageFor(project);
@@ -13,10 +13,13 @@ export function provisionStorage(skill, project, { missingKnip = false, storage 
   for (const file of ["package.json", "bun.lock"]) cpSync(resolve(skill, "runtime/toolchain", file), resolve(paths.toolchain, file));
   const dependencies = resolve(storageFor(repository).toolchain, "node_modules");
   const installed = resolve(paths.toolchain, "node_modules");
-  if (existsSync(installed) && !missingKnip) return paths;
-  if (missingKnip) {
+  if (existsSync(installed) && !missingKnip && !missingFallow) return paths;
+  if (missingKnip || missingFallow) {
     mkdirSync(installed);
-    for (const name of readdirSync(dependencies)) if (name !== "knip") symlinkSync(resolve(dependencies, name), resolve(installed, name));
+    for (const name of readdirSync(dependencies)) {
+      if ((missingKnip && name === "knip") || (missingFallow && name === "fallow")) continue;
+      symlinkSync(resolve(dependencies, name), resolve(installed, name));
+    }
   } else symlinkSync(dependencies, installed, "dir");
   return paths;
 }

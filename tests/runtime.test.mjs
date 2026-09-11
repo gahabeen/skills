@@ -70,24 +70,38 @@ test("conversation workflows and their supporting guides work in an isolated rea
   const f = installed({ dependencies: false });
   const instructions = "# Existing project rules\n\nPreserve this file.\n";
   writeFileSync(resolve(f.directory, "AGENTS.md"), instructions);
-  for (const topic of ["dox", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
+  for (const topic of ["explain", "output", "dox", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
     const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8");
     const guide = run(f, "guide", topic);
     expect(guide.status, guide.stderr).toBe(0);
     expect(guide.stdout).toBe(`${expected}\n`);
-    if (["handoff", "grill", "spec", "implement", "debug", "review", "refactor"].includes(topic)) {
+    if (["handoff", "grill", "spec", "implement", "debug", "refactor"].includes(topic)) {
       const alias = run(f, topic);
       expect(alias.status, alias.stderr).toBe(0);
       expect(alias.stdout).toBe(guide.stdout);
       expect(run(f, topic, "unexpected-argument").status).toBe(1);
     }
   }
-  for (const upstream of ["agent0ai-dox", "mattpocock-skills"]) {
+  for (const upstream of ["agent0ai-dox", "mattpocock-skills", "asd-ste100-skill"]) {
     const license = `guides/upstream/${upstream}/LICENSE`;
     expect(readFileSync(resolve(f.skill, "runtime", license), "utf8")).toBe(readFileSync(resolve(root, license), "utf8"));
   }
   expect(readFileSync(resolve(f.directory, "AGENTS.md"), "utf8")).toBe(instructions);
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+});
+
+test("explain accepts a question or path without dependencies, source execution, or initialization", () => {
+  const f = installed({ dependencies: false });
+  const expected = readFileSync(resolve(root, "guides/explain.md"), "utf8") + "\n";
+  expect(run(f, "explain").stdout).toBe(expected);
+  for (const parts of [["How", "does", "checkout", "work?"], ["src/selected module"]]) {
+    const result = run(f, "explain", ...parts, "--root", f.directory);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toBe(`Explain request: ${JSON.stringify({ root: f.directory, subject: parts.join(" ") })}\n\n${expected}`);
+  }
+  for (const args of [[""], ["   "], ["--unknown"], ["--root"]]) expect(run(f, "explain", ...args).status).toBe(1);
+  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
 });
 
 test("installed commit guidance works without dependencies or project init", () => {
@@ -137,6 +151,34 @@ test("review accepts repository-relative and absolute source paths without initi
   expect(run({ ...f, directory: selected }, "review", "src/selected module").status).toBe(0);
   expect(run(f, "review", "missing").status).toBe(1);
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
+});
+
+test("plain review selects the repository from nested directories without changing saved settings or running checks", () => {
+  const f = installed({ dependencies: false });
+  mkdirSync(resolve(f.directory, ".git"));
+  const nested = resolve(f.directory, "packages/billing/src");
+  mkdirSync(nested, { recursive: true });
+  mkdirSync(resolve(f.directory, ".510"));
+  const preserved = {
+    ".510/config.json": JSON.stringify({ version: 1, storage: { mode: "custom", path: "local state" }, analysis: { paths: ["packages/billing"], ignore: ["generated/**"] } }),
+    ".blindfolded.json": JSON.stringify({ paths: ["packages/billing"] }),
+    "package.json": JSON.stringify({ name: "review-fixture", scripts: { test: "touch executed", build: "touch executed" } }),
+    "packages/billing/src/index.ts": "export const answer = 42;\n",
+  };
+  for (const [path, content] of Object.entries(preserved)) writeFileSync(resolve(f.directory, path), content);
+  for (const [directory, args] of [[f.directory, []], [nested, []], [nested, ["--root", f.directory]]]) {
+    const result = run({ ...f, directory }, "review", ...args);
+    expect(result.status, result.stderr).toBe(0);
+    const [scope, ...guide] = result.stdout.split("\n");
+    expect(JSON.parse(scope.slice("Review scope: ".length))).toEqual({ root: f.directory, paths: ["."] });
+    expect(guide.join("\n")).toBe("\n" + readFileSync(resolve(root, "guides/review.md"), "utf8") + "\n");
+  }
+  const scoped = run({ ...f, directory: nested }, "review", "packages/billing");
+  expect(scoped.status, scoped.stderr).toBe(0);
+  expect(JSON.parse(scoped.stdout.split("\n")[0].slice("Review scope: ".length)).paths).toEqual(["packages/billing"]);
+  for (const [path, content] of Object.entries(preserved)) expect(readFileSync(resolve(f.directory, path), "utf8")).toBe(content);
+  expect(existsSync(resolve(f.directory, "local state"))).toBe(false);
+  expect(existsSync(resolve(f.directory, "executed"))).toBe(false);
 });
 
 test("workflow paths resolve without init and reuse custom or shared storage from nested directories", () => {
