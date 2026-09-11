@@ -13,7 +13,7 @@ the workflows currently come together in one skill: **[510](skills/510/SKILL.md)
 ### from idea to draft PR
 
 ```text
-(explain) → (explore) → (grill) → [spec] → [implement] → (pr)
+(explain) → (explore) → (grill) → [spec] → [implement] → (commit) → (pr)
 ```
 
 an existing spec or tickets can take you straight to `implement`.
@@ -25,11 +25,10 @@ an existing spec or tickets can take you straight to `implement`.
 | **3 · challenge** | think through a plan and challenge the assumptions | [`510 grill`](guides/grill.md) |
 | **4 · specify** | turn the agreed direction into a clear spec | [`510 spec`](guides/spec.md) |
 | **5 · build** | implement the spec, test and review the changes, and commit locally | [`510 implement`](guides/implement.md) |
-| **6 · share** | package the work into a draft pull request | [`510 pr`](guides/pr.md) |
+| **6 · commit** | commit the current conversation's changes locally | [`510 commit`](guides/commit.md) |
+| **7 · share** | package the work into a draft pull request | [`510 pr`](guides/pr.md) |
 
-`implement` already includes verification, review, and a local commit. `pr`
-commits any remaining work before pushing and opening the draft, so a separate
-`commit` step is only needed when you want a local checkpoint.
+`implement` and `pr` already include the commit step.
 
 ### other workflows
 
@@ -38,7 +37,6 @@ commits any remaining work before pushing and opening the draft, so a separate
 | **improve existing code** | [`[review]`](guides/review.md) → `[select priorities]` → [`[refactor]`](guides/refactor.md) → [`[review]`](guides/review.md) |
 | **fix a bug** | [`[debug]`](guides/debug.md) → ([`commit`](guides/commit.md) or [`pr`](guides/pr.md)) |
 | **resolve conflicts** | [`[merge conflicts]`](guides/merge-conflicts.md) → `[resume workflow]` |
-| **save a local checkpoint** | `[changes ready]` → [`[commit]`](guides/commit.md) |
 | **continue next session** | `[any stage]` → [`[handoff]`](guides/handoff.md) → `[resume next session]` |
 
 ## get started
@@ -72,6 +70,7 @@ $510 implement .510/specs/order-cancellation.md
 $510 review
 $510 review packages/billing
 $510 merge conflicts
+$510 commit
 $510 pr --base main
 ```
 
