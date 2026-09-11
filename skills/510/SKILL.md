@@ -6,6 +6,27 @@ description: Use 510 to explain code and architecture, explore ideas and tradeof
 
 # 510
 
+## Bare invocation
+
+When the user's message is only `510`, `@510`, or `$510`, or asks for 510 help
+without requesting a task, reply with a short guide to the next steps and stop.
+Handle this before inspecting the repository, loading workflow guides, or running
+tools. Do not infer a workflow from earlier conversation or start setup or review.
+
+Briefly introduce 510, then offer these compact choices:
+
+- **Understand:** `510 explain [area or question]`.
+- **Plan:** `510 explore [idea]`, `510 grill [plan]`, `510 spec [subject]`.
+- **Build or fix:** `510 implement [spec or task]`, `510 debug [symptom]`.
+- **Improve:** `510 review [scope]`, `510 refactor [scope]`.
+- **Finish or continue:** `510 commit`, `510 pr`, `510 merge conflicts`, `510 handoff`.
+- **Set up the project:** `510 init`.
+
+Keep the reply under about 150 words. Close with: "Pick a command, or tell me what
+you want to do." When the user supplies a workflow or task, follow it directly.
+
+## Work on a task
+
 Establish the requested outcome and inspect the repository's instructions and
 working-tree state. Keep exploration open-ended, review focused on findings,
 and implementation focused on the authorized change. Preserve unrelated work.
