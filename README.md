@@ -10,20 +10,36 @@ they reflect how i work; take what helps and adapt it to your own projects.
 
 the workflows currently come together in one skill: **[510](skills/510/SKILL.md)**.
 
-| when i want to… | i use… |
+### from idea to draft PR
+
+```text
+(explain) → (explore) → (grill) → [spec] → [implement] → (pr)
+```
+
+an existing spec or tickets can take you straight to `implement`.
+
+| step | when i want to… | i use… |
+| --- | --- | --- |
+| **1 · understand** | understand an area of code and how it fits together | [`510 explain`](guides/explain.md) |
+| **2 · explore** | compare options and keep notes to resume later | [`510 explore`](guides/explore.md) |
+| **3 · challenge** | think through a plan and challenge the assumptions | [`510 grill`](guides/grill.md) |
+| **4 · specify** | turn the agreed direction into a clear spec | [`510 spec`](guides/spec.md) |
+| **5 · build** | implement the spec, test and review the changes, and commit locally | [`510 implement`](guides/implement.md) |
+| **6 · share** | package the work into a draft pull request | [`510 pr`](guides/pr.md) |
+
+`implement` already includes verification, review, and a local commit. `pr`
+commits any remaining work before pushing and opening the draft, so a separate
+`commit` step is only needed when you want a local checkpoint.
+
+### other workflows
+
+| flow | i use… |
 | --- | --- |
-| understand an area of code and how it fits together | [`510 explain`](guides/explain.md) |
-| explore an idea, compare options, and keep notes to resume later | [`510 explore`](guides/explore.md) |
-| think through a plan and challenge the assumptions | [`510 grill`](guides/grill.md) |
-| turn a conversation into a clear spec | [`510 spec`](guides/spec.md) |
-| build from a spec, test the changes, and commit the work | [`510 implement`](guides/implement.md) |
-| reproduce a bug, find the cause, and check the fix | [`510 debug`](guides/debug.md) |
-| assess the repository and prioritize improvements | [`510 review`](guides/review.md) |
-| simplify code without changing what it does | [`510 refactor`](guides/refactor.md) |
-| resolve conflicts and finish the current merge or rebase | [`510 merge conflicts`](guides/merge-conflicts.md) |
-| commit the changes from the current conversation | [`510 commit`](guides/commit.md) |
-| package the conversation's work into a draft pull request | [`510 pr`](guides/pr.md) |
-| leave useful notes for the next session | [`510 handoff`](guides/handoff.md) |
+| **improve existing code** | [`[review]`](guides/review.md) → `[select priorities]` → [`[refactor]`](guides/refactor.md) → [`[review]`](guides/review.md) |
+| **fix a bug** | [`[debug]`](guides/debug.md) → ([`commit`](guides/commit.md) or [`pr`](guides/pr.md)) |
+| **resolve conflicts** | [`[merge conflicts]`](guides/merge-conflicts.md) → `[resume workflow]` |
+| **save a local checkpoint** | `[changes ready]` → [`[commit]`](guides/commit.md) |
+| **continue next session** | `[any stage]` → [`[handoff]`](guides/handoff.md) → `[resume next session]` |
 
 ## get started
 
@@ -34,7 +50,18 @@ bunx --bun skills add https://github.com/gahabeen/skills --skill 510
 ```
 
 invoke `$510` explicitly in your coding agent, then ask for the workflow you need.
-it only runs when you ask for it. for example:
+it only runs when you ask for it.
+
+ask for **510 init** in your project first. it prepares code search and automated
+checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with
+project-wide rules at the root and local contracts where they belong. later 510
+edits keep the affected instructions and indexes current.
+
+tooling files go in the project's `.510/` directory by default, reusing any storage
+location you've already chosen. `AGENTS.md` files live alongside the source they
+describe. explanations, planning, and handoff don't need initialization.
+
+then choose a workflow, for example:
 
 ```text
 $510 explain how checkout works
@@ -53,7 +80,6 @@ it combines automated checks with source review of architecture, behavior covera
 in tests, and documentation. it reports exclusions, gaps, and priorities without
 editing source. tests and builds are not run by default.
 
-the usual sequence is **review → select priorities → refactor → review again**.
 `510 doctor` checks the 510 installation and search readiness.
 
 `510 pr` can infer the base from an existing PR, repository configuration, or the
@@ -64,15 +90,6 @@ work, pushes, and opens a draft PR or updates the matching one.
 `510 merge conflicts` resolves an existing merge or rebase, verifies the combined
 behavior, and completes the local operation. It preserves unrelated work. Ask to
 leave the operation unfinished when you only want the files resolved.
-
-ask for **510 init** in your project first. it prepares code search and automated
-checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with
-project-wide rules at the root and local contracts where they belong. later 510
-edits keep the affected instructions and indexes current.
-
-tooling files go in the project's `.510/` directory by default, reusing any storage
-location you've already chosen. `AGENTS.md` files live alongside the source they
-describe. explanations, planning, and handoff don't need initialization.
 
 `510 explore` keeps a resumable document in `.510/explorations/<subject>.md` by
 default, reusing shared or custom storage when configured. It compares possibilities
