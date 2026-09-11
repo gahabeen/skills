@@ -1,14 +1,17 @@
-# skills
+# 510 — one-skill-for-all
 
-personal skills for real prod projects, by [@gahabeen](https://github.com/gahabeen).
-
-i'm a software engineer. these are the skills i use day to day with coding agents
-to think through ideas, build features, debug problems, and review production code.
-they reflect how i work; take what helps and adapt it to your own projects.
+skills for coding agents to explore ideas, build features, debug problems, and
+review code.
 
 ## what's here
 
-the workflows currently come together in one skill: **[510](skills/510/SKILL.md)**.
+**[510](skills/510/SKILL.md)** bundles planning, implementation, debugging, and
+review into one skill. invoke `$510` with the workflow you need; the agent loads
+the relevant guides and follows that workflow.
+
+the goal is to keep the surface area small: one skill to install and invoke,
+shared rules, and clear scope for each workflow. use only the steps your task
+needs.
 
 ### from idea to draft PR
 
