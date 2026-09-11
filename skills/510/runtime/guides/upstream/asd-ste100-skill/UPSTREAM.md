@@ -10,6 +10,9 @@ The adaptation applies to user-facing replies and authored prose, not internal
 reasoning, code, structured tool data, or exact diagnostics. Existing workflow
 requirements for evidence and verification remain in force.
 
+Documents intended for another agent also link to 510's internal writing-for-agents
+guide for structure and retrieval. Sentence clarity remains owned by this adaptation.
+
 The standalone rewrite workflow and Python linter are not bundled. The official
 ASD dictionary is not reproduced. No certified STE compliance is claimed.
 The original MIT license is preserved in [LICENSE](LICENSE).

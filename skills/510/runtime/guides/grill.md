@@ -19,6 +19,10 @@ in the 510 bundle; no separate skill installation, setup, or static analysis is
 needed for this workflow.
 
 Use the user's existing answers and the repository's docs before opening a round.
+When continuing an [exploration](explore.md), read and reference its document;
+reuse its findings and open questions without treating tentative options as
+accepted decisions. If it has no proposed direction yet, continue exploration
+when that fits the user's request instead of inventing a plan to challenge.
 Write resolved terms and decisions as they emerge, keeping unresolved proposals
 clearly separate. Documentation is part of `510 grill`; if the user requests
 discussion only, keep the notes in the conversation.

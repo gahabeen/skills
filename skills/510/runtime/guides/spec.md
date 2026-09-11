@@ -3,9 +3,11 @@
 Apply the shared [output guidance](output.md) to user-facing replies and authored prose.
 
 Turn the current conversation and repository evidence into an actionable written
-specification. Use text after `510 spec` as the focus. Reuse the outcomes of a
-prior grill, existing requirements, the project's glossary, and relevant decision
-records. Synthesize what is known; do not restart the interview.
+specification. Use text after `510 spec` as the focus. Reuse a selected
+[exploration](explore.md), the outcomes of a prior grill, existing requirements,
+the project's glossary, and relevant decision records. Reference the exploration
+and carry forward its open questions without promoting tentative options into
+requirements. Synthesize what is known; do not restart the interview.
 
 ## Establish the contract
 

@@ -1,6 +1,6 @@
 interface:
   display_name: "510"
-  short_description: "Explain, build, debug, review, and prepare pull requests"
+  short_description: "Explain, explore, build, debug, review, and prepare PRs"
   default_prompt: "$510 review this repository with the complete Blindfolded suite and explain the findings."
 policy:
   allow_implicit_invocation: false

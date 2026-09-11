@@ -91,5 +91,5 @@ export function workflowPaths(input) {
     return path;
   }
   return { root, configPath, storage: config.storage, base, projectData,
-    specs: destination("specs"), debug: destination("debug") };
+    explorations: destination("explorations"), specs: destination("specs"), debug: destination("debug") };
 }

@@ -4,6 +4,10 @@ Apply this guidance to 510's user-facing replies and authored prose, including
 explanations, reports, specifications, PR descriptions, and handoff documents.
 Use it as an output editing pass. It does not constrain internal reasoning.
 
+When the document will guide another agent, also read
+[writing for agents](writing-for-agents.md) for structure, completion conditions,
+and references that state when to load their targets.
+
 Use the STE-inspired descriptive style for explanations and documents. Use its
 stricter sentence structure for instructions and procedures. Preserve the user's
 requested language, format, and necessary technical terms.

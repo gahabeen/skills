@@ -10,6 +10,10 @@ Reuse current evidence and preserve the recorded baseline. A previous review
 does not authorize fixing every finding. If the user requests a general refactor
 without selecting findings, identify a coherent first improvement from the review.
 
+When the structural direction is still open, use
+[architecture improvement](improve-codebase-architecture.md) to compare candidates.
+Reuse an already-selected direction and preserve this refactor's scope and checks.
+
 Prefer the harness's native editing tools for authored changes, and review the
 resulting diff before continuing.
 

@@ -6,6 +6,9 @@ contracts beside the areas they govern. Use this read-and-update loop during
 the hierarchy in the selected project. On later edits, maintain only the affected
 boundaries. Honor a user-selected subtree or documentation-only scope.
 
+When authoring or revising instructions, apply [writing for agents](writing-for-agents.md)
+to their structure and references. Preserve the hierarchy and maintenance contract below.
+
 ## Read the applicable chain
 
 Read the root `AGENTS.md`, then every applicable `AGENTS.md` along the path to

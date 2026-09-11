@@ -24,7 +24,7 @@ Keep the document compact and actionable:
   help with. Prefer the relevant explicit `510` workflow when appropriate; do not
   assume the next agent has sibling skills or a particular Skill tool.
 
-Reference existing specs, plans, glossary entries, decision records, issues,
+Reference existing explorations, specs, plans, glossary entries, decision records, issues,
 commits, reports, and diffs by usable path or URL instead of repeating them.
 Capture essential context that exists only in the conversation. Separate known
 facts from assumptions; do not turn a proposal into an agreed decision.

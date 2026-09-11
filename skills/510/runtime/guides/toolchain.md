@@ -73,19 +73,20 @@ The default layout at the project root is:
 | `.510/cache/fff/` | Search ranking/history databases | Ignore |
 | `.510/reports/` | CLI reports and MCP run reports | Ignore |
 | `.510/tmp/` | Temporary analysis configurations and rule copies | Ignore |
+| `.510/explorations/` | Resumable ideas, findings, and tradeoffs from `510 explore` | May be committed; no generated ignore rule |
 | `.510/specs/` | Durable specifications from `510 spec` | May be committed; no generated ignore rule |
 | `.510/debug/` | Reproductions and evidence from `510 debug` | Ignore |
 | `.510/mcp.json` | Connection with machine-specific absolute paths | Ignore |
 
 `init` adds the generated paths to `.510/.gitignore`, preserving existing entries.
 A custom or shared storage root contains `toolchains/<fingerprint>/` and
-`projects/<project-id>/{cache,reports,tmp,specs,debug}/`. Projects can share identical
+`projects/<project-id>/{cache,reports,tmp,explorations,specs,debug}/`. Projects can share identical
 installed dependencies while keeping their search data, reports, temporary files,
 and workflow artifacts separate. Configuration and the connection file remain at the project’s
 `.510/` directory. Avoid committing machine-specific absolute storage paths;
 project mode and relative custom paths are portable.
 
-Use `510 paths --root /project` or the MCP `paths` tool to resolve spec and debug
+Use `510 paths --root /project` or the MCP `paths` tool to resolve exploration, spec, and debug
 destinations without installing dependencies, creating directories, or changing
 settings. Follow [workflow storage](workflow-storage.md) for naming and retention.
 Directories are created only when the workflow has content to save. Existing
@@ -184,7 +185,7 @@ Update the installed skill through its original installer, then rerun **510 init
 the replaced skill. The saved configuration is reused and dependency installation
 is skipped when its fingerprint is unchanged. Stop active analysis before changing
 storage. Changing storage selects a new location; it does not move or delete
-existing reports, caches, toolchains, specs, or debug evidence.
+existing reports, caches, toolchains, explorations, specs, or debug evidence.
 
 Maintainers update exact versions and both committed Bun lockfiles, verify the
 runtime and full suite, and regenerate the installable bundle. Normal initialization never

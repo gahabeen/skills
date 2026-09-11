@@ -78,6 +78,11 @@ and caller knowledge. Use [effects and testability](effects-and-testability.md)
 for hidden inputs, observable effects, coordination, and unresolved operations.
 Local mutation alone does not establish impurity.
 
+Use [architecture improvement](improve-codebase-architecture.md) to develop
+supported structural candidates and compare their effects on callers and tests.
+Its use of recent changes helps prioritize inspection within this review's scope.
+It does not narrow required coverage, replace the full report, or authorize edits.
+
 Test existence does not establish behavior coverage. Existing coverage reports
 can support the assessment only with their scope and freshness stated. Do not
 invent percentages, execution results, or a requirement for a new test where

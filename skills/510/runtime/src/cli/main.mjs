@@ -25,13 +25,24 @@ function projectRoot(values) {
   return root;
 }
 
+function subjectWorkflow(topic, label) {
+  const { values, positionals } = options(rootOption, true);
+  if (positionals.some((part) => !part.trim())) throw new Error(`${label} subjects must not be empty.`);
+  if (positionals.length || values.root) {
+    const request = { ...(values.root ? { root: locateProject(values.root) } : {}),
+      ...(positionals.length ? { subject: positionals.join(" ") } : {}) };
+    console.log(`${label} request: ${JSON.stringify(request)}\n`);
+  }
+  console.log(readGuide(topic).markdown);
+}
+
 const commands = {
   help() {
     console.log(`510 — agent workflows and local code analysis\n
   init [--root PATH]             Prepare storage/toolchain and return AGENTS.md guidance
         [--storage project|shared|PATH]
   doctor [--root PATH]           Check storage, packages, and native search
-  paths [--root PATH]            Print configured spec and debug paths without initialization
+  paths [--root PATH]            Print configured exploration, spec, and debug paths without initialization
   analyze [--root PATH]          Run every static analyzer
           [--path PATH ...]     Select source files/directories for this run
           [--format text|json] [--output PATH]
@@ -39,8 +50,11 @@ const commands = {
   mcp-config --root PATH        Print a connection using absolute paths
   explain [SUBJECT ...]         Print the read-only code explanation workflow
           [--root PATH]        Supply repository context without initialization
+  explore [SUBJECT ...]         Print the agent exploration and documentation workflow
+          [--root PATH]        Supply repository context without initialization
   commit                        Print the agent current-thread commit workflow
   pr [--base BRANCH]             Print the agent pull-request workflow and requested base
+  merge conflicts               Print the agent merge/rebase conflict workflow
   handoff                       Print the agent handoff workflow
   grill                         Print the agent grilling-with-docs workflow
   spec                          Print the agent specification workflow
@@ -52,7 +66,7 @@ const commands = {
   install-rules [DESTINATION]    Copy editable Blindfolded Oxlint rules
 
 Run with bun <skill-directory>/scripts/510.mjs <command>.
-Explain, commit, pr, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
+Explain, explore, commit, pr, merge conflicts, handoff, grill, spec, implement, debug, review, and refactor print guidance; the agent performs the workflow.
 Init returns the documentation guide for the agent to establish the AGENTS.md hierarchy.
 Initialization and connection are separate. No command changes agent configuration.`);
   },
@@ -92,14 +106,10 @@ Initialization and connection are separate. No command changes agent configurati
     console.log(readGuide(positionals[0]).markdown);
   },
   explain() {
-    const { values, positionals } = options(rootOption, true);
-    if (positionals.some((part) => !part.trim())) throw new Error("Explain subjects must not be empty.");
-    if (positionals.length || values.root) {
-      const request = { ...(values.root ? { root: locateProject(values.root) } : {}),
-        ...(positionals.length ? { subject: positionals.join(" ") } : {}) };
-      console.log(`Explain request: ${JSON.stringify(request)}\n`);
-    }
-    console.log(readGuide("explain").markdown);
+    subjectWorkflow("explain", "Explain");
+  },
+  explore() {
+    subjectWorkflow("explore", "Explore");
   },
   commit() {
     options();
@@ -116,6 +126,11 @@ Initialization and connection are separate. No command changes agent configurati
   handoff() {
     options();
     console.log(readGuide("handoff").markdown);
+  },
+  merge() {
+    const { positionals } = options({}, true);
+    if (positionals.length !== 1 || positionals[0] !== "conflicts") throw new Error("Usage: 510 merge conflicts");
+    console.log(readGuide("merge-conflicts").markdown);
   },
   grill() {
     options();

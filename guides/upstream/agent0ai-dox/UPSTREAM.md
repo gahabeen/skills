@@ -28,6 +28,8 @@ Copyright (c) 2026 Agent Zero. The original MIT license is preserved verbatim in
 - Keep root maintenance guidance self-contained when initializing a project,
   without copying the upstream instruction to scan everything before continuing.
   Distinguish agent documentation review from automated static-analysis coverage.
+- Linked 510's internal writing-for-agents guide for instruction structure and
+  conditional references while retaining DOX's hierarchy and maintenance contract.
 
 This is a maintained adaptation. Edit canonical `guides/` and regenerate the
 installed bundle with `bun run sync:skill`.

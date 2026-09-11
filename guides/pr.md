@@ -70,6 +70,10 @@ Unresolved conflicts or an active merge, rebase, or cherry-pick must be resolved
 explicitly before proceeding. Do not initialize a repository or create a remote
 fork as an implicit repair for a missing destination.
 
+For an explicitly requested merge or rebase resolution, follow
+[510 merge conflicts](merge-conflicts.md), then resume PR preparation. Preserve
+resolution authorization already given. The conflict workflow itself stays local.
+
 Follow the [commit guide](commit.md) for outstanding selected work, including
 the scoped documentation pass and required checks. Its local-only restriction
 does not block the push explicitly authorized by this PR workflow. If all work

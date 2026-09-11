@@ -15,8 +15,8 @@ The local server exposes:
 | Tool | Purpose |
 | --- | --- |
 | `doctor` | Check runtime, package versions, and native search readiness. |
-| `paths` | Resolve configured spec and debug directories without writes or initialization. |
-| `guide` | Load explain, shared output style, DOX documentation maintenance, commit, PR creation, handoff, grill, spec, implement, TDD, debug, design, review, refactoring, or initialization instructions. |
+| `paths` | Resolve configured exploration, spec, and debug directories without writes or initialization. |
+| `guide` | Load public workflow instructions and internal guides for output, agent documents, architecture, design, DOX, testing, and storage. |
 | `find_files` | Find files through FFF's persistent repository index. |
 | `search` | Search contents using literal OR patterns, constraints, and pagination. |
 | `analyze` | Start the complete Blindfolded static suite. |
@@ -28,11 +28,31 @@ Tooling configuration can execute during analysis. Search caches and reports use
 the configured storage outside the installed skill. Installation readiness and agent connection readiness are
 reported separately.
 
+`510 explore [subject ...] [--root PATH]` prints the [exploration workflow](../guides/explore.md)
+with the requested context. `510 guide explore`, MCP `guide` with `topic: "explore"`,
+and `five-ten://guides/explore` expose the same instructions. Guide retrieval and
+`paths` are read-only; the agent maintains the document under the returned
+`explorations` path, defaulting to `.510/explorations/`, unless discussion only
+was requested. No toolchain initialization is needed to read the CLI guide or
+resolve storage.
+
 `510 pr [--base BRANCH]` prints the [PR workflow](../guides/pr.md) with an optional
 requested base; the agent resolves repository state and performs publication.
 `510 guide pr`, MCP `guide` with `topic: "pr"`, and `five-ten://guides/pr` expose
 the same instructions. Reading the guide has no Git or hosting side effects and
 requires no initialization; publication uses the agent's Git and GitHub tools.
+
+`510 merge conflicts` prints the [conflict workflow](../guides/merge-conflicts.md).
+`510 guide merge-conflicts`, MCP `guide` with `topic: "merge-conflicts"`, and
+`five-ten://guides/merge-conflicts` return the same instructions without inspecting
+or mutating Git. The agent resolves the active operation and follows the project's
+required checks before completing it locally.
+
+`writing-for-agents` and `improve-codebase-architecture` are internal guide topics,
+available through `guide` and the corresponding `five-ten://guides/` resources.
+The output and DOX guides reference writing guidance when authoring agent documents.
+Explore, review, and refactor reference architecture guidance when comparing structural
+improvements. They add no standalone commands, packages, or runtime dependencies.
 
 ## Blindfolded analysis
 
@@ -163,9 +183,10 @@ Project documentation maintenance adapts [Agent Zero's DOX](https://github.com/a
 See [source and adaptations](../guides/upstream/agent0ai-dox/UPSTREAM.md) and the
 preserved [MIT license](../guides/upstream/agent0ai-dox/LICENSE).
 
-The handoff, grill, spec, implement, and debug workflows adapt Matt Pocock's
+The handoff, grill, spec, implement, debug, and merge-conflict workflows adapt Matt Pocock's
 [skills](https://github.com/mattpocock/skills), including their grilling, domain
-modeling, TDD, review, and codebase-design support. See [source and adaptations](../guides/upstream/mattpocock-skills/UPSTREAM.md)
+modeling, TDD, review, codebase-design, architecture improvement, and writing support.
+See [source and adaptations](../guides/upstream/mattpocock-skills/UPSTREAM.md)
 and the preserved [MIT license](../guides/upstream/mattpocock-skills/LICENSE).
 
 Blindfolded derives from [dmmulroy/anti-slop](https://github.com/dmmulroy/anti-slop)

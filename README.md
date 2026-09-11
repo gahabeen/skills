@@ -13,12 +13,14 @@ the workflows currently come together in one skill: **[510](skills/510/SKILL.md)
 | when i want to… | i use… |
 | --- | --- |
 | understand an area of code and how it fits together | [`510 explain`](guides/explain.md) |
+| explore an idea, compare options, and keep notes to resume later | [`510 explore`](guides/explore.md) |
 | think through a plan and challenge the assumptions | [`510 grill`](guides/grill.md) |
 | turn a conversation into a clear spec | [`510 spec`](guides/spec.md) |
 | build from a spec, test the changes, and commit the work | [`510 implement`](guides/implement.md) |
 | reproduce a bug, find the cause, and check the fix | [`510 debug`](guides/debug.md) |
 | assess the repository and prioritize improvements | [`510 review`](guides/review.md) |
 | simplify code without changing what it does | [`510 refactor`](guides/refactor.md) |
+| resolve conflicts and finish the current merge or rebase | [`510 merge conflicts`](guides/merge-conflicts.md) |
 | commit the changes from the current conversation | [`510 commit`](guides/commit.md) |
 | package the conversation's work into a draft pull request | [`510 pr`](guides/pr.md) |
 | leave useful notes for the next session | [`510 handoff`](guides/handoff.md) |
@@ -36,11 +38,13 @@ it only runs when you ask for it. for example:
 
 ```text
 $510 explain how checkout works
+$510 explore could checkout work offline?
 $510 grill this plan for order cancellation
 $510 spec order cancellation
 $510 implement .510/specs/order-cancellation.md
 $510 review
 $510 review packages/billing
+$510 merge conflicts
 $510 pr --base main
 ```
 
@@ -57,6 +61,10 @@ destination's default branch. use `--base` for an explicit target, including a
 feature branch for a stacked PR. it checks the full comparison, commits remaining
 work, pushes, and opens a draft PR or updates the matching one.
 
+`510 merge conflicts` resolves an existing merge or rebase, verifies the combined
+behavior, and completes the local operation. It preserves unrelated work. Ask to
+leave the operation unfinished when you only want the files resolved.
+
 ask for **510 init** in your project first. it prepares code search and automated
 checks, and the agent creates or refreshes a hierarchy of `AGENTS.md` files with
 project-wide rules at the root and local contracts where they belong. later 510
@@ -65,6 +73,12 @@ edits keep the affected instructions and indexes current.
 tooling files go in the project's `.510/` directory by default, reusing any storage
 location you've already chosen. `AGENTS.md` files live alongside the source they
 describe. explanations, planning, and handoff don't need initialization.
+
+`510 explore` keeps a resumable document in `.510/explorations/<subject>.md` by
+default, reusing shared or custom storage when configured. It compares possibilities
+and separates findings, tentative ideas, and agreed decisions. Ask for discussion
+only to keep the exploration in the conversation. Continue with `grill` or `spec`
+when useful; neither is a required next step.
 
 see [initialization and storage](guides/toolchain.md) for manual commands, other storage
 locations, and connecting the local tools to your agent.
@@ -118,8 +132,14 @@ problems, duplicate code through Fallow, and code that needs a closer look.
 it keeps sentences clear and terms consistent while preserving technical meaning,
 uncertainty, code, and evidence. the guidance applies to returned output.
 
+Two internal guides support these workflows: [writing for agents](guides/writing-for-agents.md)
+helps structure instructions and continuation documents, while
+[architecture improvement](guides/improve-codebase-architecture.md) helps `explore`,
+`review`, and `refactor` compare structural changes. They are loaded when relevant
+within 510 and need no separate invocation.
+
 - [automated checks and their limits](guides/analysis.md)
-- [where specs, debug notes, and reports are saved](guides/workflow-storage.md)
+- [where explorations, specs, and debug notes are saved](guides/workflow-storage.md)
 - [tooling and development](docs/development.md)
 
 ## credits
@@ -134,7 +154,8 @@ the project instruction hierarchy and its maintenance adapt
 ongoing editing workflows. see [what changed](guides/upstream/agent0ai-dox/UPSTREAM.md)
 and the preserved [MIT license](guides/upstream/agent0ai-dox/LICENSE).
 
-the planning, implementation, debugging, and handoff workflows build on
+the planning, implementation, debugging, conflict resolution, and handoff workflows,
+plus internal design and writing guidance, build on
 [Matt Pocock's skills](https://github.com/mattpocock/skills).
 see [what changed](guides/upstream/mattpocock-skills/UPSTREAM.md) and the
 preserved [MIT license](guides/upstream/mattpocock-skills/LICENSE).

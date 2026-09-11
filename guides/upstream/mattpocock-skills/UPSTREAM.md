@@ -5,6 +5,10 @@ Source: [mattpocock/skills](https://github.com/mattpocock/skills), revision
 retrieved 2026-09-10. Copyright (c) 2026 Matt Pocock. The original MIT license is
 preserved verbatim in [LICENSE](LICENSE) and travels with the installed bundle.
 
+The merge-conflict, writing-for-agents, and architecture-improvement sources below
+were reviewed on 2026-09-11 at the same revision. The upstream `main` reference
+resolved to that revision when these additions were made.
+
 ## Adapted sources
 
 Paths below are relative to that pinned upstream revision:
@@ -27,6 +31,11 @@ Paths below are relative to that pinned upstream revision:
 | `skills/engineering/codebase-design/SKILL.md` | [codebase design](../../codebase-design.md) |
 | `skills/engineering/codebase-design/DEEPENING.md` | [codebase design](../../codebase-design.md) |
 | `skills/engineering/codebase-design/DESIGN-IT-TWICE.md` | [codebase design](../../codebase-design.md) |
+| `skills/engineering/resolving-merge-conflicts/SKILL.md` | [merge conflicts](../../merge-conflicts.md) |
+| `skills/productivity/writing-for-agents/SKILL.md` | [writing for agents](../../writing-for-agents.md) |
+| `skills/productivity/writing-for-agents/SKILL-MECHANICS.md` | [writing for agents](../../writing-for-agents.md) |
+| `skills/engineering/improve-codebase-architecture/SKILL.md` | [architecture improvement](../../improve-codebase-architecture.md) |
+| `skills/engineering/improve-codebase-architecture/HTML-REPORT.md` | [architecture improvement](../../improve-codebase-architecture.md) |
 
 ## Intentional adaptations
 
@@ -58,6 +67,9 @@ Paths below are relative to that pinned upstream revision:
   rather than automatically publishing an issue. Removed upstream setup and label
   dependencies, reused existing decisions instead of demanding another approval,
   and scaled the template to the actual change. Unresolved decisions remain explicit.
+- Linked grill, spec, and handoff to 510's independently authored exploration
+  workflow. They reuse exploration findings and references while keeping tentative
+  options distinct from agreed decisions and requirements.
 - Adapted `diagnosing-bugs` as `510 debug`, retaining reproduction, minimization,
   falsifiable hypotheses, targeted instrumentation, regression testing, and cleanup.
   Evidence uses configured project storage. Replaced the optional shell wizard
@@ -89,6 +101,25 @@ Paths below are relative to that pinned upstream revision:
   are local 510 additions, not rules imported from the upstream skills.
 - CLI `handoff`, `grill`, `spec`, `implement`, and `debug` print guidance through the shared guide reader; they
   do not fabricate a conversation transcript or perform the agent's workflow.
+- Added `510 merge conflicts` as an agent workflow. Retained intent research,
+  reconciliation, required checks, and completion of the active merge or rebase.
+  Replaced blanket staging with scoped resolutions and preservation of unrelated
+  index/worktree changes. Account for rebase stage labels and non-text conflicts.
+  For unrelated unstaged edits blocking continuation, require verified backup,
+  overlap inspection, and restoration rather than concealing dirty index entries.
+  Honor explicit stop/abort or resolve-only instructions and retain resumable work
+  when a decision or required check blocks completion. Guide retrieval is read-only.
+- Adapted writing-for-agents as internal document guidance, linked from output and
+  DOX. Retained conditional references, information hierarchy, completion evidence,
+  co-location, and pruning. Kept 510's explicit invocation policy and plain bundled
+  guides instead of importing host-specific claims about skill discovery.
+- Adapted architecture improvement as an internal guide for explore, review, and
+  refactor. Retained history-informed inspection, concrete friction, caller and
+  test benefits, candidate comparisons, recommendation strength, and ADR context.
+  Reused bundled design, exploration, grilling, and domain-modeling guides. Removed
+  mandatory delegation and fixed transitions. The caller retains its coverage,
+  authorization, and document contract. Visual reports are optional, self-contained,
+  and offline-capable rather than requiring the upstream CDN-based scaffold.
 
 These files are maintained adaptations, not unmodified upstream copies. Change
 the canonical `guides/` files and regenerate the skill bundle with `bun run sync:skill`.

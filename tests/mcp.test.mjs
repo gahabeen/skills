@@ -63,7 +63,7 @@ test("installed MCP exposes tools, guides, healthy native search, and repository
   const commitResource = await f.client.readResource({ uri: "five-ten://guides/commit" });
   assert.equal(commitResource.contents[0].text, commit.markdown);
   assert.deepEqual(resources.resources.map((resource) => resource.uri).sort(), topics.map((topic) => `five-ten://guides/${topic}`).sort());
-  for (const topic of ["explain", "output", "dox", "pr", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
+  for (const topic of ["explain", "explore", "output", "writing-for-agents", "dox", "pr", "merge-conflicts", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "improve-codebase-architecture", "workflow-storage"]) {
     const uri = `five-ten://guides/${topic}`;
     assert(resources.resources.some((resource) => resource.uri === uri));
     const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8");
@@ -89,9 +89,11 @@ test("MCP and CLI resolve the same workflow storage without creating artifact di
   const cli = spawnSync(process.execPath, [resolve(f.skill, "scripts/510.mjs"), "paths", "--root", f.project], { env: f.env, encoding: "utf8" });
   assert.equal(cli.status, 0, cli.stderr);
   assert.deepEqual(paths, JSON.parse(cli.stdout));
+  assert.equal(paths.explorations, resolve(f.storage.projectData, "explorations"));
   assert.equal(paths.specs, resolve(f.storage.projectData, "specs"));
   assert.equal(paths.debug, resolve(f.storage.projectData, "debug"));
   assert.equal(existsSync(paths.specs), false);
+  assert.equal(existsSync(paths.explorations), false);
   assert.equal(existsSync(paths.debug), false);
   assert.equal((await f.client.listTools()).tools.find((tool) => tool.name === "paths").annotations.readOnlyHint, true);
 });
@@ -176,6 +178,7 @@ test("search isolates different server roots and handles OR patterns with pagina
   assert.notEqual(a.storage.reports, b.storage.reports);
   const aPaths = await a.call("paths");
   const bPaths = await b.call("paths");
+  assert.notEqual(aPaths.explorations, bPaths.explorations);
   assert.notEqual(aPaths.specs, bPaths.specs);
   assert.notEqual(aPaths.debug, bPaths.debug);
   writeFileSync(resolve(a.project, "src/second.ts"), "export const firstProjectOnlyAgain = 1;\n");

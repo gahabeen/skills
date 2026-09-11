@@ -1,13 +1,13 @@
 ---
 name: "510"
 disable-model-invocation: true
-description: Use 510 to explain code and architecture, grill plans with domain docs, write and implement specs, debug bugs and performance regressions, prepare handoffs, commit thread changes, and create pull requests. Includes project storage and AGENTS.md initialization, repository search, evidence-based review, refactoring, and complete JavaScript/TypeScript analysis through the local MCP tools and bundled CLI.
+description: Use 510 to explain code and architecture, explore ideas and tradeoffs, grill plans with domain docs, write and implement specs, debug bugs and performance regressions, resolve merge conflicts, prepare handoffs, commit thread changes, and create pull requests. Includes project storage and AGENTS.md initialization, repository search, evidence-based review, refactoring, and complete JavaScript/TypeScript analysis through the local MCP tools and bundled CLI.
 ---
 
 # 510
 
 Establish the requested outcome and inspect the repository's instructions and
-working-tree state. Keep brainstorming exploratory, review focused on findings,
+working-tree state. Keep exploration open-ended, review focused on findings,
 and implementation focused on the authorized change. Preserve unrelated work.
 
 For user-facing replies and authored prose, apply the shared
@@ -38,6 +38,10 @@ after each coherent batch, including new files, and preserve unrelated work.
 - **510 explain [area or question]:** read [the explain guide](runtime/guides/explain.md).
   Map the relevant modules, callers, and behavior using the project's domain names.
   Keep this workflow read-only. It needs no toolchain initialization or analysis run.
+- **510 explore [idea, question, or exploration path]:** read [the explore guide](runtime/guides/explore.md).
+  Investigate possibilities and tradeoffs, maintaining a resumable document in the
+  configured `explorations` directory, defaulting to `.510/explorations/`. Keep
+  evidence, tentative ideas, and agreed decisions distinct; honor discussion-only requests.
 - **510 commit:** read [the commit guide](runtime/guides/commit.md). Use the
   current thread's history to select all its uncommitted changes, preserve
   unrelated work, and create one commit with a descriptive message from the diff.
@@ -46,6 +50,10 @@ after each coherent batch, including new files, and preserve unrelated work.
   its existing PR. Resolve the base, verify the complete comparison, commit
   outstanding work, and push the feature branch. The invocation authorizes this
   publication flow; merging remains separate.
+- **510 merge conflicts:** read [the conflict guide](runtime/guides/merge-conflicts.md).
+  Resolve the active merge or rebase, verify the combined behavior, and finish the
+  local operation. Preserve both changes' intent and unrelated work. Honor an
+  explicit request to leave the operation unfinished.
 - **510 handoff [next-session focus]:** read [the handoff guide](runtime/guides/handoff.md).
   Save a focused continuation document in the OS temporary directory and return
   its path, preserving decisions, unfinished work, and verification evidence.
@@ -93,9 +101,10 @@ one relevant guide. `analyze` starts the complete suite; use its id with
 page and coverage gap, and consult the full saved report for configuration and
 scope details. `status: completed` does not imply `success: true`.
 
-Explain, commit, pr, handoff, grill, spec, implement, debug, review, and refactor are agent
-workflows. Their CLI commands print instructions; the agent performs the workflow.
-Explain, handoff, grill, and spec need no toolchain initialization or analysis run.
+Explain, explore, commit, pr, merge conflicts, handoff, grill, spec, implement,
+debug, review, and refactor are agent workflows. Their CLI commands print
+instructions; the agent performs the workflow.
+Explain, explore, handoff, grill, and spec need no toolchain initialization or analysis run.
 The documentation pass in `510 init` is also agent work; CLI readiness confirms
 the toolchain, not that project instructions have been written or verified.
 Review and refactor use the complete static suite. Implementation and debugging run tests and
@@ -104,7 +113,12 @@ required checks before creating the commit. PR packaging follows those checks
 and verifies the complete branch comparison before publication; reading its
 guide needs no initialization.
 
-Before saving a spec, implementation progress, or debug session, use MCP `paths` or CLI `paths --root PATH`
+Writing for agents and architecture improvement are internal supporting guides,
+reached through the relevant workflows. They are bundled resources, not separate
+skills or additional commands. Conflict resolution needs no toolchain initialization
+to read its guide and uses the affected project's required checks when executed.
+
+Before saving an exploration, spec, implementation progress, or debug session, use MCP `paths` or CLI `paths --root PATH`
 and follow [workflow storage](runtime/guides/workflow-storage.md). Reuse the
 configured location without asking for the storage choice again. The lookup
 does not install anything or create files.

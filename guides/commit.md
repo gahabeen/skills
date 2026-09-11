@@ -45,6 +45,10 @@ with the selected thread work. Unresolved conflicts or an active merge, rebase,
 or cherry-pick need resolution before this workflow creates a new commit; do not
 continue or abort those operations implicitly.
 
+When merge or rebase conflict resolution is requested, follow
+[510 merge conflicts](merge-conflicts.md) before returning to this workflow.
+Keep any existing authorization to resolve and continue the operation.
+
 ## Prepare exactly that change
 
 Apply the [DOX documentation pass](dox.md) to the selected thread changes before

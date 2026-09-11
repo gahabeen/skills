@@ -70,7 +70,7 @@ test("conversation workflows and their supporting guides work in an isolated rea
   const f = installed({ dependencies: false });
   const instructions = "# Existing project rules\n\nPreserve this file.\n";
   writeFileSync(resolve(f.directory, "AGENTS.md"), instructions);
-  for (const topic of ["explain", "output", "dox", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "workflow-storage"]) {
+  for (const topic of ["explain", "explore", "output", "writing-for-agents", "dox", "merge-conflicts", "handoff", "grill", "grilling", "domain-modeling", "spec", "implement", "tdd", "debug", "review", "refactor", "codebase-design", "improve-codebase-architecture", "workflow-storage"]) {
     const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8");
     const guide = run(f, "guide", topic);
     expect(guide.status, guide.stderr).toBe(0);
@@ -90,18 +90,47 @@ test("conversation workflows and their supporting guides work in an isolated rea
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
 });
 
-test("explain accepts a question or path without dependencies, source execution, or initialization", () => {
+test.each([["explain", "Explain"], ["explore", "Explore"]])("%s accepts a question or path without dependencies, source execution, or initialization", (topic, label) => {
   const f = installed({ dependencies: false });
-  const expected = readFileSync(resolve(root, "guides/explain.md"), "utf8") + "\n";
-  expect(run(f, "explain").stdout).toBe(expected);
-  for (const parts of [["How", "does", "checkout", "work?"], ["src/selected module"]]) {
-    const result = run(f, "explain", ...parts, "--root", f.directory);
+  const expected = readFileSync(resolve(root, "guides", `${topic}.md`), "utf8") + "\n";
+  const plain = run(f, topic);
+  expect(plain.status, plain.stderr).toBe(0);
+  expect(plain.stdout).toBe(expected);
+  for (const parts of [["Could", "checkout", "work", "offline?"], ["src/selected module"], [".510/explorations/offline-mode.md"]]) {
+    const result = run(f, topic, ...parts, "--root", f.directory);
     expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toBe(`Explain request: ${JSON.stringify({ root: f.directory, subject: parts.join(" ") })}\n\n${expected}`);
+    expect(result.stdout).toBe(`${label} request: ${JSON.stringify({ root: f.directory, subject: parts.join(" ") })}\n\n${expected}`);
   }
-  for (const args of [[""], ["   "], ["--unknown"], ["--root"]]) expect(run(f, "explain", ...args).status).toBe(1);
+  const subjectOnly = run(f, topic, "offline mode");
+  expect(subjectOnly.status, subjectOnly.stderr).toBe(0);
+  expect(subjectOnly.stdout).toBe(`${label} request: ${JSON.stringify({ subject: "offline mode" })}\n\n${expected}`);
+  const rootOnly = run(f, topic, "--root", f.directory);
+  expect(rootOnly.status, rootOnly.stderr).toBe(0);
+  expect(rootOnly.stdout).toBe(`${label} request: ${JSON.stringify({ root: f.directory })}\n\n${expected}`);
+  for (const args of [[""], ["   "], ["--unknown"], ["--root"]]) expect(run(f, topic, ...args).status).toBe(1);
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
   expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
+});
+
+test("merge conflicts returns guidance without Git operations and requires the exact subcommand", () => {
+  const f = installed({ dependencies: false });
+  const source = "<<<<<<< HEAD\nconst price = 10;\n=======\nconst price = 9;\n>>>>>>> discount\n";
+  writeFileSync(resolve(f.directory, "price.mjs"), source);
+  const expected = readFileSync(resolve(root, "guides/merge-conflicts.md"), "utf8") + "\n";
+  for (const args of [["merge", "conflicts"], ["guide", "merge-conflicts"]]) {
+    const result = run(f, ...args);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toBe(expected);
+  }
+  for (const args of [[], ["conflict"], ["conflicts", "main"], ["conflicts", "--abort"]]) {
+    expect(run(f, "merge", ...args).status).toBe(1);
+  }
+  for (const topic of ["writing-for-agents", "improve-codebase-architecture"]) {
+    expect(run(f, topic).status).toBe(1);
+  }
+  expect(readFileSync(resolve(f.directory, "price.mjs"), "utf8")).toBe(source);
+  expect(existsSync(resolve(f.directory, ".git"))).toBe(false);
+  expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
 });
 
 test("installed commit guidance works without dependencies or project init", () => {
@@ -190,6 +219,7 @@ test("workflow paths resolve without init and reuse custom or shared storage fro
   expect(initial.status, initial.stderr).toBe(0);
   const defaults = JSON.parse(initial.stdout);
   expect(defaults.root).toBe(f.directory);
+  expect(defaults.explorations).toBe(resolve(f.directory, ".510/explorations"));
   expect(defaults.specs).toBe(resolve(f.directory, ".510/specs"));
   expect(defaults.debug).toBe(resolve(f.directory, ".510/debug"));
   expect(existsSync(resolve(f.directory, ".510"))).toBe(false);
@@ -204,6 +234,7 @@ test("workflow paths resolve without init and reuse custom or shared storage fro
     expect(paths.storage).toEqual(storage);
     expect(paths.base).toBe(storage.mode === "shared" ? resolve(homedir(), ".510") : resolve(f.directory, "local state"));
     expect(paths.projectData).toMatch(/\/projects\/[a-f0-9]{24}$/);
+    expect(paths.explorations).toBe(resolve(paths.projectData, "explorations"));
     expect(paths.specs).toBe(resolve(paths.projectData, "specs"));
     expect(paths.debug).toBe(resolve(paths.projectData, "debug"));
     expect(existsSync(paths.projectData)).toBe(false);
@@ -212,6 +243,7 @@ test("workflow paths resolve without init and reuse custom or shared storage fro
   }
   writeFileSync(path, JSON.stringify({ version: 1, storage: { mode: "invalid" } }));
   expect(run(f, "paths").status).toBe(1);
+  expect(existsSync(defaults.explorations)).toBe(false);
   expect(existsSync(defaults.specs)).toBe(false);
 });
 
@@ -221,7 +253,7 @@ test("workflow paths reject destinations escaping project storage or entering th
   mkdirSync(storage);
   const outside = resolve(f.directory, "outside");
   mkdirSync(outside);
-  for (const name of ["specs", "debug"]) {
+  for (const name of ["explorations", "specs", "debug"]) {
     const path = resolve(storage, name);
     symlinkSync(outside, path, "dir");
     const escaped = run(f, "paths");
@@ -261,6 +293,7 @@ test("init keeps the frozen toolchain and consuming project intact on repeat run
   expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).toContain("/reports/");
   expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).toContain("/debug/");
   expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).not.toContain("/specs/");
+  expect(readFileSync(resolve(directory, ".510/.gitignore"), "utf8")).not.toContain("/explorations/");
   expect(readFileSync(lock, "utf8")).toBe(before);
   expect(readFileSync(manifest, "utf8")).toBe('{"name":"untouched","private":true}\n');
   expect(readFileSync(resolve(directory, "AGENTS.md"), "utf8")).toBe(instructions);
