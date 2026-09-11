@@ -16,6 +16,8 @@
 - Setup, analysis, and search must work with the installed skill read-only.
   Runtime data belongs in configured storage, defaulting to project `.510/`;
   `toolchain/` contains canonical metadata, not the active dependency installation.
+- In this repository, keep the entire root `.510/` directory local and untracked,
+  including configuration, specifications, and implementation notes.
 - 510 requires explicit user invocation. Keep `disable-model-invocation: true`
   and Codex `policy.allow_implicit_invocation: false`.
 - `skills/510/SKILL.md`, its agent metadata, and its launcher are authored files.
