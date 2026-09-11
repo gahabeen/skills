@@ -49,6 +49,12 @@ install with Bun **1.4.2**:
 bunx --bun skills add https://github.com/gahabeen/skills --skill 510 -g
 ```
 
+update an existing global installation of 510:
+
+```sh
+bunx --bun skills update 510 -g
+```
+
 invoke `$510` explicitly in your coding agent, then ask for the workflow you need.
 it only runs when you ask for it.
 
