@@ -32,9 +32,11 @@ working-tree state. Keep exploration open-ended, review focused on findings,
 and implementation focused on the authorized change. Preserve unrelated work.
 
 For user-facing replies and authored prose, apply the shared
-[output guidance](runtime/guides/output.md). Use clear, consistent language while
-preserving facts, uncertainty, and required evidence. This governs returned output,
-not internal reasoning, code, structured tool data, or exact diagnostics.
+[output guidance](runtime/guides/output.md) for both structure and sentence clarity.
+Use its labeled result sections, including a linked changed-file list for file
+edits, verification results, and remaining work. Scale the structure to the task
+while preserving facts, uncertainty, and required evidence. This governs returned
+output, not internal reasoning, code, structured tool data, or exact diagnostics.
 
 For authorized edits, follow [DOX documentation maintenance](runtime/guides/dox.md):
 read the root-to-target `AGENTS.md` chain before editing, then update affected

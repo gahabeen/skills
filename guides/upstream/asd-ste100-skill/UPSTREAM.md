@@ -10,6 +10,10 @@ The adaptation applies to user-facing replies and authored prose, not internal
 reasoning, code, structured tool data, or exact diagnostics. Existing workflow
 requirements for evidence and verification remain in force.
 
+510 adds its own response structure: scannable sections for substantial replies
+and labeled work results with changed files, verification, remaining work, and
+references. These additions are local guidance, not STE requirements.
+
 Documents intended for another agent also link to 510's internal writing-for-agents
 guide for structure and retrieval. Sentence clarity remains owned by this adaptation.
 
