@@ -240,6 +240,39 @@ test("a Review finding alone fails the full analysis", () => {
   expect(report.success).toBe(false);
 }, 30_000);
 
+test("boundary parsing and union narrowing work with all rules and the complete suite", () => {
+  const f = fixture();
+  writeFileSync(join(f.consumer, "src/index.ts"), `/** Decode an external label. */
+export function parseLabel(value: unknown): string {
+  if (typeof value !== "string") throw new TypeError("Expected label");
+
+  return value;
+}
+
+/** Format either supported representation. */
+export function display(value: string | number): string {
+  return typeof value === "number" ? value.toFixed(2) : value;
+}
+
+/** Validate an untrusted label. */
+export function isLabel(value: unknown): value is string {
+  return typeof value === "string";
+}
+`);
+  const valid = run(f);
+  expect(valid.findings).toEqual([]);
+  expect(valid.gaps).toEqual([]);
+  expect(valid.success).toBe(true);
+  writeFileSync(join(f.consumer, "src/index.ts"), `export function save(value: unknown): void { console.log(value); }
+
+export function display(value: string): string { return typeof value === "string" ? value : ""; }
+`);
+  const invalid = run(f);
+  expect(invalid.findings.some((item) => item.rule.includes("no-unknown-parameters"))).toBe(true);
+  expect(invalid.findings.some((item) => item.rule.includes("no-runtime-typeof"))).toBe(true);
+  expect(invalid.success).toBe(false);
+}, 30_000);
+
 test("handled promises, exhaustive switches, and accurate indexed/optional types pass", () => {
   const f = fixture();
   writeFileSync(join(f.consumer, "src/index.ts"), `export async function start() { await Promise.resolve(42); }

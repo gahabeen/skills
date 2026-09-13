@@ -1,5 +1,9 @@
 # Blindfolded rules
 
+These are adopted 510 policies, not universal TypeScript correctness rules.
+For one rule, use `guide rules --rule RULE` or MCP `guide` with `topic: "rules"`
+and `rule: "blindfolded/RULE"`. Load the catalog only when comparing policies.
+
 ### Generic rules
 
 - `no-array-filter-map` — rejects adjacent eager array filter/map passes while allowing lazy iterator pipelines.
@@ -11,9 +15,9 @@
 - `no-object-parameters` — rejects `object`, unions containing it, and scoped or transparent generic aliases that resolve to it on function inputs.
 - `no-reflect-apply` — rejects global `Reflect.apply` in favor of typed function calls.
 - `no-reflect-get` — rejects global `Reflect.get` in favor of typed property access or boundary parsing.
-- `no-runtime-typeof` — requires boundary parsing instead of ad hoc `typeof` narrowing. Existence probes against the string `"undefined"` are allowed, and type predicates can be enabled explicitly.
+- `no-runtime-typeof` — rejects redundant checks of locally declared primitive contracts. Unknown, union, property, and unresolved types can legitimately need narrowing; predicates and existence probes are supported.
 - `no-shape-in-symbol-names` — rejects the case-insensitive substring `shape` in locally owned symbol names while allowing static member names such as Zod's `schema.shape` that cannot be renamed locally.
-- `no-unknown-parameters` — rejects `unknown` and unions containing it on function inputs except the explicit `cause` convention and the exact subject of a type predicate.
+- `no-unknown-parameters` — requires implemented unknown-input boundaries to declare concrete result contracts, with exceptions for `cause` and type-predicate subjects.
 - `no-unknown-returns` — rejects explicit function contracts that resolve to `unknown`, `Promise<unknown>`, or `PromiseLike<unknown>`, including scoped and transparent generic aliases.
 - `no-unknown-type-aliases` — rejects scoped and transparent generic aliases whose resolved type is `unknown`.
 - `no-unsafe-dictionary-type` — rejects dictionary value contracts based on `unknown`, `any`, `object`, `{}`, and semantic equivalents. Generic constraints such as `T extends Record<string, unknown>` are allowed.
@@ -148,25 +152,33 @@ const value = Reflect.get(owner, key);
 
 ### `no-runtime-typeof`
 
+Rejected: checking a locally declared primitive contract again.
+
 ```ts
-if (typeof input === "string") {
-  useName(input);
+function display(value: string): string {
+  return typeof value === "string" ? value : "";
 }
 ```
 
-Schema-free projects can permit `typeof` checks directly inside type predicate and
-assertion functions while continuing to reject ad hoc checks elsewhere:
+Accepted: untrusted boundary inputs and domain unions can need narrowing.
 
-```json
-{
-  "blindfolded/no-runtime-typeof": [
-    "error",
-    { "allowInTypeGuards": true }
-  ]
+```ts
+function parseLabel(value: unknown): string {
+  if (typeof value !== "string") throw new TypeError("Expected label");
+  return value;
+}
+
+function display(value: string | number): string {
+  return typeof value === "number" ? value.toFixed(2) : value;
 }
 ```
 
-The option defaults to `false`. Existence probes such as `typeof document === "undefined"` are always allowed because they establish whether a binding exists rather than narrow its representation.
+The syntax/scope rule recognizes directly annotated primitive bindings and
+same-file aliases. It deliberately does not diagnose unknown, union, imported,
+unannotated, or property types. Existence probes against "undefined" remain allowed.
+`allowInTypeGuards` defaults to true; false applies the same redundant-primitive
+check inside predicates too. Neither setting restores the former blanket ban.
+See [boundary validation](boundary-validation.md) for the shared contract.
 
 ### `no-shape-in-symbol-names`
 
@@ -180,12 +192,26 @@ Static member reads such as `schema.shape` are allowed because the member name b
 
 ### `no-unknown-parameters`
 
+Rejected: a domain operation forwards unknown input without a boundary result.
+
 ```ts
-function handle(input: unknown) {}
+function save(input: unknown): void { database.save(input); }
 ```
 
-A type predicate may accept `unknown` for the parameter it narrows; other `unknown`
-parameters on the same function remain rejected.
+Accepted: an implemented parser exposes its validated result.
+
+```ts
+function decodeUser(input: unknown): User {
+  return UserSchema.parse(input);
+}
+```
+
+A concrete explicit return type enables an implemented boundary; it is not proof
+of runtime validation. Direct unknown, any, object, void, and corresponding Promise
+outputs do not qualify. Other rules still inspect broad aliases and assertions.
+Type-predicate subjects and the explicit `cause` convention remain supported.
+Function-type declarations without implementations do not gain this exception.
+Use [boundary validation](boundary-validation.md) and test rejected inputs.
 
 ### `no-unknown-returns`
 

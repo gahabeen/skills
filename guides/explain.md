@@ -12,7 +12,9 @@ No installed analyzer or MCP connection is required.
 
 ## Build an explanation from source
 
-Read relevant repository instructions, domain terms, and architecture decisions.
+Before interpreting source, read the applicable root-to-target `AGENTS.md` chain,
+even for a read-only explanation. Use its domain terms and units as evidence;
+read relevant architecture decisions when needed.
 Find the public entrypoints and actual callers. Follow enough of one representative
 path to explain the behavior, including important external dependencies and effects.
 Distinguish intended behavior in documentation from behavior observed in source.

@@ -15,9 +15,14 @@ For authorized fixes, follow [DOX documentation maintenance](dox.md): read the
 applicable `AGENTS.md` chain before editing and update affected contracts and
 indexes before final verification. Diagnosis-only work reports relevant gaps.
 
-Apply the [coding rules](codebase-design.md#coding-rules) to code added or changed
+Apply the [coding rules](coding-rules.md) to code added or changed
 during the investigation and fix, including verification through public package
 entrypoints when their exports or build output change.
+
+When reproduction or verification depends on runtime or framework behavior,
+inspect the selected package with `profile` and use only relevant
+[environment guidance](environment.md). Load [reporting](reporting.md) when
+delivering the diagnosis and verification evidence.
 
 Use [workflow storage](workflow-storage.md) for a unique session directory under
 the resolved `debug` path, defaulting to `.fiveten/debug/<subject>-<unique-id>/`.

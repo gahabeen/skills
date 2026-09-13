@@ -2,6 +2,25 @@ import type { ESTree, SourceCode } from "@oxlint/plugins";
 
 export type FunctionParameter = ESTree.ParamPattern;
 
+/** A boundary implementation must expose a concrete result, not forward an unparsed top type. */
+export function hasBoundaryResult(owner: ESTree.Node): boolean {
+	if (!("body" in owner) || owner.body === null || !("returnType" in owner)) return false;
+	const result = owner.returnType?.typeAnnotation;
+	if (result === undefined) return false;
+	return concreteResult(result);
+}
+
+function concreteResult(type: ESTree.TSType): boolean {
+	if (type.type === "TSParenthesizedType") return concreteResult(type.typeAnnotation);
+	if (type.type === "TSUnionType") return type.types.every(concreteResult);
+	if (["TSUnknownKeyword", "TSAnyKeyword", "TSVoidKeyword", "TSObjectKeyword", "TSTypePredicate"].includes(type.type)) return false;
+	if (type.type === "TSTypeReference" && type.typeName.type === "Identifier" && ["Promise", "PromiseLike"].includes(type.typeName.name)) {
+		const argument = type.typeArguments?.params[0];
+		return argument !== undefined && concreteResult(argument);
+	}
+	return true;
+}
+
 /** Return whether a type is or contains TypeScript's absorbing unknown top type. */
 export function containsUnknownType(type: ESTree.TSType): boolean {
 	if (type.type === "TSUnknownKeyword") return true;

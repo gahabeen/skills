@@ -105,6 +105,14 @@ type information in proposed changes.
 
 ## Return priorities and evidence
 
+Use [reporting](reporting.md) when delivering results. For repeated diagnostics,
+retrieve one rule's explanation with `guide rules --rule RULE`. Saved report
+comparison and group views are described in [analysis reporting](analysis.md#reports).
+Read every group's underlying findings; a retrieved page is not proof of review.
+
+When runtime or framework details affect a finding, inspect the selected package
+with `profile` and load only relevant [environment guidance](environment.md).
+
 Keep severity separate from classification. Prioritize by demonstrated impact,
 likelihood, and affected scope. Explain the priority without inventing a quality score.
 

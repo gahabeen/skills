@@ -72,6 +72,6 @@ export async function analyze(root, { signal, paths } = {}) {
     const results = await Promise.all(analyzers.map((tool) => execute(tool, context, signal, project.root)));
     if (project.unsupported.length) results.push({ tool: "source-coverage", status: "incomplete", findings: [],
       gaps: project.unsupported.map((file) => `Embedded source needs a supported parser: ${file}`) });
-    return finalize(project, results);
+    return finalize(project, results, directory);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 }

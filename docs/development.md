@@ -17,10 +17,23 @@ The local server exposes:
 | `doctor` | Check runtime, package versions, and native search readiness. |
 | `paths` | Resolve configured exploration, spec, and debug directories without writes or initialization. |
 | `guide` | Load public workflow instructions and internal guides for output, agent documents, architecture, design, DOX, testing, and storage. |
+| `profile` | Read selected package/configuration evidence and recommend applicable environment guides without setup or execution. |
 | `find_files` | Find files through FFF's persistent repository index. |
 | `search` | Search contents using literal OR patterns, constraints, and pagination. |
 | `analyze` | Start the complete Blindfolded static suite. |
 | `analysis_result` | Retrieve status, coverage gaps, and findings in pages. |
+
+Use `guide implement --phase select|build|verify|finish` to load the current
+implementation stage, and `guide rules --rule blindfolded/RULE` to retrieve one
+rule's applicability and examples. MCP `guide` accepts the corresponding `phase`
+and `rule` fields. The same registry resolves both interfaces. References are
+deferred; retrieval does not expand linked instructions.
+
+`profile --root PATH --path PACKAGE_OR_FILE` returns the closest package and its
+ancestors, compiler declarations, metadata hashes, scripts, gaps, and candidate
+environment guides. It reads JSON/JSONC as data, never runs project scripts, and
+does not resolve arbitrary config inheritance. Select each affected workspace
+and confirm relevance before loading Node, browser, React/Next.js, or monorepo guidance.
 
 Each server process is bound to the repository supplied through `--root`.
 It uses stdio, needs no hosted service, and keeps analysis and search local.
@@ -97,6 +110,14 @@ MCP jobs save full reports to `.fiveten/reports/runs/<id>.json` by default. A co
 still have `success: false`. See [analysis configuration and limits](../guides/analysis.md)
 and [the evidence vocabulary](../CONTEXT.md).
 
+Schema version 2 adds checkout-independent diagnostic IDs and grouping. Use
+`analyze --baseline previous.json` for comparison without suppression, or
+`report report.json --baseline previous.json --view groups` to inspect saved
+evidence. Group IDs select location-preserving pages with `report --group ID`.
+MCP `analysis_result` supports `view` and `groupId`. All findings and gaps remain
+blocking; `reviewStatus: "not-tracked"` separates retrieval from human assessment.
+See the [reporting contract](../guides/analysis.md#reports) for identity and comparison limits.
+
 Editable Oxlint rules can still be copied with
 `bun <skill-directory>/scripts/510.mjs install-rules [destination]`.
 See [installation](../guides/install.md) and [updates](../guides/update.md).
@@ -161,6 +182,11 @@ Use `bun run 510 <command>` for the shared CLI. Shortcuts include `bun run docto
 requests, static types, skill links, and bundle synchronization. `analyze` applies
 the complete policy to this repository and may fail on existing findings or
 coverage gaps. These are separate outcomes.
+
+Behavioral evaluation scenarios, isolated fixture preparation, a runner adapter,
+and measured-result summaries are documented in [510 evaluations](evaluations.md).
+Use `bun run eval:510 list` to inspect the eight cases. These maintainer assets
+stay outside the installed skill; they do not add discovery context or runtime dependencies.
 
 Storage choices and update behavior are recorded in
 [the storage decision](adr/0005-project-storage-and-setup.md).

@@ -5,6 +5,7 @@ import {
   containsUnknownType,
   functionParameterBindingName,
   functionParameterTypeAnnotation,
+  hasBoundaryResult,
 } from "../shared/function-parameters.ts";
 type ParameterOwner =
   | ESTree.ArrowFunctionExpression
@@ -24,17 +25,17 @@ function isTypePredicateSubject(owner: ParameterOwner, parameterName: string): b
   );
 }
 
-/** Disallow unknown inputs except explicitly named error-cause enrichment. */
+/** Require a boundary result contract for unknown inputs, retaining predicate and cause conventions. */
 export const noUnknownParametersRule = defineRule({
   meta: {
     type: "problem",
     docs: {
       description:
-        "Disallow explicitly unknown function parameters except `cause` and type-predicate subjects; decode unknown input at its I/O boundary instead.",
+        "Require an explicit concrete result for implemented unknown-input boundaries; cause and type-predicate subjects remain supported.",
     },
     messages: {
       unknownParameter:
-        "Parameter `{{parameter}}` leaves input unparsed. Accept a named domain type; run the expected schema or parser at the I/O boundary before calling this function.",
+        "Parameter `{{parameter}}` has no boundary result contract. Accept a domain input, or validate unknown input in a boundary implementation with an explicit concrete return type.",
     },
   },
   createOnce(context) {
@@ -44,7 +45,7 @@ export const noUnknownParametersRule = defineRule({
         if (annotation === null || annotation === undefined) continue;
         if (!containsUnknownType(annotation.typeAnnotation)) continue;
         const name = functionParameterBindingName(parameter, context.sourceCode);
-        if (name === "cause" || isTypePredicateSubject(node, name)) continue;
+        if (name === "cause" || isTypePredicateSubject(node, name) || hasBoundaryResult(node)) continue;
         context.report({
           node: annotation.typeAnnotation,
           messageId: "unknownParameter",

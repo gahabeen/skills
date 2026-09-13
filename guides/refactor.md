@@ -21,8 +21,12 @@ Follow [DOX documentation maintenance](dox.md): read the applicable `AGENTS.md`
 chain before editing and check affected contracts and indexes before final
 verification. Leave docs unchanged when their contracts still describe the result.
 
-Apply the [coding rules](codebase-design.md#coding-rules) to changed code, including
+Apply the [coding rules](coding-rules.md) to changed code, including
 verification through public package entrypoints when exports or build output change.
+
+Use the read-only project profile and relevant [environment guidance](environment.md)
+when runtime, framework, or package boundaries affect the refactor's verification.
+At delivery time, use [reporting](reporting.md).
 
 Establish the intended improvement and observable behavior to preserve. Read the
 [510 review workflow](review.md), run the complete static suite, and inspect the

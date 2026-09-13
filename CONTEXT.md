@@ -60,6 +60,18 @@ MCP. A guide does not execute analysis or prove that verification happened.
 **Search**: FFF-backed repository navigation. Its index and ranked results do not
 define or prove complete analysis coverage.
 
+**Project profile**: Read-only package and compiler declarations used to select
+relevant environment guidance. It does not execute scripts or resolve every
+inherited setting, and must be refreshed when relevant metadata changes.
+
+**Finding identity**: A diagnostic fingerprint independent of checkout root and
+line shifts, with occurrence ordering for identical diagnostics. It does not
+infer renames or establish semantic equivalence across policy changes.
+
+**Baseline comparison**: Correspondence between current and saved diagnostics.
+Existing findings still block success; incomplete or incompatible comparisons
+leave unmatched findings uncompared. Absence does not itself prove a fix.
+
 **Project initialization**: Tooling setup and the agent's AGENTS.md hierarchy pass
 performed by `510 init`. The CLI prepares storage and a connection, then returns
 documentation guidance for the agent; toolchain readiness does not verify docs.

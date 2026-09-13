@@ -9,6 +9,8 @@ import { copyRules } from "../blindfolded/install.mjs";
 import { checkBun, doctor } from "../runtime/doctor.mjs";
 import { setup } from "../runtime/setup.mjs";
 import { readGuide } from "../runtime/guides.mjs";
+import { projectProfile } from "../runtime/profile.mjs";
+import { compareFindings, readReport, reportPage } from "../blindfolded/analysis/findings.mjs";
 import { connectionConfig } from "../runtime/connection.mjs";
 import { projectRoot as locateProject, workflowPaths } from "../runtime/storage.mjs";
 
@@ -43,9 +45,12 @@ const commands = {
         [--storage project|shared|PATH]
   doctor [--root PATH]           Check storage, packages, and native search
   paths [--root PATH]            Print configured exploration, spec, and debug paths without initialization
+  profile [--root PATH] [--path PATH] Inspect package evidence and select environment guides, read-only
   analyze [--root PATH]          Run every static analyzer
           [--path PATH ...]     Select source files/directories for this run
-          [--format text|json] [--output PATH]
+          [--format text|json] [--output PATH] [--baseline REPORT] [--grouped]
+  report PATH [--baseline PATH] [--view findings|groups] [--group ID]
+              [--offset N] [--limit N]  Page a saved report without rerunning analysis
   serve --root PATH             Start the local MCP server over stdio
   mcp-config --root PATH        Print a connection using absolute paths
   explain [SUBJECT ...]         Print the read-only code explanation workflow
@@ -63,6 +68,8 @@ const commands = {
   review [PATH ...] [--root PATH] Print the repo checkup workflow; default scope is .
   refactor                      Print the agent refactoring workflow
   guide TOPIC                   Read a workflow or supporting guide
+        [--phase PHASE]         Read one implementation phase
+        [--rule RULE]           Read one rule from the rules guide
   install-rules [DESTINATION]    Copy editable Blindfolded Oxlint rules
 
 Run with bun <skill-directory>/scripts/510.mjs <command>.
@@ -84,12 +91,25 @@ Initialization and connection are separate. No command changes agent configurati
     const { values } = options(rootOption);
     json(workflowPaths(locateProject(values.root)));
   },
+  profile() {
+    const { values } = options({ ...rootOption, path: { type: "string" } });
+    json(projectProfile(locateProject(values.root), values.path));
+  },
   async analyze() {
-    const { values } = options({ ...rootOption, path: { type: "string", multiple: true }, format: { type: "string", default: "text" }, output: { type: "string" } });
+    const { values } = options({ ...rootOption, path: { type: "string", multiple: true }, format: { type: "string", default: "text" }, output: { type: "string" }, baseline: { type: "string" }, grouped: { type: "boolean" } });
     if (!["text", "json"].includes(values.format)) throw new Error("--format must be text or json.");
-    const { report, path } = await runAnalysis(locateProject(values.root), values.output, { paths: values.path });
-    console.log(values.format === "json" ? JSON.stringify(report, null, 2) : `${render(report)}\n\nJSON report: ${path}`);
+    if (values.grouped && values.format === "json") throw new Error("--grouped is a text summary; use report --view groups for grouped JSON.");
+    const { report, path } = await runAnalysis(locateProject(values.root), values.output, { paths: values.path, baseline: values.baseline });
+    console.log(values.format === "json" ? JSON.stringify(report, null, 2) : `${render(report, { grouped: values.grouped })}\n\nJSON report: ${path}`);
     process.exitCode = report.success ? 0 : 1;
+  },
+  report() {
+    const { values, positionals } = options({ baseline: { type: "string" }, view: { type: "string" }, group: { type: "string" }, offset: { type: "string", default: "0" }, limit: { type: "string", default: "50" } }, true);
+    if (positionals.length !== 1) throw new Error("Usage: 510 report PATH [--baseline PATH] [--view findings|groups]");
+    const path = resolve(positionals[0]);
+    const report = readReport(path);
+    if (values.baseline) compareFindings(report, readReport(resolve(values.baseline)), resolve(values.baseline));
+    json({ path, root: report.root, scope: report.scope, gaps: report.gaps, ...reportPage(report, { offset: Number(values.offset), limit: Number(values.limit), view: values.view, groupId: values.group }) });
   },
   async serve() {
     const { values } = options(rootOption);
@@ -101,9 +121,9 @@ Initialization and connection are separate. No command changes agent configurati
     json(connectionConfig(projectRoot(values)));
   },
   guide() {
-    const { positionals } = options({}, true);
+    const { positionals, values } = options({ phase: { type: "string" }, rule: { type: "string" } }, true);
     if (positionals.length !== 1) throw new Error("Usage: 510 guide TOPIC");
-    console.log(readGuide(positionals[0]).markdown);
+    console.log(readGuide(positionals[0], values).markdown);
   },
   explain() {
     subjectWorkflow("explain", "Explain");

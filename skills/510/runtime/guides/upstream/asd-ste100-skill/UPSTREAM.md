@@ -20,3 +20,8 @@ guide for structure and retrieval. Sentence clarity remains owned by this adapta
 The standalone rewrite workflow and Python linter are not bundled. The official
 ASD dictionary is not reproduced. No certified STE compliance is claimed.
 The original MIT license is preserved in [LICENSE](LICENSE).
+
+On 2026-09-13, the shared guide was shortened to the clarity and evidence rules
+needed on ordinary tasks. Detailed work-result structure moved to `reporting.md`,
+loaded at delivery time. Fixed sentence limits and mandatory section templates
+were removed; meaning, uncertainty, and verification requirements remain.

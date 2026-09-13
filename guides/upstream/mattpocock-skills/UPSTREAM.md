@@ -39,11 +39,19 @@ Paths below are relative to that pinned upstream revision:
 
 ## Intentional adaptations
 
+- On 2026-09-13, implementation became a compact router with separate select,
+  build, verify, and finish guides. The five local coding rules moved to their
+  own reference so ordinary edits need not read the complete design vocabulary.
+  Selection, scope preservation, TDD, Standards/Spec review, and local commit
+  requirements remain. References are loaded at the phase that needs them.
+
 - Added `510 explain`, inspired by the `zoom-out` skill installed in the Qpaws
   project and attributed there to Matt Pocock's skills. That installed copy was
   inspected on 2026-09-11; it is not asserted to belong to the pinned revision
   above. The independently written guide adds source evidence, a representative
   flow, explicit uncertainty, read-only boundaries, and no-init operation.
+  It explicitly resolves applicable repository instructions before interpreting
+  source, including read-only requests.
 
 - Integrated the workflows as guides inside the single explicit-only 510 skill.
   `grill-with-docs` becomes `510 grill`; its dependencies are bundled guides.

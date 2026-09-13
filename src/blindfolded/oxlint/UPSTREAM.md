@@ -40,3 +40,10 @@ identity of an older installed bundle.
 The 510 reorganization moved this tree under `src/blindfolded/oxlint/` and bundles
 it with the shared CLI/MCP runtime. The move preserves the rule implementations
 and vendor licenses; analysis, transport, and installation live outside this tree.
+
+On 2026-09-13, boundary policy was revised: implemented functions accepting unknown
+may declare concrete return contracts, while broad outputs remain checked by the
+suite. `no-runtime-typeof` now reports redundant checks on locally declared primitive
+contracts and permits ordinary unknown/union narrowing. Its predicate exemption
+defaults to true. These are intentional local policy changes, covered by rule
+examples and a combined full-suite regression; they are not upstream defaults.

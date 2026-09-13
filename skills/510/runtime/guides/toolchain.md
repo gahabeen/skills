@@ -166,7 +166,7 @@ Ignored, binary, and oversized files may be excluded. Search is navigation
 evidence; the analysis suite establishes its own source coverage and excludes
 510's generated storage.
 
-The tools are `doctor`, `paths`, `guide`, `find_files`, `search`, `analyze`, and
+The tools are `doctor`, `paths`, `guide`, `profile`, `find_files`, `search`, `analyze`, and
 `analysis_result`. Guides are also available as resources. `analyze` starts all
 six analyzers and returns an id; an overlapping request returns the active id.
 Poll `analysis_result` with a delay and retrieve all findings pages and gaps.

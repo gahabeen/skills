@@ -12,6 +12,12 @@ the goal is to keep the surface area small: one skill to install and invoke,
 shared rules, and clear scope for each workflow. use only the steps your task
 needs.
 
+510 loads instructions for the current phase. implementation details, final
+review, and commit guidance arrive when needed. rules and Node, browser,
+React/Next.js, or monorepo guidance remain internal resources selected for the task.
+see [behavioral evaluations](docs/evaluations.md) for measuring routing, outcomes,
+and the amount of guidance read.
+
 ### from idea to draft PR
 
 ```text

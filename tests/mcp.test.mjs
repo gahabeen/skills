@@ -53,7 +53,7 @@ async function fixture(marker = "answer", options = {}) {
 
 test("installed MCP exposes tools, guides, healthy native search, and repository-scoped results", async () => {
   const f = await fixture();
-  assert.deepEqual((await f.client.listTools()).tools.map((tool) => tool.name), ["doctor", "paths", "guide", "find_files", "search", "analyze", "analysis_result"]);
+  assert.deepEqual((await f.client.listTools()).tools.map((tool) => tool.name), ["doctor", "paths", "guide", "profile", "find_files", "search", "analyze", "analysis_result"]);
   assert.equal((await f.call("doctor")).ready, true);
   assert.match((await f.call("guide", { topic: "review" })).markdown, /Every\s+finding fails/);
   const resources = await f.client.listResources();
@@ -98,6 +98,23 @@ test("MCP and CLI resolve the same workflow storage without creating artifact di
   assert.equal((await f.client.listTools()).tools.find((tool) => tool.name === "paths").annotations.readOnlyHint, true);
 });
 
+test("installed CLI and MCP share selective guides and read-only package profiling", async () => {
+  const f = await fixture();
+  for (const selection of [{ topic: "implement", phase: "verify" }, { topic: "rules", rule: "blindfolded(no-runtime-typeof)" }]) {
+    const result = await f.call("guide", selection);
+    const args = ["guide", selection.topic, ...(selection.phase ? ["--phase", selection.phase] : ["--rule", selection.rule])];
+    const cli = spawnSync(process.execPath, [resolve(f.skill, "scripts/510.mjs"), ...args], { env: f.env, encoding: "utf8" });
+    assert.equal(cli.status, 0, cli.stderr);
+    assert.equal(cli.stdout, result.markdown + "\n");
+  }
+  const profile = await f.call("profile", { path: "src/index.ts" });
+  const cli = spawnSync(process.execPath, [resolve(f.skill, "scripts/510.mjs"), "profile", "--root", f.project, "--path", "src/index.ts"], { env: f.env, encoding: "utf8" });
+  assert.equal(cli.status, 0, cli.stderr);
+  assert.deepEqual(profile, JSON.parse(cli.stdout));
+  assert.equal(profile.package.name, "fixture");
+  assert.equal((await f.client.listTools()).tools.find((tool) => tool.name === "profile").annotations.readOnlyHint, true);
+});
+
 async function completed(f, id) {
   for (let i = 0; i < 120; i++) {
     const result = await f.call("analysis_result", { id, limit: 1 });
@@ -138,6 +155,22 @@ test("MCP findings remain blocking across pages and unknown jobs fail explicitly
   assert.equal(first.nextOffset, 1);
   const second = await f.call("analysis_result", { id, offset: first.nextOffset, limit: 1 });
   assert.notDeepEqual(first.findings, second.findings);
+  const groups = await f.call("analysis_result", { id, view: "groups" });
+  assert.equal(groups.groups.reduce((total, group) => total + group.count, 0), first.totalFindings);
+  const group = await f.call("analysis_result", { id, groupId: groups.groups[0].id });
+  assert.equal(group.findings.length, groups.groups[0].count);
+  assert.equal(group.success, false);
+  const compared = await f.call("analyze", { baseline: first.path });
+  const comparison = await completed(f, compared.id);
+  assert.equal(comparison.success, false);
+  assert.equal(comparison.comparison.comparable, true);
+  assert.ok(comparison.findings.every((item) => item.change === "existing"));
+  const cli = spawnSync(process.execPath, [resolve(f.skill, "scripts/510.mjs"), "report", first.path, "--baseline", first.path, "--view", "groups"], { env: f.env, encoding: "utf8" });
+  assert.equal(cli.status, 0, cli.stderr);
+  const saved = JSON.parse(cli.stdout);
+  assert.equal(saved.totalFindings, first.totalFindings);
+  assert.equal(saved.success, false);
+  assert.equal(saved.summary.changes.existing, first.totalFindings);
   const unknown = await f.client.callTool({ name: "analysis_result", arguments: { id: "00000000-0000-4000-8000-000000000000" } });
   assert.equal(unknown.isError, true);
 }, 30_000);

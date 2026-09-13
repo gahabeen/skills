@@ -37,3 +37,10 @@
 - Classify findings as defects, agreed constraints, or review signals. Complexity
   is a signal, and local mutation alone does not establish impurity. Every finding
   and incomplete required check blocks analysis success; retain partial results.
+- Phase and rule retrieval belong in `src/runtime/guides.mjs`; project profiling
+  reads metadata without executing it. Keep environment guides conditional.
+- Finding comparisons and grouping never suppress evidence. Bump the report's
+  policy version when analyzer policy changes; document identity limits.
+- Maintainer behavioral scenarios live in `evals/510/`, with helpers in `scripts/`.
+  Keep these outside the installed bundle. Record unavailable metrics as null and
+  verify evaluator claims against traces and artifacts; see `docs/evaluations.md`.
