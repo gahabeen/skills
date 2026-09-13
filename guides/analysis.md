@@ -1,214 +1,62 @@
 # Run the static suite
 
-The skill is self-contained: runtime source, workflow guides, a private toolchain manifest,
-and its Bun lockfile travel together. Bun 1.4.2 runs every analyzer and manages
-their dependencies in the configured storage outside the installed skill, without modifying the consuming project's package manifest,
-lockfile, or build configuration.
+Blindfolded is 510's analysis capability. Use ready tooling; consult
+[toolchain](toolchain.md) when initialization, dependencies, or connection setup
+is needed. Bun runs the pinned analyzers from configured storage. Keep the installed
+skill read-only and preserve the consuming project's manifest, lockfile, and build
+configuration. Review may prepare tooling and save reports, but does not perform
+`init`'s project-documentation edits.
 
-Blindfolded is the analysis capability within 510. See [toolchain initialization](toolchain.md)
-for MCP connection, readiness checks, and shared dependency management.
-
-## Initialization and execution
-
-Run **510 init** for each project, or after a toolchain update. Existing storage choices are reused:
+## Run the selected scope
 
 ```sh
-bun <skill-directory>/scripts/510.mjs init
+bun <skill-directory>/scripts/510.mjs analyze --root /path/to/project --path packages/billing
 ```
 
-`init` installs the pinned toolchain with its frozen lockfile and package lifecycle
-scripts disabled. Then run from the consuming repository:
+Repeat `--path` for multiple targets. MCP `analyze` accepts the same selection
+with `paths`. Paths are relative to the repository root, or absolute within it.
+Keep the root at the repository so settings and storage are reused. A one-run
+selection overrides saved source paths without changing configuration.
 
-```sh
-bun <skill-directory>/scripts/510.mjs analyze
-```
+Bare `510 review` explicitly selects `--path .` / `paths: ["."]`.
+An explicitly scoped review or a parent workflow uses its selected scope.
+Low-level `analyze` without paths uses saved settings and default discovery.
+Invalid, outside-repository, missing, or source-empty selections fail without
+broadening scope.
 
-Use `--root /path/to/project` from another directory. `--format json` prints the
-structured report; the default prints a readable report. Every run also writes
-`.fiveten/reports/report.json` by default, or the configured reports directory. `--output <path>` changes that output
-location. There are no per-tool switches.
+Run all six analyzers: Oxlint + tsgolint, TypeScript, Knip, dependency-cruiser,
+ESLint + SonarJS, and Fallow. There are no per-tool switches. Static analysis
+may evaluate tooling configuration; it never starts the application, tests,
+builds, generation, or benchmarks. Run authorized runtime verification separately.
 
-Use `--path packages/billing` for a one-run source scope; repeat `--path` for
-additional files or directories. MCP `analyze` accepts the same selection as
-`{ "paths": ["packages/billing"] }`. Paths are relative to the repository root
-(including when invoked from a nested working directory), or absolute within it.
-This overrides configured `paths` for the run without saving changes. Keep
-`--root` at the repository so storage, thresholds, ignores, and explicit project
-and analyzer configurations are reused. Without a path selection, saved settings
-and default discovery apply as before.
+## Assess the evidence
 
-The agent's plain `510 review` workflow explicitly supplies `paths: ["."]`
-or `--path .` for repository-wide assessment. It does not inherit a saved subtree.
-Explicit review paths select that area. Review also inspects architecture, tests,
-and documentation as described in the [review guide](review.md). Those contextual
-assessments are separate from the automated report and its pass/fail result.
+Confirm selected files, exclusions, and analyzer coverage. Read every findings
+page, status, and gap. Success requires all required analyzers to complete and
+zero findings, including Review signals. Missing tools, configuration or parser
+failures, timeouts, and incomplete type/dependency coverage fail the run while
+retaining partial findings. Completion alone does not mean success.
 
-`init` maintains `.fiveten/.gitignore` for generated files. The installed skill is read-only.
+Distinguish defects (Fix), adopted constraints (Enforce), and contextual signals
+(Review). A complexity score, repeated syntax, or local mutation alone does not
+establish a defect or justify refactoring. Keep classifications separate from
+severity and automated pass/fail. Never weaken policy or exclusions to hide evidence.
+The [review workflow](review.md) adds contextual architecture, test, and documentation
+assessment; a clean static report does not establish whole-program correctness.
 
-The command exits zero only when every required analyzer completes and there are
-zero findings. Review warnings also fail. A missing binary, invalid configuration,
-timeout, parser failure, or missing type/dependency coverage produces a coverage
-gap and a failing result. Other analyzers continue and their findings remain in
-the report. Application startup, test commands, build scripts, and code-generation
-scripts are never invoked by this command. Project tooling configuration may be
-evaluated by the analyzers.
+## Conditional references
 
-## Default checks
-
-| Analyzer | Checks |
-| --- | --- |
-| Oxlint + tsgolint | All 18 Blindfolded rules, correctness checks, accumulating spreads, floating/misused promises, exhaustive switches, cyclomatic complexity, nesting. |
-| TypeScript | Dedicated no-emit profiles enabling `strict`, `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes`. |
-| Knip | Unused files, exports, types, and dependencies; unresolved references and configuration hints. Framework entry discovery remains active. |
-| Dependency-cruiser | Import cycles, unresolved dependencies, and declared project architecture rules. Type-only dependencies are included. |
-| ESLint + SonarJS | Cognitive complexity through the TypeScript parser. |
-| Fallow | Duplicate code, with source discovery and parser coverage checks. |
-
-Cyclomatic complexity uses the classic variant and reports values above 20;
-nesting reports depths above 4; cognitive complexity reports values above 15.
-These are configurable review policies, not validated quality boundaries. Every
-reported result blocks success. `void promise` does not handle rejection and is
-reported; await the work, return it to its caller, or handle rejection explicitly.
-A default switch branch does not exempt missing union members.
-
-Fallow reports clone groups with at least 50 tokens and 5 lines by default.
-Its `mild` mode ignores comments and whitespace. Module wiring, such as imports
-and re-exports, does not count as duplicate code. Each group is a blocking
-**Review** signal with all occurrence locations. Similar code does not establish
-a shared responsibility or justify merging implementations.
-
-Fallow compares an isolated copy of exactly the selected files. It includes
-selected tests and declarations, disables its default duplicate ignores, and
-does not load the consuming project's Fallow configuration or baselines.
-Discovery and parser checks detect missing files or degraded parsing before
-the result can pass. Valid clone findings survive parser failures elsewhere.
-Snapshot files and binary verification data stay in temporary analysis storage.
-
-Copies outside a selected scope are not compared. Fallow's duplicate statistics
-describe files eligible under the token and line minimums. They are not the
-number of files discovered or parsed; the report records those counts separately.
-Fallow's health command provides parser diagnostics only. The suite keeps its
-existing complexity, reachability, and dependency analyzers.
-
-The pinned Oxlint typed backend can choose the nearest application tsconfig even
-when given a dedicated config path. The separate TypeScript compiler check still
-enforces the stricter analysis profile. The suite records the backend's actual
-project assignments, fails on unmatched files, and reports a coverage gap when
-an enabled typed rule cannot run under the application's settings (for example,
-disabled strict null checks). It does not silently change application settings.
-
-CodeQL and runtime analysis are outside this version. Effect descriptions and
-testability judgments use the [contextual review workflow](effects-and-testability.md).
-
-## Source scope and project metadata
-
-By default, discover JS/TS source and `tsconfig*.json`/`jsconfig*.json` projects
-under the repository. Common dependency, generated-output, and installed-agent
-directories are excluded; the report lists those exclusions. The installed skill
-itself is excluded. Do not count excluded files as inspected.
-
-For a one-run path selection, automatic compiler configuration discovery is
-limited to the selected directories and their ancestors. Explicit `projects`
-remain authoritative, including configurations stored elsewhere in the repository.
-The report records the effective source paths and whether they came from the
-request or saved/default configuration. Invalid, missing, outside-repository,
-or source-empty selections fail; they never trigger a full-repository fallback.
-
-For explicit project boundaries, put an `analysis` object in `.fiveten/config.json`.
-Existing `.blindfolded.json` files with the following shape remain supported when
-that object is absent:
-
-```json
-{
-  "paths": ["src", "test"],
-  "ignore": ["src/generated/**"],
-  "projects": ["tsconfig.json", "test/tsconfig.json"],
-  "thresholds": {
-    "cyclomatic": 20, "nesting": 4, "cognitive": 15,
-    "duplicateTokens": 50, "duplicateLines": 5
-  }
-}
-```
-
-`paths` are existing files or directories, `ignore` contains glob patterns, and
-`projects` identifies existing compiler configurations. With no project config,
-the suite creates an inferred JS/TS analysis profile. With existing configs,
-selected source must belong to at least one project; uncovered files fail with
-an explicit gap. Each profile preserves its base settings and enables stricter
-contracts without emitting or building referenced packages. Imported files may
-also need to be read to establish types and dependencies.
-
-Do not broaden ignores to conceal owned source. Configure real generated-output
-boundaries and entry points. For monorepos, specify the relevant leaf configs
-when automatic discovery includes unrelated build presets. Missing referenced
-declarations remain a gap; the suite does not run package builds to create them.
-
-Additional optional **configuration paths** (not optional analyzers) are:
-
-- `knipConfig`: the project's Knip configuration. Standard Knip filenames and
-  `package.json#knip` are discovered by default. Preserve real framework entries,
-  workspaces, and dynamic-loading knowledge. The suite retains its required issue
-  categories even when an existing configuration disables them.
-- `dependencyConfig`: the project's dependency-cruiser configuration. Standard
-  `.dependency-cruiser.{cjs,js,mjs,json}` files are discovered automatically.
-  Existing boundaries are combined with cycle/resolution checks. Without declared
-  boundaries, report that fact; do not invent application layers. Configure
-  project-specific alias resolution for multi-project graphs.
-- `oxlintConfig`: an existing configuration to extend with additional local
-  rules. Mandatory suite rules remain enabled. Nested configurations are disabled
-  for this dedicated run; application lint settings remain separate.
-
-Knip and dependency-cruiser configuration objects must be serializable. JSON/JSONC
-and Bun 1.4.2-compatible JS/TS object exports are supported. Unsupported config
-evaluation or resolution fails explicitly. Knip may inspect additional discovered
-tooling entry points; its report records processed-file counts and enabled plugins.
-For a one-run path scope, Knip selects the owning workspaces and applies source
-patterns within each, preserving their entry and plugin settings. Its report
-records selected and included workspaces; ancestors and related workspaces may
-still provide dependency context. Unrelated sibling workspaces are not selected.
-
-Embedded scripts in Vue, Svelte, and Astro files are reported as unsupported
-coverage when selected. Computed imports and dynamic behavior can still require
-manual review. A completed scan proves neither reachability under every possible
-runtime loader nor whole-program correctness.
+- [Analyzer checks and limits](analysis-reference.md#default-checks): interpreting
+  a tool's coverage, thresholds, or diagnostic limitations.
+- [Configuration and discovery](analysis-reference.md#source-scope-and-project-metadata):
+  setting project boundaries, resolving configuration, or investigating coverage gaps.
+- Individual diagnostic: `guide rules --rule RULE`, or MCP topic `rules` with `rule`.
 
 ## Reports
 
-Reports use schema version 2, retaining the full analyzer evidence and adding
-finding IDs, group IDs, change labels, policy version, and a recorded-configuration
-fingerprint. Reader commands accept
-older schema version 1 reports too; incomparable evidence is labeled explicitly.
-
-Use `analyze --baseline /path/to/previous.json` or MCP `analyze` with `baseline`
-to compare with a saved snapshot. The baseline is read before replacing output.
-Matching findings are existing; unmatched findings are introduced only when both
-reports have complete checks and matching selected files, recorded analyzer
-settings (including thresholds), and policy version. External configuration imports
-and dependency contents are not fully fingerprinted. Older reports without the
-fingerprint remain incomparable. Otherwise unmatched findings remain uncompared. These labels describe
-diagnostic correspondence, not proof of causation or a fix. Every finding still fails.
-
-IDs ignore checkout roots and line shifts but depend on the rule, relative file,
-message, related files, and occurrence order. Renames, changed messages, or inserting
-an identical diagnostic before another can change IDs. Bump the policy version in
-the report builder when changing analysis policy; comparisons do not infer compatibility.
-
-`analyze --grouped` emits a short text summary. Retrieve saved evidence without a
-new run using `report REPORT.json --view groups`, then `report REPORT.json --group ID
---offset 0 --limit 50`. Optional `--baseline REPORT.json` compares saved reports.
-MCP `analysis_result` accepts `view: "groups"` or `view: "findings"` with `groupId`.
-The response reports total findings, selected records, outside-page counts, remaining
-records, next offset, separate completeness fields, and `reviewStatus: "not-tracked"`.
-Group summaries omit locations; drill down through all pages for the full evidence.
-No retrieval marks a finding reviewed or accepted, suppresses evidence, or changes success.
-
-The JSON report includes `success`, selected files and exclusions, thresholds,
-per-analyzer status/configuration, findings, coverage gaps, and limitations. Each
-finding includes tool/rule identity, classification, location where available,
-evidence, uncertainty, and a proposed action. Complexity findings carry measured
-values and configured limits. File-level and graph findings may have no line
-number; do not invent one.
-
-Keep raw diagnostics and partial findings available. Tool classifications are
-initial interpretations; source review may refine them. Never present a warning
-as a demonstrated defect merely because it blocks the analysis command.
+CLI saves `.fiveten/reports/report.json` by default; MCP jobs save reports under
+the configured reports directory. `--format json` selects structured stdout and
+`--output PATH` selects another report path. Read [report retrieval and comparison](analysis-reports.md)
+when paging/grouping saved findings, comparing a baseline, or interpreting identities.
+Grouping and comparison never suppress evidence or change success. Use
+[output guidance](output.md) when delivering the result.

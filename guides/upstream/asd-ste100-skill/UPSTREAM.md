@@ -25,3 +25,7 @@ On 2026-09-13, the shared guide was shortened to the clarity and evidence rules
 needed on ordinary tasks. Detailed work-result structure moved to `reporting.md`,
 loaded at delivery time. Fixed sentence limits and mandatory section templates
 were removed; meaning, uncertainty, and verification requirements remain.
+
+A subsequent simplification on 2026-09-13 consolidated clarity and conditional
+work-evidence requirements in `output.md`. `reporting` remains a compatibility
+topic; callers reuse the shared guide rather than loading a second report template.

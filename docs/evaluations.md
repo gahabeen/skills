@@ -1,9 +1,10 @@
 # Evaluate 510 behavior and context
 
 Runtime tests establish tool behavior; agent evaluations establish whether the
-instructions guide a model usefully. The eight cases in `evals/510/cases.mjs`
+instructions guide a model usefully. The ten cases in `evals/510/cases.mjs`
 cover help, explanation, a feature, unresolved requirements, a boundary parser,
-missing analyzer evidence, scoped review, and preservation of unrelated staging.
+missing analyzer evidence, scoped review, preservation of unrelated staging,
+a small task with conversational requirements, and work requiring continuation notes.
 
 Prepare separate runs from the previous and candidate skill directories:
 

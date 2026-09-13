@@ -41,8 +41,9 @@ not specifications or candidates for automatic implementation.
 
 Specs use descriptive filenames such as `specs/order-cancellation.md`. Update the
 same spec when continuing that work; use a unique suffix for an unrelated spec
-with a colliding name. Implementation progress uses `specs/<subject>.implementation.md`,
-referencing its source spec or tickets and keeping execution status separate from
+with a colliding name. When resumable implementation notes are needed, use
+`specs/<subject>.implementation.md`, referencing the selected spec, tickets, or
+conversational requirements and keeping execution status separate from
 requirements. These notes are not candidates when selecting a spec to implement.
 Debug sessions use `debug/<subject>-<unique-id>/` with a
 `diagnosis.md` and the minimal fixtures or redacted logs needed to resume.

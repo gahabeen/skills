@@ -12,19 +12,21 @@ the goal is to keep the surface area small: one skill to install and invoke,
 shared rules, and clear scope for each workflow. use only the steps your task
 needs.
 
-510 loads instructions for the current phase. implementation details, final
-review, and commit guidance arrive when needed. rules and Node, browser,
-React/Next.js, or monorepo guidance remain internal resources selected for the task.
+510 loads a compact workflow, with optional phase retrieval when resuming work.
+performance measurement, analyzer configuration, report comparison, and Node,
+browser, React/Next.js, or monorepo guidance load when relevant to the task.
 see [behavioral evaluations](docs/evaluations.md) for measuring routing, outcomes,
 and the amount of guidance read.
 
 ### from idea to draft PR
 
 ```text
-(explain) → (explore) → (grill) → [spec] → [implement] → (commit) → (pr)
+(explain) → (explore) → (grill) → (spec) → [implement] → (commit) → (pr)
 ```
 
-an existing spec or tickets can take you straight to `implement`.
+an existing spec, tickets, or clear requirements in the conversation can take you
+straight to `implement`. small tasks need no separate spec or progress document;
+work spanning sessions or dependent slices keeps resumable notes.
 
 | step | when i want to… | i use… |
 | --- | --- | --- |
@@ -130,7 +132,7 @@ content to save, and link related records instead of copying them.
 | [architecture decision records](guides/domain-modeling.md#record-consequential-decisions-sparingly) | `docs/adr/` | record a settled choice when it is costly to reverse, surprising without context, and the result of a real tradeoff. preserve the rationale when superseding it. |
 | [exploration notes](guides/workflow-storage.md) | `.fiveten/explorations/<subject>.md` | `explore` keeps findings, options, tentative direction, and open questions in one resumable document, unless discussion only was requested. |
 | [specifications](guides/spec.md) | `.fiveten/specs/<subject>.md` | `spec` captures requirements and acceptance criteria, marking assumptions and unresolved decisions clearly. |
-| [implementation progress](guides/implement.md) | `.fiveten/specs/<subject>.implementation.md` | `implement` links the source spec or tickets and records completed work, actual checks, blockers, and the next step. |
+| [implementation progress](guides/implement.md) | `.fiveten/specs/<subject>.implementation.md` | work spanning sessions or dependent slices records agreed requirements, completed work, actual checks, blockers, and the next step. small self-contained changes need no progress file. |
 | [debugging evidence](guides/debug.md) | `.fiveten/debug/<subject>-<unique-id>/diagnosis.md` | `debug` records reproduction, hypotheses, evidence, cause, fix, and remaining checks; save minimal fixtures or redacted logs when needed. |
 | [analysis reports](guides/analysis.md#reports) | `.fiveten/reports/report.json` or `.fiveten/reports/runs/<id>.json` | CLI and MCP analysis save findings and coverage gaps, retaining partial results when a run fails or is incomplete. |
 | [handoff notes](guides/handoff.md) | a unique `510-handoff-<unique-id>.md` in the OS temporary directory | `handoff` saves the context needed to continue, with links to existing records; use a requested destination when given. |

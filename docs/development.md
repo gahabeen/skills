@@ -23,11 +23,16 @@ The local server exposes:
 | `analyze` | Start the complete Blindfolded static suite. |
 | `analysis_result` | Retrieve status, coverage gaps, and findings in pages. |
 
-Use `guide implement --phase select|build|verify|finish` to load the current
-implementation stage, and `guide rules --rule blindfolded/RULE` to retrieve one
+`guide implement` returns the complete compact workflow. Use
+`guide implement --phase select|build|verify|finish` to retrieve one section
+from that same document, and `guide rules --rule blindfolded/RULE` to retrieve one
 rule's applicability and examples. MCP `guide` accepts the corresponding `phase`
 and `rule` fields. The same registry resolves both interfaces. References are
 deferred; retrieval does not expand linked instructions.
+
+`reporting` remains a compatibility topic for the shared `output` guide.
+`performance`, `analysis-reference`, and `analysis-reports` hold conditional
+measurement, analyzer configuration/coverage, and report-comparison guidance.
 
 `profile --root PATH --path PACKAGE_OR_FILE` returns the closest package and its
 ancestors, compiler declarations, metadata hashes, scripts, gaps, and candidate
@@ -116,7 +121,7 @@ Schema version 2 adds checkout-independent diagnostic IDs and grouping. Use
 evidence. Group IDs select location-preserving pages with `report --group ID`.
 MCP `analysis_result` supports `view` and `groupId`. All findings and gaps remain
 blocking; `reviewStatus: "not-tracked"` separates retrieval from human assessment.
-See the [reporting contract](../guides/analysis.md#reports) for identity and comparison limits.
+See the [reporting contract](../guides/analysis-reports.md) for identity and comparison limits.
 
 Editable Oxlint rules can still be copied with
 `bun <skill-directory>/scripts/510.mjs install-rules [destination]`.
@@ -185,7 +190,7 @@ coverage gaps. These are separate outcomes.
 
 Behavioral evaluation scenarios, isolated fixture preparation, a runner adapter,
 and measured-result summaries are documented in [510 evaluations](evaluations.md).
-Use `bun run eval:510 list` to inspect the eight cases. These maintainer assets
+Use `bun run eval:510 list` to inspect the cases. These maintainer assets
 stay outside the installed skill; they do not add discovery context or runtime dependencies.
 
 Storage choices and update behavior are recorded in

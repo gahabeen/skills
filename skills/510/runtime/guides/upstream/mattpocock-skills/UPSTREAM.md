@@ -39,6 +39,18 @@ Paths below are relative to that pinned upstream revision:
 
 ## Intentional adaptations
 
+- A further simplification on 2026-09-13 consolidated the implementation phases
+  into sections of one workflow. Phase retrieval still returns the selected
+  section through both interfaces. Scope, TDD, Standards/Spec assessment, and
+  local-commit gates remain. Performance measurement moved to a conditional
+  debug reference, and grill loads domain modeling when that decision arises.
+
+- In the follow-up workflow adjustment, clear conversational requirements are
+  sufficient for implementation without a formal spec. Small self-contained
+  changes need no progress document; work spanning sessions or dependent slices
+  retains resumable notes. Unresolved product decisions and verification/commit
+  gates remain explicit. Both paths have maintainer evaluation fixtures.
+
 - On 2026-09-13, implementation became a compact router with separate select,
   build, verify, and finish guides. The five local coding rules moved to their
   own reference so ordinary edits need not read the complete design vocabulary.

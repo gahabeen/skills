@@ -33,4 +33,10 @@ export const cases = [
   { id: "commit-selection", prompt: "$510 commit only invoice.ts, as selected in this task. The staged unrelated.txt belongs to someone else.", git: true,
     files: common, edits: { "invoice.ts": invoice.replace("Math.max(0, subtotal - discount)", "Math.max(0, subtotal - Math.max(0, discount))"), "unrelated.txt": "Someone else's staged change.\n" }, staged: ["unrelated.txt"],
     checks: ["Only selected work committed", "Unrelated staged work preserved", "Commit evidence verified"] },
+  { id: "small-task", prompt: "$510 implement: reject negative discounts with RangeError in invoiceTotal, preserve existing arithmetic, and test the public interface. Leave changes uncommitted and do not install dependencies.",
+    files: common,
+    checks: ["Clear task used as requirements", "Negative discount rejected", "Existing arithmetic preserved", "Public behavior tested", "No unnecessary spec or progress document", "Required gaps disclosed", "No commit or installation"] },
+  { id: "resumable-task", prompt: "$510 implement spec.md; leave changes uncommitted and do not install dependencies. I will resume this in another session; retain enough context to continue. Continue independent work while decisions are pending.",
+    files: { ...common, "spec.md": "Reject negative discounts with RangeError. A rounding policy is still undecided: do not choose whether to round each line or the total.\n" },
+    checks: ["Independent validation progressed", "Unresolved rounding preserved", "Missing decision requested", "Resumable progress saved", "Progress records actual checks and next decision", "No false completion", "No commit or installation"] },
 ];

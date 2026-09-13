@@ -1,8 +1,8 @@
 # Test-driven implementation
 
 Use this discipline inside [510 implement](implement.md) when changing behavior
-that can be meaningfully tested. Reuse the spec's agreed interfaces and the
-repository's existing test conventions. A prior decision needs no new approval.
+that can be meaningfully tested. Follow the agreed interfaces and requirements,
+using the repository's existing test conventions. A prior decision needs no new approval.
 If a materially different interface is required, explain the tradeoff and resolve
 that decision before depending on it; use [codebase design](codebase-design.md).
 

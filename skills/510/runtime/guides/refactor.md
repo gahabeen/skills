@@ -17,16 +17,16 @@ Reuse an already-selected direction and preserve this refactor's scope and check
 Prefer the harness's native editing tools for authored changes, and review the
 resulting diff before continuing.
 
-Follow [DOX documentation maintenance](dox.md): read the applicable `AGENTS.md`
-chain before editing and check affected contracts and indexes before final
-verification. Leave docs unchanged when their contracts still describe the result.
+Read applicable repository instructions before editing and maintain affected
+documented contracts. Use [DOX](dox.md) when instructions or their hierarchy
+need work. Leave docs unchanged when their contracts still describe the result.
 
 Apply the [coding rules](coding-rules.md) to changed code, including
 verification through public package entrypoints when exports or build output change.
 
 Use the read-only project profile and relevant [environment guidance](environment.md)
 when runtime, framework, or package boundaries affect the refactor's verification.
-At delivery time, use [reporting](reporting.md).
+At delivery time, use [output guidance](output.md).
 
 Establish the intended improvement and observable behavior to preserve. Read the
 [510 review workflow](review.md), run the complete static suite, and inspect the

@@ -73,13 +73,14 @@ from this static command. Never label an unrun check as passing.
 | Behavior and test coverage | Match important public behavior, errors, state transitions, and integrations to test assertions. Check whether tests reach the interface consumers use and whether CI selects them. |
 | Documentation and instructions | Compare maintained docs, setup/check commands, entrypoint descriptions, domain terms, and relevant `AGENTS.md` links against the source and configuration. |
 
-Use [codebase design](codebase-design.md) to assess interface depth, ownership,
-and caller knowledge. Use [effects and testability](effects-and-testability.md)
-for hidden inputs, observable effects, coordination, and unresolved operations.
+Use [codebase design](codebase-design.md) when interface depth, ownership,
+or caller knowledge needs assessment. Use [effects and testability](effects-and-testability.md)
+when hidden inputs, effects, coordination, or unresolved operations need investigation.
 Local mutation alone does not establish impurity.
 
-Use [architecture improvement](improve-codebase-architecture.md) to develop
-supported structural candidates and compare their effects on callers and tests.
+When recommending structural changes, use
+[architecture improvement](improve-codebase-architecture.md) to compare
+supported candidates and their effects on callers and tests.
 Its use of recent changes helps prioritize inspection within this review's scope.
 It does not narrow required coverage, replace the full report, or authorize edits.
 
@@ -105,9 +106,9 @@ type information in proposed changes.
 
 ## Return priorities and evidence
 
-Use [reporting](reporting.md) when delivering results. For repeated diagnostics,
+Use [output guidance](output.md) when delivering results. For repeated diagnostics,
 retrieve one rule's explanation with `guide rules --rule RULE`. Saved report
-comparison and group views are described in [analysis reporting](analysis.md#reports).
+comparison and group views are described in [analysis reporting](analysis-reports.md).
 Read every group's underlying findings; a retrieved page is not proof of review.
 
 When runtime or framework details affect a finding, inspect the selected package

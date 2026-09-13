@@ -2,7 +2,7 @@ import { afterEach, expect, test } from "bun:test";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { readGuide } from "../src/runtime/guides.mjs";
+import { readGuide, phases } from "../src/runtime/guides.mjs";
 import { projectProfile } from "../src/runtime/profile.mjs";
 
 const directories = [];
@@ -16,6 +16,16 @@ test("guide retrieval selects phases and individual diagnostics without expandin
   expect(build.phase).toBe("build");
   expect(build.markdown).not.toBe(overview.markdown);
   expect(verify.markdown).not.toBe(build.markdown);
+  const selected = Object.keys(phases.implement).map((phase) => readGuide("implement", { phase }));
+  for (const result of selected) {
+    const body = result.markdown.slice(result.markdown.indexOf("\n") + 1).trim();
+    expect(body.length).toBeGreaterThan(0);
+    expect(overview.markdown).toContain(body);
+    for (const other of selected.filter((item) => item.phase !== result.phase)) {
+      expect(result.markdown).not.toContain(other.markdown.split("\n")[0]);
+    }
+  }
+  expect(readGuide("reporting")).toEqual({ topic: "reporting", markdown: readGuide("output").markdown });
   const rule = readGuide("rules", { rule: "blindfolded(no-unknown-parameters)" });
   expect(rule.rule).toBe("no-unknown-parameters");
   expect(rule.markdown).not.toContain("### `no-unknown-returns`");
