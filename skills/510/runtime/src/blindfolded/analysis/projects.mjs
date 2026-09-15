@@ -2,7 +2,8 @@ import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { bin, parseOutput, requireTool, run } from "./runtime.mjs";
 
-export function prepareProjects(project, directory) {
+/** Prepare isolated strict compiler projects without rewriting application configs. */
+export async function prepareProjects(project, directory, signal) {
   const compiler = bin("typescript-check", "tsc", project.root);
   const configs = [];
   const gaps = [];
@@ -20,7 +21,7 @@ export function prepareProjects(project, directory) {
         noEmit: true, incremental: false, composite: false, declaration: false, declarationMap: false, emitDeclarationOnly: false },
       references: [] };
     writeFileSync(path, JSON.stringify(config, null, 2));
-    const result = run(compiler, ["--showConfig", "--project", path], project.root);
+    const result = await run(compiler, ["--showConfig", "--project", path], project.root, {}, { signal });
     if (result.status !== 0) {
       gaps.push(`${base ?? "inferred project"}: ${result.stdout || result.stderr}`);
       continue;

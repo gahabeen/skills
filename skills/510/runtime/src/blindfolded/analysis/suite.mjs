@@ -33,7 +33,13 @@ function execute(tool, context, signal, root) {
     const abort = () => stop("Analysis cancelled.");
     signal?.addEventListener("abort", abort, { once: true });
     const timer = setTimeout(() => stop("Analyzer exceeded the five-minute time limit."), 300_000);
-    child.stdout.on("data", (data) => { stdout += data; if (stdout.length > 32 * 1024 * 1024) stop("Analyzer output exceeded 32 MiB."); });
+    let outputBytes = 0;
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (data) => {
+      outputBytes += Buffer.byteLength(data);
+      if (outputBytes > 32 * 1024 * 1024) stop("Analyzer output exceeded 32 MiB.");
+      else stdout += data;
+    });
     child.stderr.on("data", (data) => { stderr = (stderr + data).slice(-8000); });
     child.on("error", (error) => { failure = error.message; });
     child.on("close", (code, exitSignal) => {
@@ -65,7 +71,7 @@ export async function analyze(root, { signal, paths } = {}) {
     if (existsSync(modules)) symlinkSync(modules, resolve(directory, "node_modules"), process.platform === "win32" ? "junction" : "dir");
     copyRules(resolve(directory, "rules"));
     let prepared;
-    try { prepared = prepareProjects(project, directory); }
+    try { prepared = await prepareProjects(project, directory, signal); }
     catch (error) { prepared = { configs: [], gaps: [error.message] }; }
     const context = resolve(directory, "context.json");
     writeFileSync(context, JSON.stringify({ project, directory, prepared }));

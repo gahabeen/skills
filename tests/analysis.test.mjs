@@ -56,7 +56,7 @@ test("one-run paths select a subdirectory without changing saved scope, storage,
   expect(report.files).toEqual(["src/selected/index.ts"]);
   expect(report.scope.paths).toEqual(["src/selected"]);
   expect(report.scope.pathSource).toBe("request");
-  expect(report.success).toBe(true);
+  expect(report.success, JSON.stringify(report.gaps)).toBe(true);
   expect(report.analyzers).toHaveLength(6);
   expect(report.analyzers.find((item) => item.tool === "typescript").configuration.map((item) => item.base)).toEqual(["tsconfig.json"]);
   for (const [path, content] of preserved) expect(readFileSync(join(f.consumer, path), "utf8")).toBe(content);

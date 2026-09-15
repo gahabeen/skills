@@ -35,7 +35,8 @@ function typedCoverage(stderr, gaps) {
   return { programs, log: stderr };
 }
 
-export function oxlint(project, directory, prepared) {
+/** Collect all required lint rules and backend coverage evidence. */
+export async function oxlint(project, directory, prepared) {
   const configPath = resolve(directory, "oxlint.json");
   const config = {
     ...(project.settings.oxlintConfig ? { extends: [resolve(project.root, project.settings.oxlintConfig)] } : {}),
@@ -58,7 +59,7 @@ export function oxlint(project, directory, prepared) {
   const groups = prepared.configs.length ? prepared.configs : [{ files: project.files, path: null }];
   for (const group of groups) {
     try {
-      const result = run(bin("oxlint", "oxlint"), ["--config", configPath, "--no-ignore", "--disable-nested-config", "--deny-warnings", "--threads", "1",
+      const result = await run(bin("oxlint", "oxlint"), ["--config", configPath, "--no-ignore", "--disable-nested-config", "--deny-warnings", "--threads", "1",
         "--format", "json", ...(group.path ? ["--type-aware", "--type-check", "--tsconfig", group.path] : []), ...group.files], project.root,
         group.path ? { OXC_LOG: "debug", OXLINT_TSGOLINT_PATH: resolveTool(`@oxlint-tsgolint/${process.platform}-${process.arch}/tsgolint${process.platform === "win32" ? ".exe" : ""}`, project.root) } : {});
       const output = parseOutput(result, "Oxlint");

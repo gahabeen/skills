@@ -1,11 +1,12 @@
 import { completed, finding, bin, run } from "./runtime.mjs";
 
-export function typescript(project, prepared) {
+/** Check strict compiler contracts while retaining per-project failures. */
+export async function typescript(project, prepared) {
   const findings = [];
   const gaps = [...prepared.gaps];
   for (const config of prepared.configs) {
     try {
-      const result = run(bin("typescript-check", "tsc"), ["--project", config.path, "--pretty", "false"], project.root);
+      const result = await run(bin("typescript-check", "tsc"), ["--project", config.path, "--pretty", "false"], project.root);
       const diagnostics = (result.stdout + result.stderr).split(/\r?\n/);
       let current;
       const start = findings.length;

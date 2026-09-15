@@ -52,6 +52,14 @@ testability judgments use the [contextual review workflow](effects-and-testabili
 
 ## Source scope and project metadata
 
+Analyzer subprocesses capture stdout and stderr through temporary files in the
+configured storage. This avoids incomplete native CLI output under Bun pipe
+capture. Each stream has a 32 MiB acceptance limit, checked every 10 ms and again
+before reading; disk usage can briefly exceed it between checks. A two-minute
+command deadline and worker cancellation terminate the subprocess group and
+release capture files. Workers retain their five-minute deadline and 32 MiB
+report limit. Invalid JSON reports byte counts and bounded head/tail evidence.
+
 By default, discover JS/TS source and `tsconfig*.json`/`jsconfig*.json` projects
 under the repository. Common dependency, generated-output, and installed-agent
 directories are excluded; the report lists those exclusions. The installed skill

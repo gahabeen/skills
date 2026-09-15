@@ -23,7 +23,7 @@ export async function dependencies(project, directory) {
   const policy = dependencyPolicy(config, project);
   const path = resolve(directory, "dependencies.json");
   writeFileSync(path, JSON.stringify(policy));
-  const result = run(bin("dependency-cruiser", "depcruise"), ["--config", path, "--output-type", "json", ...project.files], project.root);
+  const result = await run(bin("dependency-cruiser", "depcruise"), ["--config", path, "--output-type", "json", ...project.files], project.root);
   const data = parseOutput(result, "Dependency-cruiser");
   if (!Array.isArray(data.summary?.violations)) throw new Error("Dependency-cruiser result is missing violations.");
   const findings = data.summary.violations.map((item) => finding("dependency-cruiser", item.rule.name, item.from,

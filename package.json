@@ -21,7 +21,7 @@
     "eval:510": "bun scripts/evaluate-510.mjs",
     "test:rules": "node --import ./scripts/test-setup.mjs --test 'src/blindfolded/oxlint/**/*.test.ts'",
     "test:install": "bun test tests/install.test.mjs",
-    "test:analysis": "bun test tests/analysis.test.mjs",
+    "test:analysis": "bun test tests/analysis.test.mjs tests/analyzer-runtime.test.mjs",
     "setup:analysis": "bun run init",
     "analyze": "bun run 510 analyze",
     "typecheck": "bun --bun tsc --noEmit",

@@ -82,7 +82,7 @@ export async function knip(project, directory) {
   const path = resolve(directory, "knip.json");
   writeFileSync(path, JSON.stringify(config));
   const workspaces = await scopeWorkspaces(project, config, path);
-  const result = run(bin("knip", "knip"), ["--config", path, "--no-progress", "--reporter", fileURLToPath(new URL("knip-reporter.mjs", import.meta.url)), "--treat-config-hints-as-errors", "--treat-tag-hints-as-errors",
+  const result = await run(bin("knip", "knip"), ["--config", path, "--no-progress", "--reporter", fileURLToPath(new URL("knip-reporter.mjs", import.meta.url)), "--treat-config-hints-as-errors", "--treat-tag-hints-as-errors",
     ...workspaces.flatMap((workspace) => ["--workspace", workspace === "." ? "." : `./${workspace}`])], project.root);
   const data = parseOutput(result, "Knip");
   const findings = knipFindings(data);

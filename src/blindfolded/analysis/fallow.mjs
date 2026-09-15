@@ -57,7 +57,8 @@ function cloneFinding(group, source, project) {
   });
 }
 
-export function fallow(project, directory) {
+/** Compare selected sources and retain discovery and parser coverage failures. */
+export async function fallow(project, directory) {
   const source = snapshot(project, directory);
   const gaps = [];
   const findings = [];
@@ -68,16 +69,16 @@ export function fallow(project, directory) {
   environment.FALLOW_TELEMETRY_DISABLED = "1";
   const common = ["--root", source.root, "--config", source.config, "--format", "json", "--quiet", "--no-cache",
     "--no-type-aware", "--no-production", "--max-file-size", "0", "--threads", "1"];
-  function inspect(args, consume) {
+  async function inspect(args, consume) {
     try {
-      const result = run(executable, [...args, ...common], source.root, environment);
+      const result = await run(executable, [...args, ...common], source.root, environment);
       if (result.status !== 0) gaps.push(`Fallow ${args[0]} exited ${result.status}.`);
       if (result.stderr.trim()) gaps.push(result.stderr.trim());
       consume(parseOutput(result, `Fallow ${args[0]}`));
     } catch (error) { gaps.push(error.message); }
   }
   let discoveredFileCount;
-  inspect(["list", "--files"], (data) => {
+  await inspect(["list", "--files"], (data) => {
     if (!Array.isArray(data.files) || data.file_count !== source.files.size || data.files.length !== source.files.size
       || new Set(data.files).size !== source.files.size || data.files.some((file) => !source.files.has(file))) {
       throw new Error("Fallow did not discover every selected source file.");
@@ -87,7 +88,7 @@ export function fallow(project, directory) {
   let parsedFileCount;
   // Dupes alone omits parser failures. Health supplies parser diagnostics, not
   // graph or complexity findings: snapshot imports have no project semantics.
-  inspect(["health", "--complexity"], (data) => {
+  await inspect(["health", "--complexity"], (data) => {
     envelope(data, "health", 11);
     parsedFileCount = data.summary?.files_analyzed;
     if (parsedFileCount !== source.files.size) gaps.push("Fallow parser coverage does not match the selected source files.");
@@ -97,7 +98,7 @@ export function fallow(project, directory) {
     }
   });
   let statistics;
-  inspect(["dupes", "--no-fragments"], (data) => {
+  await inspect(["dupes", "--no-fragments"], (data) => {
     envelope(data, "dupes", 10);
     if (!Array.isArray(data.clone_groups) || !data.stats) throw new Error("Fallow result is missing clone groups or statistics.");
     statistics = data.stats;
