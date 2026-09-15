@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { bin, parseOutput, run } from "../src/blindfolded/analysis/runtime.mjs";
 import { storageFor } from "../src/runtime/storage.mjs";
+import { typedCoverage } from "../src/blindfolded/analysis/typed-coverage.mjs";
 
 const temporary = [];
 afterEach(() => { for (const directory of temporary.splice(0)) rmSync(directory, { recursive: true, force: true }); });
@@ -107,4 +108,26 @@ await run(${JSON.stringify(f.command)}, [], ${JSON.stringify(f.root)});`);
     await Bun.sleep(800);
     expect(existsSync(resolve(f.root, "leaked"))).toBe(false);
   } finally { child.kill("SIGKILL"); }
+});
+
+test("typed coverage rejects missing, duplicated, and contradictory assignment evidence", () => {
+  const project = { root: "/project" };
+  const group = { files: ["/project/index.ts"], path: "/temporary/review.json", base: "tsconfig.review.json" };
+  const assigned = "Got tsconfig for file /project/index.ts: /project/tsconfig.json";
+  const summary = "Done assigning files to programs. Total programs: 1. Unmatched files: 0";
+  const program = "  Program /project/tsconfig.json: 1 files";
+  const log = lines => lines.map(line => `2026/09/15 12:00:00.000000 ${line}`).join("\n");
+  const valid = [];
+  const coverage = typedCoverage(log([assigned, summary, program]), project, group, valid);
+  expect(valid).toEqual([]);
+  expect(coverage.selection).toBe("backend-discovery");
+  expect(coverage.requestedConfiguration).toBe(group.path);
+  for (const lines of [[], [summary, program], [assigned, assigned, summary, program],
+    [assigned, summary, program.replace("1 files", "2 files")],
+    [assigned, summary, program.replace("tsconfig.json", "wrong.json")],
+    [assigned.replace("index.ts", "other.ts"), summary, program]]) {
+    const gaps = [];
+    typedCoverage(log(lines), project, group, gaps);
+    expect(gaps.length).toBeGreaterThan(0);
+  }
 });

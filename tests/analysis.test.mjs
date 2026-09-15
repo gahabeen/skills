@@ -218,6 +218,40 @@ export const options: { value?: number } = { value: undefined };
   expect(report.analyzers.find((item) => item.tool === "typescript").configuration[0].compilerOptions.noUncheckedIndexedAccess).toBe(true);
 }, 30_000);
 
+test("typed coverage identifies the actual app project and every file omitted from a strict review profile", () => {
+  const f = fixture();
+  mkdirSync(join(f.consumer, "tests"));
+  mkdirSync(join(f.consumer, "scripts"));
+  const application = JSON.stringify({ compilerOptions: { target: "esnext", module: "nodenext", strict: false }, include: ["src"] });
+  writeFileSync(join(f.consumer, "tsconfig.json"), application);
+  const review = JSON.stringify({ extends: "./tsconfig.json", compilerOptions: { strict: true, allowJs: true, checkJs: true }, include: ["src", "tests", "scripts"] });
+  writeFileSync(join(f.consumer, "tsconfig.review.json"), review);
+  writeFileSync(join(f.consumer, ".blindfolded.json"), JSON.stringify({ paths: ["src", "tests", "scripts"], projects: ["tsconfig.review.json"] }));
+  writeFileSync(join(f.consumer, "src/index.ts"), "export function describe(value: 'a' | 'b') { switch (value) { case 'a': return 1; } }\n");
+  writeFileSync(join(f.consumer, "tests/example.test.ts"), "export function runTest() { Promise.resolve(42); }\n");
+  writeFileSync(join(f.consumer, "scripts/tool.js"), "export function runTool() { Promise.resolve(42); }\n");
+  const report = run(f);
+  const compiler = report.analyzers.find(item => item.tool === "typescript");
+  expect(compiler.gaps).toEqual([]);
+  const lint = report.analyzers.find(item => item.tool === "oxlint");
+  expect(lint.status).toBe("incomplete");
+  const coverage = lint.scope.typedCoverage[0];
+  expect(coverage.requestedProject).toBe("tsconfig.review.json");
+  expect(coverage.assignments).toEqual(expect.arrayContaining([
+    { file: join(report.root, "src/index.ts"), configuration: join(report.root, "tsconfig.json") },
+    { file: join(report.root, "tests/example.test.ts"), configuration: null },
+    { file: join(report.root, "scripts/tool.js"), configuration: null },
+  ]));
+  expect(coverage.unmatchedFiles.sort()).toEqual([join(report.root, "scripts/tool.js"), join(report.root, "tests/example.test.ts")]);
+  expect(coverage.unconfirmedFiles).toEqual([]);
+  for (const file of ["tests/example.test.ts", "scripts/tool.js"]) expect(lint.gaps.some(gap => gap.includes(file))).toBe(true);
+  expect(lint.gaps.some(gap => gap.includes("strictNullChecks"))).toBe(true);
+  expect(lint.findings.some(item => item.message.includes("strictNullChecks"))).toBe(true);
+  expect(readFileSync(join(f.consumer, "tsconfig.json"), "utf8")).toBe(application);
+  expect(readFileSync(join(f.consumer, "tsconfig.review.json"), "utf8")).toBe(review);
+  expect(report.success).toBe(false);
+}, 30_000);
+
 test("a Review finding alone fails the full analysis", () => {
   const f = fixture();
   writeFileSync(join(f.consumer, ".fiveten/config.json"), JSON.stringify({ version: 1, storage: { mode: "project" }, analysis: { paths: ["src"], thresholds: { cognitive: 1 } } }));

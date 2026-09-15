@@ -40,12 +40,26 @@ number of files discovered or parsed; the report records those counts separately
 Fallow's health command provides parser diagnostics only. The suite keeps its
 existing complexity, reachability, and dependency analyzers.
 
-The pinned Oxlint typed backend can choose the nearest application tsconfig even
-when given a dedicated config path. The separate TypeScript compiler check still
-enforces the stricter analysis profile. The suite records the backend's actual
-project assignments, fails on unmatched files, and reports a coverage gap when
-an enabled typed rule cannot run under the application's settings (for example,
-disabled strict null checks). It does not silently change application settings.
+Oxlint's `--tsconfig` controls import resolution; the pinned typed backend ignores
+it and discovers projects from source locations. There is no supported explicit
+project selector in its headless interface. See the [CLI contract](https://oxc.rs/docs/guide/usage/linter/cli.html)
+and [pinned backend implementation](https://github.com/oxc-project/tsgolint/blob/v7.0.2001/cmd/tsgolint/headless.go).
+The standalone backend CLI labels itself unsupported. Its source-override protocol
+is not an explicit compiler-project selector; 510 does not substitute compiler
+files or relocate source to coerce discovery.
+
+The separate TypeScript check enforces the strict analysis profile. Typed-lint
+scope records that requested profile separately from every actual file-to-project
+assignment. Each unmatched or unconfirmed selected file is a coverage gap, as are
+inconsistent project counts and enabled rules blocked by compiler settings such
+as disabled strict null checks. A strict review config can therefore complete
+TypeScript coverage while tests or JavaScript remain outside typed lint. All
+available findings and backend logs survive these gaps. Application settings,
+source identities, declarations, and import resolution stay intact.
+
+Policy `510-typed-coverage-2` requires per-file assignment evidence. Reports from
+older policies are not comparable as successful baselines; unchanged finding
+fingerprints do not establish equivalent coverage or compiler settings.
 
 CodeQL and runtime analysis are outside this version. Effect descriptions and
 testability judgments use the [contextual review workflow](effects-and-testability.md).
