@@ -72,9 +72,11 @@ export async function fallow(project, directory) {
   async function inspect(args, consume) {
     try {
       const result = await run(executable, [...args, ...common], source.root, environment);
-      if (result.status !== 0) gaps.push(`Fallow ${args[0]} exited ${result.status}.`);
+      const healthFindingExit = args[0] === "health" && result.status === 1;
+      if (result.status !== 0 && !healthFindingExit) gaps.push(`Fallow ${args[0]} exited ${result.status}.`);
       if (result.stderr.trim()) gaps.push(result.stderr.trim());
-      consume(parseOutput(result, `Fallow ${args[0]}`));
+      const explained = consume(parseOutput(result, `Fallow ${args[0]}`), result.status);
+      if (healthFindingExit && !explained) gaps.push("Fallow health exited 1 without threshold findings explaining the exit.");
     } catch (error) { gaps.push(error.message); }
   }
   let discoveredFileCount;
@@ -86,16 +88,27 @@ export async function fallow(project, directory) {
     discoveredFileCount = data.file_count;
   });
   let parsedFileCount;
+  let health;
   // Dupes alone omits parser failures. Health supplies parser diagnostics, not
   // graph or complexity findings: snapshot imports have no project semantics.
-  await inspect(["health", "--complexity"], (data) => {
+  await inspect(["health", "--complexity"], (data, exitCode) => {
     envelope(data, "health", 11);
+    if (!Array.isArray(data.findings) || !Number.isInteger(data.summary?.functions_above_threshold)
+      || data.summary.functions_above_threshold !== data.findings.length
+      || !Number.isInteger(data.summary.functions_analyzed) || data.summary.functions_analyzed < data.findings.length
+      || (data.large_functions !== undefined && !Array.isArray(data.large_functions))) {
+      throw new Error("Fallow health result has incomplete threshold findings or counts.");
+    }
+    health = { exitCode, thresholdFindings: data.findings.length, largeFunctionFindings: data.large_functions?.length ?? 0 };
     parsedFileCount = data.summary?.files_analyzed;
     if (parsedFileCount !== source.files.size) gaps.push("Fallow parser coverage does not match the selected source files.");
     for (const diagnostic of data.workspace_diagnostics ?? []) {
       const file = source.files.get(diagnostic.path) ?? diagnostic.path;
       gaps.push(`${file}: ${diagnostic.kind}: ${diagnostic.message}`);
     }
+    // Pinned Fallow: exit 1 denotes findings, not an execution error. This
+    // command uses health only for parsing; Oxlint/SonarJS own complexity policy.
+    return health.thresholdFindings > 0 || health.largeFunctionFindings > 0;
   });
   let statistics;
   await inspect(["dupes", "--no-fragments"], (data) => {
@@ -113,6 +126,6 @@ export async function fallow(project, directory) {
     for (const diagnostic of data.workspace_diagnostics ?? []) gaps.push(`${diagnostic.kind}: ${diagnostic.message}`);
   });
   return completed(findings, { status: gaps.length ? "incomplete" : "completed", gaps, configuration: source.configuration,
-    scope: { selectedFiles: project.files, discoveredFileCount, parsedFileCount,
+    scope: { selectedFiles: project.files, discoveredFileCount, parsedFileCount, health,
       eligibleFileCount: statistics?.total_files, comparison: "selected-files-only" }, statistics });
 }

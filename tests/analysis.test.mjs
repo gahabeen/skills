@@ -467,6 +467,68 @@ test("Fallow parser failures block completion and retain duplicate findings", ()
   expect(report.success).toBe(false);
 }, 30_000);
 
+test("Fallow health threshold exits preserve complete parser coverage and blocking complexity findings", () => {
+  const f = fixture();
+  duplicateSources(f);
+  writeFileSync(join(f.consumer, "src/complex.ts"), `export function score(value: number) {\n${Array.from({ length: 25 }, (_, index) => `  if (value === ${index}) return ${index};`).join("\n")}\n  return -1;\n}\n`);
+  const report = run(f);
+  const result = report.analyzers.find(item => item.tool === "fallow");
+  expect(result.gaps).toEqual([]);
+  expect(result.status).toBe("completed");
+  expect(result.scope.parsedFileCount).toBe(5);
+  expect(result.scope.health.exitCode).toBe(1);
+  expect(result.scope.health.thresholdFindings).toBeGreaterThan(0);
+  expect(result.findings.some(item => item.rule === "duplicate-code")).toBe(true);
+  expect(report.findings.some(item => item.rule === "eslint(complexity)" && item.classification === "Review")).toBe(true);
+  expect(report.findings.some(item => item.rule === "sonarjs/cognitive-complexity" && item.classification === "Review")).toBe(true);
+  expect(report.success).toBe(false);
+}, 30_000);
+
+test("Fallow validates health finding exits without hiding malformed, incomplete, or failed reports", () => {
+  const f = fixture({ missingFallow: true });
+  writeFileSync(join(f.consumer, "src/copy.ts"), "export const copy = 1;\n");
+  const executable = join(f.storage.toolchain, "node_modules/fallow");
+  mkdirSync(executable);
+  writeFileSync(join(executable, "package.json"), JSON.stringify({ name: "fallow", version: "3.24.1", bin: { fallow: "cli.mjs" } }));
+  const healthy = { kind: "health", schema_version: 11, version: "3.24.1", findings: [{ path: "source-0.ts", line: 1 }],
+    summary: { files_analyzed: 2, functions_analyzed: 1, functions_above_threshold: 1 }, large_functions: [] };
+  const clones = { kind: "dupes", schema_version: 10, version: "3.24.1", stats: { clone_groups: 1, total_files: 2 },
+    clone_groups_shown: 1, clone_groups_omitted: 0, clone_families_omitted: 0,
+    clone_groups: [{ token_count: 50, line_count: 5, instances: [0, 1].map(index => ({ file: `source-${index}.ts`, start_line: 1, end_line: 5, start_col: 0, end_col: 1 })) }] };
+  const cases = [
+    { health: healthy, status: 1, gap: null },
+    { health: { ...healthy, findings: [], summary: { ...healthy.summary, functions_above_threshold: 0 } }, status: 0, gap: null },
+    { health: { ...healthy, findings: [], summary: { ...healthy.summary, functions_above_threshold: 0 } }, status: 1, gap: "without threshold findings" },
+    { health: healthy, status: 2, gap: "health exited 2" },
+    { health: { ...healthy, schema_version: 10 }, status: 1, gap: "Unsupported Fallow health" },
+    { health: { ...healthy, version: "0.0.0" }, status: 1, gap: "Unsupported Fallow health" },
+    { health: { ...healthy, summary: { ...healthy.summary, files_analyzed: 1 } }, status: 1, gap: "parser coverage" },
+    { health: { ...healthy, summary: { ...healthy.summary, functions_above_threshold: 2 } }, status: 1, gap: "incomplete threshold" },
+    { health: { ...healthy, workspace_diagnostics: [{ path: "source-0.ts", kind: "source-parse-degraded", message: "bad source" }] }, status: 1, gap: "src/copy.ts: source-parse-degraded" },
+    { health: healthy, status: 1, raw: '{"broken":', gap: "did not return valid results" },
+    { health: healthy, status: 1, stderr: "execution warning", gap: "execution warning" },
+    { health: healthy, status: 1, omitted: 1, gap: "every clone group" },
+  ];
+  for (const item of cases) {
+    const payloads = { list: { status: 0, data: { files: ["source-0.ts", "source-1.ts"], file_count: 2 } },
+      health: { data: item.health, status: item.status, raw: item.raw, stderr: item.stderr },
+      dupes: { status: 0, data: { ...clones, clone_groups_omitted: item.omitted ?? 0 } } };
+    writeFileSync(join(executable, "cli.mjs"), `import { writeSync } from "node:fs"; const item = ${JSON.stringify(payloads)}[process.argv[2]]; writeSync(1, item.raw ?? JSON.stringify(item.data)); writeSync(2, item.stderr ?? ""); process.exit(item.status);`);
+    const report = run(f);
+    const result = report.analyzers.find(analyzer => analyzer.tool === "fallow");
+    expect(result.findings).toHaveLength(1);
+    expect(result.findings[0].relatedLocations).toHaveLength(2);
+    if (item.gap) {
+      expect(result.status).toBe("incomplete");
+      expect(result.gaps.some(gap => gap.includes(item.gap)), JSON.stringify(result.gaps)).toBe(true);
+    } else {
+      expect(result.status).toBe("completed");
+      expect(result.gaps).toEqual([]);
+    }
+    expect(report.success).toBe(false);
+  }
+}, 30_000);
+
 test("missing Fallow fails the suite and retains the other analyzers' evidence", () => {
   const f = fixture({ missingFallow: true });
   writeFileSync(join(f.consumer, "src/index.ts"), "export function start() { Promise.resolve(42); }\n");

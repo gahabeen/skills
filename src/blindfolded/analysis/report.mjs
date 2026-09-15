@@ -9,7 +9,7 @@ export function finalize(project, analyzers, directory) {
   const findings = analyzers.flatMap((analyzer) => analyzer.findings);
   const gaps = analyzers.flatMap((analyzer) => analyzer.gaps.map((message) => ({ tool: analyzer.tool, message })));
   const identityVersion = identifyFindings(project.root, findings);
-  return { schemaVersion: 2, identityVersion, policyVersion: "510-typed-coverage-2", configurationId: configurationIdentity(project, analyzers, directory), root: project.root, success: findings.length === 0 && gaps.length === 0 && analyzers.every((item) => item.status === "completed"),
+  return { schemaVersion: 2, identityVersion, policyVersion: "510-analyzer-coverage-3", configurationId: configurationIdentity(project, analyzers, directory), root: project.root, success: findings.length === 0 && gaps.length === 0 && analyzers.every((item) => item.status === "completed"),
     scope: project.scope, files: project.files, thresholds: project.thresholds, analyzers, findings, gaps,
     limitations: ["Source analysis does not prove whole-program purity or correctness.",
       "Effect and testability judgments require the skill's contextual review workflow.",

@@ -39,6 +39,12 @@ describe files eligible under the token and line minimums. They are not the
 number of files discovered or parsed; the report records those counts separately.
 Fallow's health command provides parser diagnostics only. The suite keeps its
 existing complexity, reachability, and dependency analyzers.
+For pinned Fallow 3.24.1 (health schema 11, dupes schema 10), health exit 1 is
+accepted only when the validated report contains threshold findings explaining
+that exit. Scope records the exit and finding counts. Parser diagnostics,
+incomplete counts, malformed envelopes, unsupported schemas, unexplained exits,
+execution errors, and omitted clones still fail. Clone Review findings and all
+their locations remain blocking, including when health cannot complete.
 
 Oxlint's `--tsconfig` controls import resolution; the pinned typed backend ignores
 it and discovers projects from source locations. There is no supported explicit
@@ -57,7 +63,8 @@ TypeScript coverage while tests or JavaScript remain outside typed lint. All
 available findings and backend logs survive these gaps. Application settings,
 source identities, declarations, and import resolution stay intact.
 
-Policy `510-typed-coverage-2` requires per-file assignment evidence. Reports from
+Policy `510-analyzer-coverage-3` requires per-file assignment evidence and validates
+Fallow health finding exits. Reports from
 older policies are not comparable as successful baselines; unchanged finding
 fingerprints do not establish equivalent coverage or compiler settings.
 
