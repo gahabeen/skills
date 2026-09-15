@@ -57,8 +57,8 @@ Paths below are relative to that pinned upstream revision:
   Selection, scope preservation, TDD, Standards/Spec review, and local commit
   requirements remain. References are loaded at the phase that needs them.
 
-- Added `510 explain`, inspired by the `zoom-out` skill installed in the Qpaws
-  project and attributed there to Matt Pocock's skills. That installed copy was
+- Added `510 explain`, inspired by the `zoom-out` skill installed and 
+  attributed there to Matt Pocock's skills. That installed copy was
   inspected on 2026-09-11; it is not asserted to belong to the pinned revision
   above. The independently written guide adds source evidence, a representative
   flow, explicit uncertainty, read-only boundaries, and no-init operation.
